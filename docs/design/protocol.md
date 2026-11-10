@@ -112,43 +112,16 @@ Web owner 在 `POST /api/credentials` 提交 `{name, deviceIds, expiresAt}`，�
 
 ## HTTP 接口
 
-“检查”列中，“登录”指有效的 owner Cookie 或设备操作 Bearer token，“owner”仅指有效的 owner Cookie，“Origin”指上一节的 Origin 检查，“版本”指 `appVersion` 查询参数必须与 server 相同。
+`packages/server/src/app.ts` 先按路径分流：`/proxy/`、`/absproxy/` 进入开发服务代理；安装资源、`GET /healthz`（返回 `{status, version}`）和 `POST /api/agent/bind` 由它直接处理；其余 `/api/` 交给 `packages/server/src/api.ts`；其他路径是工作台静态文件。`api.ts` 的 `matchApi` 按方法和路径为每条路由声明 `identity`（`public`、`password`、`login`、`owner`）、`version`（`required`、`recovery`）和 `body`（`json`、`none`），路径带设备 ID 的路由还声明 `rawDeviceId`。各路由的检查以这些声明为准，所有路由共同遵守以下规则：
 
-| 方法   | 路径                                         | 用途                     | 检查                |
-| ------ | -------------------------------------------- | ------------------------ | ------------------- |
-| GET    | `/healthz`                                   | 返回 `{status, version}` | 无                  |
-| GET    | `/connect.sh` 等脚本                         | 接入、安装、升级脚本     | 无                  |
-| GET    | `/downloads/agent/<版本>/<文件名>`           | agent 发布包和 `.sha256` | 无                  |
-| POST   | `/api/agent/bind`                            | 用绑定码换取设备凭据     | 尝试次数            |
-| GET    | `/api/bootstrap`                             | 是否已经初始化           | 无                  |
-| POST   | `/api/setup`、`/api/login`                   | 初始化拥有者、登录       | Origin、尝试次数    |
-| GET    | `/api/session`                               | 当前登录的到期时间       | 登录                |
-| POST   | `/api/logout`                                | 退出当前登录             | 登录、Origin        |
-| GET    | `/api/devices`                               | 设备列表                 | 登录                |
-| GET    | `/api/agent/upgrade-command`                 | 各平台的 agent 升级命令  | owner               |
-| GET    | `/api/credentials`                           | 凭据摘要列表             | owner、版本         |
-| POST   | `/api/credentials`                           | 签发设备操作凭据         | owner、Origin、版本 |
-| DELETE | `/api/credentials/:id`                       | 撤销设备操作凭据         | owner、Origin、版本 |
-| GET    | `/api/tasks`                                 | 定时任务摘要             | 登录、版本          |
-| POST   | `/api/bindings`                              | 生成绑定码和接入命令     | owner、Origin、版本 |
-| GET    | `/api/bindings/:bindingId`                   | 绑定状态                 | owner、版本         |
-| PATCH  | `/api/devices/:deviceId`                     | 修改设备名称             | owner、Origin、版本 |
-| DELETE | `/api/devices/:deviceId`                     | 删除设备                 | owner、Origin、版本 |
-| POST   | `/api/devices/:deviceId/rpc`                 | 调用 RPC                 | 登录、Origin、版本  |
-| POST   | `/api/devices/:deviceId/notices/activate`    | 激活终端并清除已有报告   | 登录、Origin、版本  |
-| DELETE | `/api/devices/:deviceId/requests/:requestId` | 取消进行中的 RPC         | 登录、Origin、版本  |
-| POST   | `/api/devices/:deviceId/channels`            | 建立数据通道             | 登录、Origin、版本  |
-| GET    | `/api/devices/:deviceId/download`            | 下载文件                 | 登录、版本          |
-| GET    | `/api/channels/:channelId/content`           | 接收 `file.read` 的内容  | 登录、版本          |
-| PUT    | `/api/channels/:channelId/content`           | 发送 `file.write` 的内容 | 登录、Origin、版本  |
-| DELETE | `/api/channels/:channelId`                   | 取消数据通道             | 登录、Origin、版本  |
-| 任意   | `/proxy/…`、`/absproxy/…`                    | 开发服务代理             | 见下文              |
-| GET    | 其他路径                                     | 工作台静态文件           | 无                  |
-
-- 脚本为 `/connect.sh`、`/connect.ps1`、`/upgrade.sh`、`/upgrade.ps1`（按本次入口和当前版本生成）和 `/install.sh`、`/install.ps1`。安装资源和静态文件接受 GET 和 HEAD，其他方法返回 405 和 `Allow: GET, HEAD`。
-- `/api/tasks` 可用 `deviceId` 查询参数筛选；下载用 `workspaceId` 和 `path` 查询参数指定文件。
+- **免登录**：`GET /api/bootstrap`，`POST /api/setup` 与 `POST /api/login`（按[尝试次数限制](#尝试次数限制)计数），以及 `api.ts` 之外的 `/healthz`、`POST /api/agent/bind`、安装资源和静态文件。
+- **准入顺序**：`api.ts` 对非 GET、非 HEAD 请求先做 Origin 检查，再匹配路由；需要登录的路由依次检查登录、版本、设备范围和 owner。“登录”指有效的 owner Cookie 或设备操作 Bearer token，“owner”仅指有效的 owner Cookie。JSON 请求体读完后，server 再次确认仍是同一登录，否则返回 401。
+- **版本**：`GET /api/session`、`POST /api/logout`、`GET /api/devices`、`GET /api/agent/upgrade-command` 声明为 `recovery`，不检查版本，供登录和升级引导使用。其余需要登录的路由要求 `appVersion` 查询参数与 server 相同。
+- **设备范围**：路径带 `:deviceId` 的路由统一检查凭据是否包含该设备。`/api/channels/:channelId` 下的路由只接受发起通道的同一登录，其他登录的通道按不存在处理。只开放给 owner 的操作见[设备操作凭据](#设备操作凭据)。
+- 安装资源为脚本 `/connect.sh`、`/connect.ps1`、`/upgrade.sh`、`/upgrade.ps1`（按本次入口和当前版本生成）和 `/install.sh`、`/install.ps1`，以及 `/downloads/agent/<版本>/<文件名>` 下的 agent 发布包和 `.sha256`。安装资源和静态文件接受 GET 和 HEAD，其他方法返回 405 和 `Allow: GET, HEAD`。
+- `/api/tasks` 可用 `deviceId` 查询参数筛选，该设备同样受设备范围检查；下载用 `workspaceId` 和 `path` 查询参数指定文件。
 - 开发服务代理要求登录，非 GET、非 HEAD 请求和升级还要通过 Origin 检查，不检查版本。路径格式为 `/proxy/:deviceId/:port/…` 和 `/absproxy/:deviceId/:port/…`，见[开发服务访问](http-access.md)。
-- 通过 Origin、登录和版本检查后，其他 `/api/` 路径返回 404。
+- 未匹配的 `/api/` 方法或路径按需要登录和版本处理：通过 Origin、登录和版本检查后返回 404。
 
 **响应**：`/api/` 返回 JSON 和 `Cache-Control: no-store`，错误响应为 `{error: {code, message, details?}}`，状态码见[错误码](#错误码)。`POST …/rpc` 和 `PUT …/content` 在请求到达 agent 后总是以 HTTP 200 返回 `Reply`，非 2xx 响应表示 server 在转发前拒绝了请求。响应已经开始发送后出错时，server 断开连接，不追加 JSON。非预期的内部异常返回 500 和 `io_error`（`Internal server error`），详细信息只写入 server 日志。
 
