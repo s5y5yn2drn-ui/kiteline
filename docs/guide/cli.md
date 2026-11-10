@@ -25,7 +25,7 @@ export PATH="$PWD/$name/bin:$PATH"
 kiteline --version
 ```
 
-`PATH` 设置只对当前终端生效；新终端中重新设置，或使用解包目录中的完整路径。保留整个包目录，入口依赖包内的 runtime。macOS 上用浏览器下载的归档被系统隔离时，按[手工安装](devices.md#手工安装)中的方法移除隔离属性。
+`PATH` 设置只对当前终端生效；新终端中重新设置，或使用解包目录中的完整路径。保留整个包目录，入口依赖包内的 runtime。macOS 上用浏览器下载的归档被系统隔离时，按[手工安装](devices-advanced.md#手工安装)中的方法移除隔离属性。
 
 ### Windows
 

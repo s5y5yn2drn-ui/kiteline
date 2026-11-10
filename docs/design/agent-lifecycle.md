@@ -107,7 +107,7 @@ Windows 的 `uninstall --purge` 可能在移除 PATH 或删除部分数据之后
 - 地址必须是 `http:` 或 `https:` URL，只保存其 origin。绑定码从终端提示读取，或从标准输入读取。
 - 整个命令持有状态锁，agent 正在运行时绑定会失败。
 - 带 `--if-unbound` 时，在状态锁内检查 `connection.json`；已存在则拒绝并保留原身份。网页生成的接入命令和仅绑定命令都使用这个选项。不带此选项时会覆盖原有身份。
-- 绑定请求 `POST /api/agent/bind` 经环境代理发送（见[接入设备](../guide/devices.md#出站代理与证书)）。网络失败或没有收到应答时报告绑定结果未知；server 返回错误时报告该错误。
+- 绑定请求 `POST /api/agent/bind` 经环境代理发送（见[接入设备](../guide/devices-advanced.md#出站代理与证书)）。网络失败或没有收到应答时报告绑定结果未知；server 返回错误时报告该错误。
 - 成功后以原子替换写入 `connection.json`（`deviceId`、`deviceToken`、`server`，权限 `0600`）。写入失败时提示该设备已登记但凭据未保存。两种情况的处理见[重新绑定](../guide/devices.md#重新绑定)。
 
 保存的 server 地址只由 `bind` 写入。升级、在其他入口打开网页或从其他地址下载发布包都不会改写它。

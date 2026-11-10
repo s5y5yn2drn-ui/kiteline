@@ -16,7 +16,7 @@ server 用路径代理把浏览器请求转给设备上监听本机端口的开�
 
 工作台的端口入口和终端本地 HTTP 链接由 `packages/web/src/lib/device-service.ts` 转换为设备代理链接；接受的本地主机形式及前缀处理以 `deviceServiceLink()` 为准。
 
-agent 只连接自己网络命名空间里的回环地址：先连 `127.0.0.1:<port>`，这次连接在建立前失败时再试一次 `[::1]:<port>`，不查询 DNS（`packages/agent/src/http/channels.ts`）。同一端口上 IPv4 和 IPv6 是两个不同程序时，代理总是到达 IPv4 那一个。监听 `0.0.0.0` 或 `::` 的服务可以通过回环地址到达；只监听其他网卡地址的服务到达不了。容器内 agent 能到达的范围见[在容器中运行](../guide/devices.md#在容器中运行)。
+agent 只连接自己网络命名空间里的回环地址：先连 `127.0.0.1:<port>`，这次连接在建立前失败时再试一次 `[::1]:<port>`，不查询 DNS（`packages/agent/src/http/channels.ts`）。同一端口上 IPv4 和 IPv6 是两个不同程序时，代理总是到达 IPv4 那一个。监听 `0.0.0.0` 或 `::` 的服务可以通过回环地址到达；只监听其他网卡地址的服务到达不了。容器内 agent 能到达的范围见[在容器中运行](../guide/devices-advanced.md#在容器中运行)。
 
 ## 请求转发
 

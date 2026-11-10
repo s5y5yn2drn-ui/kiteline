@@ -62,7 +62,7 @@ Linux 和 macOS 的命令入口是 `/usr/local/bin/kiteline-agent`；用 `sudo` 
 
 ### 安装与维护
 
-安装、升级和卸载的步骤、前提及数据影响分别见[手工安装](devices.md#手工安装)、[升级 agent](devices.md#升级-agent)和[卸载](devices.md#卸载)。
+安装、升级和卸载的步骤、前提及数据影响分别见[手工安装](devices-advanced.md#手工安装)、[升级 agent](devices.md#升级-agent)和[卸载](devices.md#卸载)。
 
 ### 绑定与运行
 
@@ -137,13 +137,13 @@ KITELINE_AGENT_RUN_DIR="/srv/kiteline/run"
 
 ### 其他变量
 
-| 变量                                                            | 作用                                                                                                                |
-| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `HTTPS_PROXY`、`HTTP_PROXY`、`ALL_PROXY`、`NO_PROXY` 及小写形式 | agent 连接 server 时使用的出站代理，见[出站代理与证书](devices.md#出站代理与证书)                                   |
-| `NODE_EXTRA_CA_CERTS`                                           | server 使用私有 CA 签发的证书时，指定 CA 证书文件（仅 Linux、macOS），见[出站代理与证书](devices.md#出站代理与证书) |
-| `LANG`、`LC_ALL`、`LC_CTYPE`                                    | `check` 和 `doctor` 要求字符集为 UTF-8                                                                              |
-| `PATH`                                                          | agent 从中查找 Git、SSH 和 Windows 的 `pwsh.exe`                                                                    |
-| `SSH_AUTH_SOCK`                                                 | Linux、macOS 上的 `doctor` 检查它指向可访问的 socket；Git 通过它使用 SSH agent                                      |
+| 变量                                                            | 作用                                                                                                                         |
+| --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `HTTPS_PROXY`、`HTTP_PROXY`、`ALL_PROXY`、`NO_PROXY` 及小写形式 | agent 连接 server 时使用的出站代理，见[出站代理与证书](devices-advanced.md#出站代理与证书)                                   |
+| `NODE_EXTRA_CA_CERTS`                                           | server 使用私有 CA 签发的证书时，指定 CA 证书文件（仅 Linux、macOS），见[出站代理与证书](devices-advanced.md#出站代理与证书) |
+| `LANG`、`LC_ALL`、`LC_CTYPE`                                    | `check` 和 `doctor` 要求字符集为 UTF-8                                                                                       |
+| `PATH`                                                          | agent 从中查找 Git、SSH 和 Windows 的 `pwsh.exe`                                                                             |
+| `SSH_AUTH_SOCK`                                                 | Linux、macOS 上的 `doctor` 检查它指向可访问的 socket；Git 通过它使用 SSH agent                                               |
 
 终端会话和定时任务继承 agent 进程的环境。修改环境后需要重启 agent 才生效。
 
@@ -384,7 +384,7 @@ agent 正在运行时，`kiteline-agent doctor` 会显示 server 连接状态和
 
 agent 被强制结束或崩溃时（Windows 上包括直接关闭前台 agent 的 PowerShell 窗口），不会清理它的终端会话：
 
-- Linux 和 macOS：会话中的程序继续运行，新启动的 agent 不接管它们。使用示例 systemd 单元或以 agent 为主进程的容器（如[在容器中运行](devices.md#在容器中运行)中的示例）时，它们随 agent 一起结束；前台运行或使用 launchd 时会留下来。
+- Linux 和 macOS：会话中的程序继续运行，新启动的 agent 不接管它们。使用示例 systemd 单元或以 agent 为主进程的容器（如[在容器中运行](devices-advanced.md#在容器中运行)中的示例）时，它们随 agent 一起结束；前台运行或使用 launchd 时会留下来。
 - Windows：会话中的程序随 agent 一起结束，但会话目录留在运行目录中。其中的 `pane.json` 保存了 agent 的完整环境变量，可能含有令牌等敏感信息。
 
 清理前先确认没有 agent 在使用这个运行目录：`kiteline-agent terminal list` 报 `connect ENOENT` 或 `connect ECONNREFUSED`。

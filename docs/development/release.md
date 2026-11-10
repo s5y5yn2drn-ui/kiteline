@@ -302,7 +302,7 @@ pnpm patch-commit --patches-dir packages/web/patches EDIT_DIR
 
 ### Undici 与代理
 
-升级 Node、`undici`、`proxy-from-env` 或 `https-proxy-agent` 后，在直连、HTTP 代理和需要认证的代理下验证绑定和连接；`undici` 的 dispatcher 须兼容 Node 内置 `fetch`。实现见 [`packages/shared/src/node/network.ts`](../../packages/shared/src/node/network.ts)，配置见[出站代理与证书](../guide/devices.md#出站代理与证书)。
+升级 Node、`undici`、`proxy-from-env` 或 `https-proxy-agent` 后，在直连、HTTP 代理和需要认证的代理下验证绑定和连接；`undici` 的 dispatcher 须兼容 Node 内置 `fetch`。实现见 [`packages/shared/src/node/network.ts`](../../packages/shared/src/node/network.ts)，配置见[出站代理与证书](../guide/devices-advanced.md#出站代理与证书)。
 
 `https-proxy-agent` 的现有补丁在 [`packages/agent/patches/`](../../packages/agent/patches/) 中，修复 CONNECT 后 TLS 丢失目标 host、导致可信 IP-only 证书被误按 localhost 校验的问题。升级时核对上游是否修复，据此迁移或删除补丁及 `pnpm-workspace.yaml` 的旧登记，保留可信 IP-only 目标的连接验证。
 

@@ -121,7 +121,7 @@ server 不保存文件内容、diff、终端输出、定时任务的命令和输
 | 定时任务      | Croner，Node 子进程                             | 计划在 agent 内计算，与连接无关；agent 未运行时不触发。                                      |
 | 编辑器与 diff | CodeMirror；react-diff-view、gitdiff-parser     | diff 直接显示 Git 原生 patch；gitdiff-parser 版本由 pnpm `overrides` 固定。                  |
 
-agent 的出站代理规则见[出站代理与证书](../guide/devices.md#出站代理与证书)。依赖的确切版本见各 `package.json` 和 `pnpm-lock.yaml`，随包组件（Node、tmux、ripgrep）的版本见 [release/README.md](../../release/README.md)。
+agent 的出站代理规则见[出站代理与证书](../guide/devices-advanced.md#出站代理与证书)。依赖的确切版本见各 `package.json` 和 `pnpm-lock.yaml`，随包组件（Node、tmux、ripgrep）的版本见 [release/README.md](../../release/README.md)。
 
 ## 前端约定
 
