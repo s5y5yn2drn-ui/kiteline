@@ -59,6 +59,7 @@ kiteline-agent run
 - 程序已安装但绑定失败：重新执行接入命令，不会重复安装，直接重试绑定。
 - 提示 `This installation is already bound`：这台设备已经绑定，命令不会启动 agent，直接执行 `kiteline-agent run`。
 - 提示 `A different version is installed`：先[升级 agent](#升级-agent)。
+- 提示 `… belongs to …`：这台机器已为另一个项目用户安装。用该用户执行命令，或先[卸载](#卸载)再重新接入。
 - 提示 `Binding result is unknown`：按[重新绑定](#重新绑定)处理。
 
 ### 仅绑定命令
@@ -293,7 +294,7 @@ sudo "./$name/bin/kiteline-agent" install --user "$(id -un)"
 
 由管理员替其他账户安装时，管理员执行这条命令并把 `"$(id -un)"` 换成项目用户名，`check` 仍由项目用户执行。
 
-`install` 在 `/etc/kiteline-agent.env` 中记录 agent 数据目录，默认为项目用户的 `~/.local/share/kiteline-agent`，运行目录默认为其中的 `run`。需要使用其他目录时，在绑定前编辑这个文件中的 `KITELINE_AGENT_HOME` 和 `KITELINE_AGENT_RUN_DIR`，格式见[目录配置文件](reference.md#目录配置文件)。运行目录的路径长度有上限（见[限额](reference.md#限额)）。
+`install` 在 `/etc/kiteline-agent.env` 中记录 agent 数据目录，默认为项目用户的 `~/.local/share/kiteline-agent`，运行目录默认为其中的 `run`。需要使用其他目录时，在绑定前修改这个文件中的 `KITELINE_AGENT_HOME`，需要时添加 `KITELINE_AGENT_RUN_DIR`，格式见[目录配置文件](reference.md#目录配置文件)。运行目录的路径长度有上限（见[限额](reference.md#限额)）。
 
 然后以项目用户执行网页上的[仅绑定命令](#仅绑定命令)，再执行 `kiteline-agent run`。
 
@@ -332,7 +333,7 @@ Set-Location 'C:\Users\PROJECT_USER\AGENT_PACKAGE_DIR'
 & (Join-Path $PSHOME $(if ($PSVersionTable.PSVersion.Major -eq 5) { 'powershell.exe' } else { 'pwsh.exe' })) -NoProfile -ExecutionPolicy Bypass -File '.\kiteline-agent-X.Y.Z-windows-amd64\bin\kiteline-agent.ps1' install --user 'COMPUTER\PROJECT_USER'
 ```
 
-agent 数据目录默认为项目用户的 `%LOCALAPPDATA%\kiteline-agent`，运行目录默认为其中的 `run`。安装时可以用 `--data-dir` 和 `--run-dir` 指定其他绝对路径；安装程序无法确定项目用户的 LocalAppData 时（例如该用户当前没有登录），必须显式指定这两个选项。
+agent 数据目录默认为项目用户的 `%LOCALAPPDATA%\kiteline-agent`，运行目录默认为其中的 `run`。安装时可以用 `--data-dir` 和 `--run-dir` 指定其他绝对路径；安装程序无法确定项目用户的 LocalAppData 时（例如该用户当前没有登录），必须显式指定 `--data-dir`。
 
 安装完成后关闭管理员窗口，从开始菜单新开项目用户的普通 PowerShell 窗口，执行网页上的[仅绑定命令](#仅绑定命令)，再执行 `kiteline-agent run`。
 

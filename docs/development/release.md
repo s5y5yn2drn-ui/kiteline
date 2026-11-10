@@ -205,6 +205,7 @@ node scripts/verify-server.mjs "$CHECK/kiteline-server-$KITELINE_VERSION-linux-a
 | `shared/`、`cli/`、`agent/`、`terminal-recorder/` | 编译后的 JS 与生产依赖。                                                       | agent  |
 | `shared/`、`cli/`                                 | 编译后的 CLI 与生产依赖。                                                      | CLI    |
 | `deploy/`                                         | 本平台的服务管理器示例。                                                       | agent  |
+| `command/`                                        | Windows 的 `kiteline-agent.exe` 命令入口。                                     | agent  |
 | `dist/native/`                                    | 原生组件、来源记录和许可，Windows 另含 `sources/`。                            | agent  |
 | `shared/`、`server/`、`web/dist/`                 | server 程序、生产依赖和工作台。                                                | server |
 | `installer/`、`downloads/`                        | 接入和升级模板、agent 包及校验文件、安装脚本。                                 | server |

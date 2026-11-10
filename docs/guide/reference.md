@@ -67,7 +67,7 @@ Linux 和 macOS 的命令入口是 `/usr/local/bin/kiteline-agent`；用 `sudo` 
 ### 绑定与运行
 
 - `check` 检查随包组件、[系统前提](devices.md#支持的系统与准备)、数据及运行目录是否可写，以及运行目录的路径长度。全部通过时打印 `Setup checks passed.`，否则列出失败项并以非零状态退出。
-- `bind --server URL` 用一次性绑定码把这台机器登记为设备。绑定码在终端中由 `Binding code: ` 提示输入，或从标准输入读入一行。`URL` 必须是 `http://` 或 `https://` 地址，agent 只保存其中的协议、主机和端口；设备名取主机名。`--if-unbound` 在已经绑定时报错退出，不改动已有身份。
+- `bind --server URL` 用一次性绑定码把这台机器登记为设备。绑定码在终端中由 `Binding code: ` 提示输入，或从标准输入读入。`URL` 必须是 `http://` 或 `https://` 地址，agent 只保存其中的协议、主机和端口；设备名取主机名。`--if-unbound` 在已经绑定时报错退出，不改动已有身份。
 - `run` 在前台运行 agent，连接 server 并开始执行定时任务。Linux 和 macOS 收到 `SIGINT`、`SIGTERM` 或 `SIGHUP` 时停止，Windows 收到 Ctrl-C 或 Ctrl-Break 时停止。正常停止会结束全部终端会话和正在运行的定时任务。后台常驻见[后台运行](devices.md#后台运行)。
 - `doctor` 输出 `[ok]`、`[warn]`、`[error]` 三类检查结果，有 `[error]` 时以状态 1 退出。agent 正在运行时，它报告 agent 实际的环境：版本、server 连接、recorder、定时任务、Git 配置来源和 `SSH_AUTH_SOCK`；agent 未运行时只检查安装和配置文件，并提示 `Runtime environment has not been checked`。
 
@@ -113,7 +113,7 @@ Release 附件中的 `compose.yaml` 已把 `KITELINE_VERSION` 默认值固定为
 | `KITELINE_AGENT_HOME`    | Linux、macOS：`<项目用户 HOME>/.local/share/kiteline-agent`；Windows：`%LOCALAPPDATA%\kiteline-agent` | agent 数据目录 |
 | `KITELINE_AGENT_RUN_DIR` | `<agent 数据目录>/run`                                                                                | 运行目录       |
 
-目录按以下顺序确定，先找到的生效：
+安装后的命令入口按以下顺序确定目录，先找到的生效；从解包目录运行时只使用第 1 项，默认值基于执行命令时的 `HOME`：
 
 1. 进程环境变量 `KITELINE_AGENT_HOME`、`KITELINE_AGENT_RUN_DIR`。
 2. Linux 和 macOS 读取 `/etc/kiteline-agent.env`；Windows 读取安装记录 `installation.json` 中由 `install` 写入的目录。

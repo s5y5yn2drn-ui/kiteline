@@ -39,7 +39,7 @@ Device names, workspaces, files and folders, Git changes and work page tabs supp
 | Language, appearance, recent workspaces, terminal font size | Current browser                       |
 | File font size                                              | Current browser                       |
 | Terminal groups and splits                                  | Current browser tab                   |
-| Work-page tabs, content mode and shared layout              | Current page, per workspace           |
+| Work-page tabs, content mode and Together layout            | Current page, per workspace           |
 | Unsaved changes, commit messages                            | Current page; lost on reload or close |
 | New-session scrollback lines, terminal shortcuts            | Device; shared across origins         |
 | Device name                                                 | Server                                |

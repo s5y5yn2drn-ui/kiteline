@@ -5,7 +5,7 @@
 ## 契约来源
 
 - `packages/shared/src/protocol/index.ts`：公共协议入口，定义 `appVersion`、`Reply`、各对象类型、控制消息、浏览器事件和 `ChannelKind`。
-- `packages/shared/src/protocol/validation.ts`、`limits.ts`：基础校验与 `AppError`、固定限额。`terminal-observation.ts`：终端类型和纯值 parser。
+- `packages/shared/src/protocol/validation.ts`、`limits.ts`：基础校验与 `AppError`、固定限额。`terminal-observation.ts`：终端观察的类型和纯值 parser。`program-status.ts`：程序状态记录及其 parser。
 - `packages/shared/src/protocol/rpc.ts`：RPC 方法及参数、成功与非成功结果类型、逐方法策略 `rpcTraits`。
 - `packages/shared/src/protocol/tasks.ts`：定时任务对象。`packages/shared/src/protocol/ipc.ts`：recorder IPC 消息和终端帧。
 - `packages/shared/src/protocol/ws.ts`、`file-stream.ts`、`http-stream.ts`、`stdio.ts`：心跳、帧发送、文件帧队列、HTTP 字节流、逐行 JSON。
@@ -244,6 +244,7 @@ Agent 的事件超限时记录消息来源并丢弃；普通事件在连接不�
 | 1008   | `hello_timeout`           | server          | agent 重连                     |
 | 1008   | `invalid_control_message` | server 或 agent | agent 重连                     |
 | 1008   | `invalid_event_message`   | server          | 工作台重连                     |
+| 1011   | `snapshot_send_failed`    | server          | 工作台重连                     |
 | 1013   | `control_backpressure`    | server 或 agent | 重连                           |
 | 4001   | `connection_replaced`     | server          | agent 停止重连                 |
 | 4003   | `session_expired`         | server          | 工作台重读登录状态，回到登录页 |

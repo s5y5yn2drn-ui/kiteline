@@ -31,7 +31,7 @@
 
 不变量：
 
-- 默认卸载保留协调锁，`--purge` 在清理完成后删除。锁文件可能被删除后重建，所以持锁者要确认锁住的是路径上当前的文件：Unix 入口取得使用锁和管理锁后核对文件描述符与路径的 dev/ino，拒绝旧文件上的锁。删除锁文件时仍持有锁：Unix 卸载持有排他使用锁直到删除它，管理锁最后删除，之后不再修改产品路径；Windows 持有不允许共享删除的句柄，释放后再删除，被新持有者抢先时清理明确失败，不重试。
+- 默认卸载保留协调锁，`--purge` 在清理完成后删除。锁文件可能被删除后重建，所以持锁者要确认锁住的是路径上当前的文件：Unix 上入口对使用锁、Node 对继承的管理锁核对文件描述符与路径的 dev/ino，拒绝旧文件上的锁。删除锁文件时仍持有锁：Unix 卸载持有排他使用锁直到删除它，管理锁最后删除，之后不再修改产品路径；Windows 持有不允许共享删除的句柄，释放后再删除，被新持有者抢先时清理明确失败，不重试。
 - 维护操作先取管理锁，再取使用锁，清除状态时最后取状态锁。升级和卸载只在用户确认之后、写入之前取排他使用锁，并一直持有到回退和清理完成。
 - 服务管理器配置了自动重启时，它与升级争抢使用锁：重启的 agent 先取得共享锁则升级被拒绝；升级先取得排他锁则启动被拒绝。
 
@@ -49,7 +49,7 @@
 | 其他项目用户           | 拒绝（`Current installation belongs to <用户>`）         |
 | 空文件、损坏或结构不对 | 报告错误并停止，保留原文件                               |
 
-Linux 和 macOS 的新装步骤：用 `getent`（macOS 用 `dscl`）读取账户的 uid、gid 和主目录，不使用 sudo 之后的 `HOME`；校验发布包（`release.json` 的平台和架构、`SHA256SUMS`、随包 Node 和 tmux 的版本、agent 版本）；写入 `/etc/kiteline-agent.env`（已存在时保留）；创建使用锁文件；复制程序目录并把属主设为 root；写入安装记录；最后原子替换命令入口。任一步失败时删除已写入的命令入口、安装记录和程序目录。Windows 的新装在 PowerShell 中完成同样的步骤，见[平台实现](platforms.md#windows)。
+Linux 和 macOS 的新装步骤：用 `getent`（macOS 用 `dscl`）读取账户的 uid、gid 和主目录，不使用 sudo 之后的 `HOME`；校验发布包（`release.json` 的平台和架构、`SHA256SUMS`、随包 Node 和 tmux 的版本、agent 版本）；写入 `/etc/kiteline-agent.env`（已存在时保留）；创建使用锁文件；复制程序目录并把属主设为 root；写入安装记录；最后原子替换命令入口。任一步失败时删除已写入的命令入口、安装记录和程序目录。Windows 的新装由 `installer/kiteline-agent.in.ps1` 在 PowerShell 中完成。
 
 ### 升级
 
@@ -137,7 +137,7 @@ agent 用设备令牌连接 `/api/agent/control`，握手期限 30 秒。重连�
 
 ### agent 数据目录和运行目录
 
-- 目录的确定顺序和 `/etc/kiteline-agent.env` 的格式见 [agent 环境变量](../guide/reference.md#agent-环境变量)。已安装时，Linux 和 macOS 的默认目录基于安装记录中项目用户的主目录，Windows 的两个目录取自安装记录。从解包目录运行时不读安装记录，默认目录基于当前用户的主目录。
+- 目录的确定顺序和 `/etc/kiteline-agent.env` 的格式见 [agent 环境变量](../guide/reference.md#agent-环境变量)。已安装时，Linux 和 macOS 的默认目录基于安装记录中项目用户的主目录，Windows 的默认目录取自安装记录。从解包目录运行时不读安装记录，默认目录基于当前用户的主目录。
 - `<运行目录>/<会话 ID>/tmux.sock` 的字节长度有上限，因此运行目录路径也有上限（见[限额](../guide/reference.md#限额)）；超出时 `run` 和 `check` 报告 `KITELINE_AGENT_RUN_DIR is too long`。
 - 维护命令（升级、清除状态）的目标目录只取自安装记录和目录配置，不取执行命令的管理员环境中的变量，也不扫描其他自定义目录。
 

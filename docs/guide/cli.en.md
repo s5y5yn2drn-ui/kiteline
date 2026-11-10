@@ -83,7 +83,7 @@ kiteline auth status
 - The first command prompts to paste a token only on a TTY; without one it fails immediately. It verifies the credential before saving it.
 - Credentials are saved to `~/.kiteline/credentials.json`; `KITELINE_CLI_HOME` selects another directory. New Linux/macOS directories use 0700 and files use 0600; Windows inherits access from the user's directory. Keep credentials outside shared directories and repositories.
 - You can also set both `KITELINE_URL` and `KITELINE_TOKEN`. They override saved credentials; setting only one fails instead of combining it with the file.
-- The CLI uses `HTTP_PROXY`, `HTTPS_PROXY`, `NO_PROXY`, and `NODE_EXTRA_CA_CERTS`. It does not follow redirects; supply the exact workbench address in `--server`.
+- The CLI uses `HTTPS_PROXY`, `HTTP_PROXY`, `ALL_PROXY`, `NO_PROXY` (and their lowercase forms), and `NODE_EXTRA_CA_CERTS`. It does not follow redirects; supply the exact workbench address in `--server`.
 
 ### Log out and revoke
 

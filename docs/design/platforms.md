@@ -6,11 +6,11 @@
 
 `installer/` 中的文件按以下三种方式进入运行环境：
 
-| 类别     | 文件                                                              | 渲染者、时机与去向                                                                                                                                                                                                                                  |
-| -------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 组包模板 | `kiteline-agent.in.sh`、`kiteline-agent.in.ps1`、`launcher.in.cs` | [`scripts/agent-launcher.ts`](../../scripts/agent-launcher.ts) 在组包时生成 portable/installed 两个 agent 入口；C# 内嵌在 PowerShell 中，在入口运行时由 `Add-Type` 编译。Windows 入口使用的 Node 环境变量键取自构建后的 shared/terminal/node 模块。 |
-| 请求模板 | `connect.in.sh`、`upgrade.in.sh`、`windows-entry.in.ps1`          | [`packages/server/src/agent-installation.ts`](../../packages/server/src/agent-installation.ts) 在请求时填入版本、入口地址与模式，返回 `/connect.sh`、`/upgrade.sh`、`/connect.ps1` 或 `/upgrade.ps1`。                                              |
-| 原样分发 | `install.sh`、`install.ps1`、`kiteline-server`                    | [`scripts/package.mjs`](../../scripts/package.mjs) 将安装器复制到 server 的 downloads，供 `/install.sh`、`/install.ps1` 分发；`kiteline-server` 复制到 server 包的 `bin/kiteline-server`。                                                          |
+| 类别     | 文件                                                                              | 渲染者、时机与去向                                                                                                                                                                                                                                                        |
+| -------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 组包模板 | `kiteline-agent.in.sh`、`kiteline-agent.in.ps1`、`launcher.in.cs`、`kiteline.ps1` | [`scripts/agent-launcher.ts`](../../scripts/agent-launcher.ts) 在组包时生成 portable/installed 两个 agent 入口和 Windows 的 CLI 入口；C# 内嵌在 PowerShell 中，在入口运行时由 `Add-Type` 编译。Windows 入口使用的 Node 环境变量键取自构建后的 shared/terminal/node 模块。 |
+| 请求模板 | `connect.in.sh`、`upgrade.in.sh`、`windows-entry.in.ps1`                          | [`packages/server/src/agent-installation.ts`](../../packages/server/src/agent-installation.ts) 在请求时填入版本、入口地址与模式，返回 `/connect.sh`、`/upgrade.sh`、`/connect.ps1` 或 `/upgrade.ps1`。                                                                    |
+| 原样分发 | `install.sh`、`install.ps1`、`kiteline-server`、`kiteline`                        | [`scripts/package.mjs`](../../scripts/package.mjs) 将安装器复制到 server 的 downloads，供 `/install.sh`、`/install.ps1` 分发；`kiteline-server` 复制到 server 包的 `bin/kiteline-server`，`kiteline` 复制到 Linux 和 macOS 的 agent 包与 CLI 包的 `bin/kiteline`。        |
 
 ## Linux
 

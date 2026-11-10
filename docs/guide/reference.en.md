@@ -67,7 +67,7 @@ For procedures, prerequisites and data effects, see [Manual installation](device
 ### Binding and running
 
 - `check` checks bundled components, [system prerequisites](devices.en.md#supported-systems-and-prerequisites), data and runtime directory writability, and runtime path length. Success prints `Setup checks passed.` Otherwise it lists failures and exits nonzero.
-- `bind --server URL` registers this machine as a device with a single-use binding code. Enter it at `Binding code: ` or supply one line on stdin. `URL` must use `http://` or `https://`; the agent stores only the scheme, host and port. The device name comes from its hostname. `--if-unbound` exits with an error if already bound, preserving the existing identity.
+- `bind --server URL` registers this machine as a device with a single-use binding code. Enter it at `Binding code: ` or supply it on stdin. `URL` must use `http://` or `https://`; the agent stores only the scheme, host and port. The device name comes from its hostname. `--if-unbound` exits with an error if already bound, preserving the existing identity.
 - `run` starts the agent in the foreground, connects to the server and begins scheduled-task execution. Linux/macOS stop on `SIGINT`, `SIGTERM` or `SIGHUP`; Windows stops on Ctrl-C or Ctrl-Break. Normal shutdown ends all terminal sessions and active scheduled-task runs. For persistent background use, see [Run in the background](devices.en.md#run-in-the-background).
 - `doctor` reports `[ok]`, `[warn]` and `[error]` checks, exiting with status 1 if any is `[error]`. With an agent running, it reports that agent's actual environment: version, server connection, recorder, scheduled tasks, Git configuration sources and `SSH_AUTH_SOCK`. Without one, it checks only installation and configuration files and reports `Runtime environment has not been checked`.
 
@@ -113,7 +113,7 @@ The `compose.yaml` release attachment pins the default `KITELINE_VERSION` to tha
 | `KITELINE_AGENT_HOME`    | Linux/macOS: `<project user HOME>/.local/share/kiteline-agent`; Windows: `%LOCALAPPDATA%\kiteline-agent` | Agent data directory |
 | `KITELINE_AGENT_RUN_DIR` | `<agent data directory>/run`                                                                             | Runtime directory    |
 
-Directories are resolved in this order, with the first value found taking precedence:
+The installed command resolves directories in this order, with the first value found taking precedence; a command run from the unpacked directory uses only item 1, with defaults based on its own `HOME`:
 
 1. Process environment variables `KITELINE_AGENT_HOME` and `KITELINE_AGENT_RUN_DIR`.
 2. `/etc/kiteline-agent.env` on Linux/macOS; directories written by `install` in `installation.json` on Windows.

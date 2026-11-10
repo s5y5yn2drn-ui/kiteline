@@ -124,7 +124,7 @@ Linux 和 macOS 上，写操作在 Git 主进程退出时结束；hook 启动的
 
 ### 路径参数
 
-stage、unstage、review 和 discard 的路径最多 `listPageEntries × 2` 个，序列化后不超过结果上限。路径不能是 `.`，也不能包含 `.git` 段（macOS 上与 `.git` 是同一对象的大小写变体同样拒绝）。
+stage、unstage、review 和 discard 的路径最多 `listPageEntries × 2` 个，序列化后不超过结果上限。路径不能是 `.`，也不能包含 `.git` 段（Windows 上不区分大小写；macOS 上与 `.git` 是同一对象的大小写变体同样拒绝）。
 
 ### stage 与 unstage
 
@@ -163,7 +163,7 @@ stage、unstage、review 和 discard 的路径最多 `listPageEntries × 2` 个�
 ## 同步与认证
 
 - `git.remotes` 返回各 remote 的 fetch 和 push URL、当前 upstream、默认的 fetch 和 push remote。`pushTarget` 只在能确定时返回：`push.default` 为 `current`；或者推送 remote 就是当前分支的 remote 且存在 upstream，同时 `push.default` 为 `upstream`，或为 `simple` 且 upstream 与当前分支同名。推送 remote 配置了 `remote.<name>.push` 或 `remote.<name>.mirror` 时不返回。没有 `pushTarget` 时，界面说明推送目标由设备上的 Git 配置决定。
-- fetch 可以使用默认 remote 或指定仍然存在的 remote；pull 和 push 按仓库配置执行。agent 不添加 `--rebase`、`--ff-only`、`--force` 等参数，合并策略和推送目标都由仓库配置决定（`packages/agent/src/git/remotes.ts`）。
+- fetch 可以使用默认 remote 或指定仍然存在的 remote；pull 和 push 按仓库配置执行。agent 不添加 `--rebase`、`--ff-only`、`--force` 等改变合并策略或推送目标的参数，合并策略和推送目标都由仓库配置决定（`packages/agent/src/git/remotes.ts`）。
 - pull 和 push 带 `expectedHead`（`symbolicRef` 和 `oid`）。agent 在队列内与当前 HEAD 完整比较，不同时返回 `conflict`，不执行同步。
 - pull 设置 `GIT_EDITOR=true` 和 `GIT_SEQUENCE_EDITOR=false`：产生合并提交时接受默认说明，配置导致的交互式 rebase 会失败。
 - 执行身份、`HOME`、`PATH`、Git 配置、SSH 和 HTTPS 凭据 helper、代理都来自 agent 进程的环境，由前台运行的终端、服务管理器或容器提供。Windows 上直接运行原生 Git，不经过 MSYS Bash。

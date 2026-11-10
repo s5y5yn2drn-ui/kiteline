@@ -131,7 +131,7 @@ KITELINE_DATA_DIR=/var/tmp/kiteline-dev/server pnpm server setup-token
 | `pnpm test`         | 运行自动测试                       |
 | `pnpm build`        | 编译各包并构建工作台               |
 
-完整的 `pnpm test` 需要先执行[安装依赖](#安装依赖)中的命令和 `pnpm build`，并使用 Git 2.23.0 及以上版本。
+完整的 `pnpm test` 需要先执行[安装依赖](#安装依赖)中的命令和 `pnpm build`，并使用 Git 2.23.0 及以上版本。需要 root 的安装和维护用例在普通用户下跳过；CI 另以 root 运行这些测试文件，命令见 [`build.yml`](../../.github/workflows/build.yml)。
 
 只运行部分测试时，把文件或目录传给 `pnpm test`，例如 `pnpm test packages/agent/test/git-read.test.ts`。
 

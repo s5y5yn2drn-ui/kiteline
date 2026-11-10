@@ -83,7 +83,7 @@ kiteline auth status
 - 第一种写法只在终端中提示粘贴 token；没有终端时立即报错。核验成功后才保存。
 - 凭据保存在 `~/.kiteline/credentials.json`，用 `KITELINE_CLI_HOME` 可以指定其他目录。Linux 和 macOS 上新建的目录为 0700、文件为 0600；Windows 沿用所在用户目录的权限。不要把凭据放进共享目录或版本库。
 - 也可以成组设置 `KITELINE_URL` 和 `KITELINE_TOKEN`，它们优先于保存的凭据；只设置其中一个会报错，不会补用文件中的另一个值。
-- CLI 使用 `HTTP_PROXY`、`HTTPS_PROXY`、`NO_PROXY` 和 `NODE_EXTRA_CA_CERTS`。它不跟随重定向，`--server` 要写准确的工作台地址。
+- CLI 使用 `HTTPS_PROXY`、`HTTP_PROXY`、`ALL_PROXY`、`NO_PROXY`（及小写形式）和 `NODE_EXTRA_CA_CERTS`。它不跟随重定向，`--server` 要写准确的工作台地址。
 
 ### 退出与撤销
 

@@ -59,6 +59,7 @@ To keep the agent running after closing the terminal or signing out, see [Run in
 - Installed but binding failed: rerunning the command skips installation and retries binding directly.
 - `This installation is already bound`: this device is already bound, and the command does not start the agent. Run `kiteline-agent run` directly.
 - `A different version is installed`: [upgrade the agent](#upgrade-the-agent) first.
+- `… belongs to …`: this machine is already installed for another project user. Run the command as that user, or [uninstall](#uninstall) first and connect again.
 - `Binding result is unknown`: follow [Bind again](#bind-again).
 
 ### Bind-only command
@@ -293,7 +294,7 @@ sudo "./$name/bin/kiteline-agent" install --user "$(id -un)"
 
 An administrator installing for another account runs this command with the project username in place of `"$(id -un)"`; the project user still runs `check`.
 
-`install` records the agent data directory in `/etc/kiteline-agent.env`. It defaults to the project user's `~/.local/share/kiteline-agent`, with `run` inside it as the runtime directory. To use other directories, edit `KITELINE_AGENT_HOME` and `KITELINE_AGENT_RUN_DIR` in this file before binding; see [Directory configuration file](reference.en.md#directory-configuration-file) for the format. The runtime directory path has a length limit (see [Limits](reference.en.md#limits)).
+`install` records the agent data directory in `/etc/kiteline-agent.env`. It defaults to the project user's `~/.local/share/kiteline-agent`, with `run` inside it as the runtime directory. To use other directories, edit `KITELINE_AGENT_HOME` in this file before binding and add `KITELINE_AGENT_RUN_DIR` if needed; see [Directory configuration file](reference.en.md#directory-configuration-file) for the format. The runtime directory path has a length limit (see [Limits](reference.en.md#limits)).
 
 Then, as the project user, run the [bind-only command](#bind-only-command) copied from the web app, followed by `kiteline-agent run`.
 
@@ -332,7 +333,7 @@ Set-Location 'C:\Users\PROJECT_USER\AGENT_PACKAGE_DIR'
 & (Join-Path $PSHOME $(if ($PSVersionTable.PSVersion.Major -eq 5) { 'powershell.exe' } else { 'pwsh.exe' })) -NoProfile -ExecutionPolicy Bypass -File '.\kiteline-agent-X.Y.Z-windows-amd64\bin\kiteline-agent.ps1' install --user 'COMPUTER\PROJECT_USER'
 ```
 
-The data directory defaults to the project user's `%LOCALAPPDATA%\kiteline-agent`, and the runtime directory to `run` inside it. Specify other absolute paths during installation with `--data-dir` and `--run-dir`. If the installer cannot determine the project user's LocalAppData, for example when that user is not currently signed in, it requires both options explicitly.
+The data directory defaults to the project user's `%LOCALAPPDATA%\kiteline-agent`, and the runtime directory to `run` inside it. Specify other absolute paths during installation with `--data-dir` and `--run-dir`. If the installer cannot determine the project user's LocalAppData, for example when that user is not currently signed in, it requires `--data-dir` explicitly.
 
 Close the administrator window after installation. Open a new ordinary PowerShell window as the project user from the Windows Start menu, then run the web app's [bind-only command](#bind-only-command), then `kiteline-agent run`.
 

@@ -5,14 +5,14 @@
 ## 组件
 
 - **私有 tmux server**：每个会话一个，socket 为 `<运行目录>/<会话 ID>/tmux.sock`，其中只有一个名为 `kiteline` 的 tmux 会话、一个窗口和一个 pane。它持有真实 PTY 和程序，是会话是否存在的唯一依据。
-- **agent 会话表**（`packages/agent/src/terminal/sessions.ts`）：分配 ID、登记会话、创建和结束 tmux server、查证存活、发起恢复。
-- **recorder**（`packages/terminal-recorder/src/`）：每个 agent 一个 Node 进程；每个会话一个 tmux 控制模式客户端（`tmux -C`）、一个 `@xterm/headless` 模型和一个输入队列。
+- **agent 会话表**（`packages/agent/src/terminal/sessions.ts`）：分配 ID、登记会话、发起创建、结束 tmux server、查证存活、发起恢复。
+- **recorder**（`packages/terminal-recorder/src/`）：每个 agent 一个 Node 进程；每个会话一个 tmux 控制模式客户端（`tmux -C`）、一个 `@xterm/headless` 模型和一个输入队列。Linux 和 macOS 上 tmux server 由这个客户端的 `new-session` 启动。
 - **网页显示**（`packages/web/src/terminal/display.ts`）：每次附着新建一个 xterm.js 实例，恢复画面后接收实时输出，发送输入和尺寸。
 - **远程 CLI**（`packages/cli/src/`）：短 RPC 在 recorder 中观察和操作同一终端；`terminal attach` 经 agent 的 PTY 桥运行普通 tmux client，接续已有画面和原始输入。两者结束后终端继续运行。
 
 tmux 使用会话目录下的私有配置，不加载用户的 tmux 配置或插件，并收窄 prefix 键表。具体设置由 `packages/shared/src/terminal/node.ts` 的 `terminalPreset()` 定义。
 
-固定版本：tmux 版本见 [`release/inputs.json`](../../release/inputs.json)，各平台都禁用 Sixel，共用补丁由 [`native/tmux/series`](../../native/tmux/series) 定义。补丁让粘贴遵循 pane 模式，为 recorder 的 `flow-control` 客户端标志提供无损在线背压，并按私有 preset 回答程序状态查询；普通客户端不设置流控标志。xterm.js 及插件版本见 [`packages/web/package.json`](../../packages/web/package.json)、[`packages/terminal-recorder/package.json`](../../packages/terminal-recorder/package.json) 和 [`packages/shared/package.json`](../../packages/shared/package.json)。网页的 xterm.js 带有 [`packages/web/patches/`](../../packages/web/patches/) 中的补丁，让 DOM 渲染器按设备像素比测量字形宽度；维护方法见[构建与发布](../development/release.md#xtermjs)。
+固定版本：tmux 版本见 [`release/inputs.json`](../../release/inputs.json)，各平台都禁用 Sixel，共用补丁由 [`native/tmux/series`](../../native/tmux/series) 定义。补丁让粘贴遵循 pane 模式，为 recorder 的 `flow-control` 客户端标志提供无损在线背压，并按私有 preset 回答程序状态查询；普通客户端不设置流控标志。xterm.js 及插件版本见 [`packages/web/package.json`](../../packages/web/package.json)、[`packages/terminal-recorder/package.json`](../../packages/terminal-recorder/package.json) 和 [`packages/shared/package.json`](../../packages/shared/package.json)。网页的 xterm.js 带有 [`packages/web/patches/`](../../packages/web/patches/) 中的补丁；维护方法见[构建与发布](../development/release.md#xtermjs)。
 
 网页和 recorder 的共同适配在 `packages/shared/src/terminal/index.ts`，两端必须同步升级。该模块的私有状态访问经过 `core()`，升级时以 `TerminalCore` 核对使用的成员。网页还依赖 `packages/web/src/terminal/` 的触控选择和画面保留适配，其中 `auxiliary-input.ts` 直接导入 xterm.js 的私有键盘编码；这些入口也要随升级复核。
 
