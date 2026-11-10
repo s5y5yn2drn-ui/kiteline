@@ -6,7 +6,7 @@
 
 程序目录、命令入口、安装记录、目录配置和锁文件的位置见[文件位置](../guide/reference.md#文件位置)。维护时另用两个内部目录：Linux 和 macOS 上，`install`、`upgrade`、`uninstall` 从维护副本 `/var/tmp/kiteline-agent-maintenance.XXXXXX` 运行，升级在 `/opt/.kiteline-upgrade-XXXXXX` 中暂存新程序；Windows 的维护操作使用 `%ProgramFiles%\.kiteline-maintenance-<GUID>`。
 
-安装记录不保存密码和服务状态。程序目录的内容见[构建与发布](../development/release.md#产物结构)，示例服务配置在 `<程序目录>/deploy/` 下。
+安装记录不保存密码和服务状态。程序目录的内容由 [`scripts/package.mjs`](../../scripts/package.mjs) 组装，示例服务配置在 `<程序目录>/deploy/` 下。
 
 发布包里有两种入口：解包目录中的 `bin/kiteline-agent`（Windows 为 `bin/kiteline-agent.ps1`）用于检查和首次安装；安装后的命令入口来自包内的 `bin/kiteline-agent-installed`（Windows 为 `bin/kiteline-agent-installed.ps1`）。入口负责取锁和准备运行环境，绕过入口启动的进程不受使用锁保护。直接用 Node 运行 `agent/dist/main.js` 做安装变更会被拒绝。
 
