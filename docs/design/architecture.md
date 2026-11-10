@@ -75,12 +75,12 @@ server 不保存文件内容、diff、终端输出、定时任务的命令和输
 
 ## 请求流程
 
-| 流程                   | 入口文件                                                                                                                                                     | 行为契约                                                                           |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
-| RPC                    | `packages/web/src/lib/api.ts`、`packages/server/src/api.ts`、`packages/server/src/connections.ts`、`packages/agent/src/agent.ts`                             | [RPC](protocol.md#rpc)、[结果语义](protocol.md#结果语义)                           |
-| 数据通道与文件下载     | `packages/server/src/channels.ts`、`packages/server/src/file-transfer.ts`、`packages/agent/src/files/channels.ts`、`packages/agent/src/terminal/channels.ts` | [数据通道](protocol.md#数据通道)、[网页附着](terminal.md#网页附着)                 |
-| 开发服务代理           | `packages/server/src/http-proxy.ts`、`packages/agent/src/http/channels.ts`                                                                                   | [请求转发](http-access.md#请求转发)                                                |
-| 本机终端与定时任务命令 | `packages/agent/src/cli/terminal.ts`、`packages/agent/src/cli/tasks.ts`、`packages/agent/src/local.ts`                                                       | [本机 IPC](protocol.md#本机-ipc)、[任务命令行](../guide/scheduled-tasks.md#命令行) |
+| 流程                   | 入口文件                                                                                                                         | 行为契约                            |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| RPC                    | `packages/web/src/lib/api.ts`、`packages/server/src/api.ts`、`packages/server/src/connections.ts`、`packages/agent/src/agent.ts` | [RPC](protocol.md#rpc)              |
+| 数据通道与文件下载     | `packages/server/src/channels.ts`、`packages/agent/src/files/channels.ts`、`packages/agent/src/terminal/channels.ts`             | [数据通道](protocol.md#数据通道)    |
+| 开发服务代理           | `packages/server/src/http-proxy.ts`、`packages/agent/src/http/channels.ts`                                                       | [请求转发](http-access.md#请求转发) |
+| 本机终端与定时任务命令 | `packages/agent/src/cli/terminal.ts`、`packages/agent/src/cli/tasks.ts`、`packages/agent/src/local.ts`                           | [本机 IPC](protocol.md#本机-ipc)    |
 
 ## 协调与失败边界
 
