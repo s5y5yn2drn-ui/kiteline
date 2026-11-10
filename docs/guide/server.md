@@ -139,7 +139,7 @@ HTTPS 由部署者自己的反向代理（nginx、Caddy 等）提供，反向代
 
 设为 `1` 后，server 也信任直接连接的客户端发来的 `X-Forwarded-Proto`，所以 server 的 HTTP 端口应只让反向代理访问（保持 `127.0.0.1` 绑定，或只在反向代理所在的网络中开放）。
 
-让初始化和登录按客户端 IP 计数时，还需在同一环境文件设置 `KITELINE_TRUSTED_PROXIES`，填入 server 实际看到的直接代理 IP 或 CIDR，多个值用逗号分隔。代理与原生 server 同机且经 IPv4 loopback 连接时可用 `127.0.0.1`；Docker 转发后的对端可能是网桥地址，应按实际网络填写，不要直接信任所有私网地址。重启 server 后生效。
+让初始化和登录按客户端 IP 计数时，还需在同一环境文件设置 `KITELINE_TRUSTED_PROXIES`，填入 server 实际看到的直接代理 IP 或 CIDR，多个值用逗号分隔。代理与原生 server 同机且经 IPv4 loopback 连接时可用 `127.0.0.1`；Docker 转发后的对端可能是网桥地址，应按实际网络填写，不要直接信任所有私网地址。宿主机上的反向代理经 `127.0.0.1` 发布端口连接时，对端是 Compose 网络的网关地址，用 `docker network inspect kiteline_default --format '{{range .IPAM.Config}}{{.Gateway}}{{end}}'` 查看；`docker compose down` 会删除这个网络，重建后要重新核对。重启 server 后生效。
 
 下面的示例会覆盖客户端传入的 `X-Real-IP`。只有直接对端受信时，server 才读取该单 IP 头；头缺失或无效会使初始化和登录返回 400。默认未配置时仍按 TCP 对端计数。[每来源和全局额度](reference.md#限额)保持不变，所有来源仍可能一起耗尽全局额度。
 

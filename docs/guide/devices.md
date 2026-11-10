@@ -337,7 +337,7 @@ sudo /usr/local/bin/kiteline-agent uninstall --purge
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path ([Environment]::GetFolderPath('CommonApplicationData')) 'kiteline-agent/kiteline-agent.ps1') uninstall --purge
 ```
 
-`--purge` 还会删除 `/etc/kiteline-agent.env`、整个 agent 数据与运行目录（包括绑定、工作区登记、定时任务和运行记录）、协调锁和 agent 专用的空目录。检查命令列出的目录后输入 `yes` 确认；加 `--yes` 跳过确认。
+`--purge` 还会删除 `/etc/kiteline-agent.env`、整个 agent 数据与运行目录（包括绑定、工作区登记、定时任务和运行记录）、协调锁和 agent 专用的空目录。检查命令列出的目录后输入 `yes` 确认；加 `--yes` 跳过确认。Windows 上 `--purge` 中途失败（例如运行目录中仍有文件被占用）时，已删除的内容不会恢复；结束占用的进程后重新执行同一条命令。
 
 两种模式都不清理 [CLI 凭据](cli.md#接入)：它们保存在独立的目录中，卸载也不会撤销它们。
 
