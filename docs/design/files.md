@@ -28,7 +28,7 @@
 
 ## 打开与编辑
 
-文件正文、Markdown 和只读文本预览共用 `packages/web/src/files/font-size.ts` 的字号设置。设置按浏览器 origin 保存在 `localStorage`；显式值在宽窄布局下保持相同，恢复默认则移除显式值并随布局采用默认字号。操作及范围见[使用工作台](../guide/usage.md#打开与编辑)。
+文件正文、Markdown 和只读文本预览共用 `packages/web/src/files/font-size.ts` 的字号设置。操作及范围见[使用工作台](../guide/usage.md#打开与编辑)。
 
 ### 内容识别
 
@@ -37,8 +37,6 @@
 - agent 用 `O_NONBLOCK` 打开文件并只读取普通文件，FIFO 等特殊文件返回 `unsupported`，不会阻塞。
 - 已有同一设备、工作区和路径的打开文件时，浏览器直接切换到它，不读取磁盘；迟到的读取结果不覆盖已打开的文件。
 - 文件 URL 的 `line` 是归属当前 `file` 的一次性定位请求，在目标草稿就绪前保留，按[草稿](#草稿)的定位规则应用后清除参数。
-
-同工作区打开搜索结果后仍可返回搜索；普通打开清除搜索入口，修改查询条件清除旧结果。
 
 ### 文本格式
 
@@ -63,11 +61,11 @@
 
 只观察当前显示的稿件，读取结果仍属于原路径和打开实例时才采用。读结果到达时没有未保存内容且容量允许，才更新正文、格式和 revision；读取期间发生输入时保留本地正文及旧基准，只标记磁盘已变化。后台观察不确认结果未确认的保存，也不清除前台操作的失败；观察失败单独记录。
 
-显式行号、搜索命中和预览转源码的位置是视图的一次定位请求，实际编辑器应用后确认消费，不保存在草稿中；按行定位时按当前稿件行数钳制并居中，不重读磁盘或替换撤销历史。
+显式行号、搜索命中和预览转源码的位置是视图的一次定位请求，实际编辑器应用后确认消费，不保存在草稿中。
 
-Mermaid 只在遇到对应代码块时加载，保留上游的 `strict` 安全配置，允许图内外链图片加载。
+Mermaid 保留上游的 `strict` 安全配置，允许图内外链图片加载。
 
-HTML 预览直接以当前稿件构造 `srcdoc`，只授予 iframe `sandbox="allow-scripts"`，不给 same-origin，因此脚本可运行而不能访问工作台 DOM 或存储。初始 doctype 和 `about:srcdoc` base 用于标准排版及页内锚点，不映射相邻文件。Files 正文不可见时卸载 HTML iframe，避免 CSS 隐藏后脚本仍继续运行；重新进入会重执行，源码与 undo 仍由同一草稿保存。HTML 不参与 Markdown 的渲染块行号映射，资源和交互边界见[使用工作台](../guide/usage.md#html-预览)。
+HTML 预览直接以当前稿件构造 `srcdoc`，只授予 iframe `sandbox="allow-scripts"`，不给 same-origin，因此脚本可运行而不能访问工作台 DOM 或存储。Files 正文不可见时卸载 HTML iframe，避免 CSS 隐藏后脚本仍继续运行；重新进入会重执行，源码与 undo 仍由同一草稿保存。资源和交互边界见[使用工作台](../guide/usage.md#html-预览)。
 
 ## 保存
 
@@ -143,7 +141,7 @@ HTML 预览直接以当前稿件构造 `srcdoc`，只授予 iframe `sandbox="all
 
 ### 保留两份
 
-`files.inspect` 带 `suggestCopyName` 时，agent 在真实目标目录中找一个尚不存在的名称，序号放在扩展名之前（`config (2).json`），目录和无扩展名文件（如 `.env`）加在末尾；找不到时不返回建议，规则见 `packages/agent/src/files/index.ts`。建议不预留名称：执行时仍用不覆盖方式发布，名称已被占用时返回 `conflict`，不自动换名。
+`files.inspect` 带 `suggestCopyName` 时，agent 在真实目标目录中找一个尚不存在的名称；找不到时不返回建议，规则见 `packages/agent/src/files/index.ts`。建议不预留名称：执行时仍用不覆盖方式发布，名称已被占用时返回 `conflict`，不自动换名。
 
 ### 结果与取消
 
@@ -164,13 +162,13 @@ HTML 预览直接以当前稿件构造 `srcdoc`，只授予 iframe `sandbox="all
 - 命令不带 `--follow`，符号链接不进入结果。忽略文件的语义（包括 Git 全局的 `core.excludesFile`）和二进制文件的处理都由 rg 决定。用户可见的规则见[使用工作台](../guide/usage.md#文件)。
 - 结果最多 `searchMatches` 条，总量约为 `resultBytes`，运行时间受 `searchTimeout` 限制。达到任一上限时 agent 停止 rg，返回已得到的结果并标记 `truncated`。用户取消返回 `cancelled`，与无匹配和超时都可区分。
 - 正文结果的行号沿用 rg 的 LF 行号；每条只返回该行开头不超过 `searchLineBytes` 的片段和最多 `searchRanges` 个高亮区间，区间是片段内的 UTF-16 索引。`byteColumn` 是原始行中首个命中的 UTF-8 字节偏移，即使命中超出片段也保留；超出片段的结果标记 `truncated`。
-- 路径不是合法 UTF-8 或超过 `searchPathBytes` 的结果被省略，整个结果标记 `truncated`。rg 退出码 0 和 1 都表示正常结束，其他退出码返回 `io_error`，附 stderr 不超过 `searchErrorBytes` 的前缀。
+- 路径不是合法 UTF-8 或超过 `searchPathBytes` 的结果被省略，整个结果标记 `truncated`。
 - 浏览器按工作区保留搜索条件和成功结果，见[切换时保留的状态](interaction.md#切换时保留的状态)。修改条件或提交新查询时取消旧查询并清空结果与状态；迟到响应按请求身份丢弃。
 - 打开搜索结果走[内容识别](#内容识别)。普通正文结果以磁盘原文的行号及 UTF-16 区间或 `byteColumn` 定位，再将未变化的命中区间映射到当前草稿。
 
 ### 名称查阅
 
-名称查阅复用 `files.search` 的正文检索，固定 `wholeWord: true`，与普通搜索分别保存条件、结果和在途请求。匹配单位是名称文本，不解析符号绑定；当前草稿语法标记和声明行规则提供“可能的定义”，其余命中进入“其他出现位置”。按字符范围互斥分组和去重，排序固定以发起文件为中心，见[按名称查阅](../guide/usage.md#按名称查阅)。
+名称查阅复用 `files.search` 的正文检索，固定 `wholeWord: true`，与普通搜索分别保存条件、结果和在途请求。匹配单位是名称文本，不解析符号绑定。见[按名称查阅](../guide/usage.md#按名称查阅)。
 
 ## 图片预览
 
@@ -196,7 +194,7 @@ HTML 预览直接以当前稿件构造 `srcdoc`，只授予 iframe `sandbox="all
 
 ### 响应头
 
-`Content-Type` 按用途确定：`open` 为识别出的图片类型或 `text/plain; charset=utf-8`，`text` 为 `text/plain; charset=utf-8`，`image` 为识别出的图片类型，`download` 为 `application/octet-stream`。所有文件内容响应都带 `X-Content-Type-Options: nosniff`，HTML 和 SVG 不会在工作台的源下执行。开发服务代理不使用这条规则，见[开发服务访问](http-access.md)。
+`Content-Type` 按用途确定，`download` 为 `application/octet-stream`。所有文件内容响应都带 `X-Content-Type-Options: nosniff`，HTML 和 SVG 不会在工作台的源下执行。开发服务代理不使用这条规则，见[开发服务访问](http-access.md)。
 
 ### 通道名额
 
@@ -206,10 +204,10 @@ HTML 预览直接以当前稿件构造 `srcdoc`，只授予 iframe `sandbox="all
 
 - 浏览器通过事件 WebSocket 的 `watch.set` 声明正在使用的设备和工作区。server 汇总所有浏览器的目标，按设备下发，agent 只监听其中仍登记的工作区。监听实现位于 `packages/agent/src/watch-roots.ts`，不跟随符号链接，默认不轮询。
 - 工作树监听排除 `packages/agent/src/watch-roots.ts` 的 `excluded` 目录、`.git` 内部，以及工作区内已发现仓库的 gitDir 和 commonDir。根目录初始缺失或被同名新目录替换后，监听会跟随新目录。被排除的目录仍可浏览，只靠定时刷新更新。
-- Git 元数据监听覆盖每个已发现仓库的 gitDir 和 commonDir，只看顶层文件和 `gitTrees` 指定的状态目录，不看 `objects/`。多个工作区共享同一元数据目录时共用一个监听。
+- Git 元数据监听覆盖每个已发现仓库的 gitDir 和 commonDir，只看顶层文件和 `gitTrees` 指定的状态目录，不看 `objects/`。
 - 路径事件通知原监听目标，并传播给根目录位于该事件路径之内的活动工作区及 Git 元数据监听。
 - 文件系统事件按 `watchDebounce` 合并为 `workspace.changed`，通知文件、Git 和仓库发现刷新，不带文件内容。agent 自己完成写操作时立即发送事件。
 - 全部监听就绪后 agent 发送 `watch.status` 为 `normal`，表示监听已就绪，不保证文件系统事件完整。任一监听报错时为 `degraded` 并附原因，界面显示监听退化。已建立的部分监听继续工作。Linux 的 worker 异常退出也报告 `degraded`，不自动重启，下一次订阅变化时重新建立。
-- 没有订阅或控制连接断开时释放监听，Linux 同时结束 worker；旧 worker 的退出不会覆盖重连后的新订阅。agent 停止时等待所有 worker 退出。
+- 没有订阅或控制连接断开时释放监听。
 - 浏览器的刷新节奏在 `packages/web/src/lib/use-workspace-refresh.ts`：事件合并使用 `watchDebounce`，可见页面还按 `visibleRefreshInterval` 定时刷新；进入工具立即刷新，重新连接和页面恢复可见时也触发刷新。
 - 文件工具先刷新当前目录，再观察当前显示的打开文件；采用磁盘正文或保留本地修改的规则见[草稿](#草稿)，不遍历全部打开稿件。草稿、磁盘和 Git index 的关系见 [Git 写操作](git.md#写操作)。
