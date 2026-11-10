@@ -309,6 +309,7 @@ export class Control {
     if (match) {
       let code: number | null;
       if (process.platform === "win32") {
+        // The pane wrapper writes the full DWORD status before it exits, so it exists once dead.
         try {
           code = readFileSync(sessionFiles(dirname(this.options.socket)).paneExit).readUInt32LE();
         } catch (error) {
