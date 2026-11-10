@@ -39,7 +39,7 @@ Linux 和 macOS 的命令入口是 `/usr/local/bin/kiteline-agent`；用 `sudo` 
 & (Join-Path $PSHOME $(if ($PSVersionTable.PSVersion.Major -eq 5) { 'powershell.exe' } else { 'pwsh.exe' })) -NoProfile -ExecutionPolicy Bypass -File (Join-Path ([Environment]::GetFolderPath('CommonApplicationData')) 'kiteline-agent/kiteline-agent.ps1') doctor
 ```
 
-两种入口都只为子进程放宽执行策略，不修改持久设置，组策略仍优先。直接用 `& (Join-Path ([Environment]::GetFolderPath('CommonApplicationData')) 'kiteline-agent/kiteline-agent.ps1')` 调用只适用于控制台交互，要求执行策略允许本地脚本，而且输出不进入 PowerShell 管道；需要捕获、管道或重定向时用上面的完整调用。
+需要捕获、管道或重定向时用上面的完整调用。
 
 不带参数执行 `kiteline-agent`，或单独使用 `--help`、`-h`，会打印子命令概要；单独使用 `--version` 打印版本号。未知根命令，以及根帮助/版本选项或 `check`、`run`、`doctor` 的多余参数，都会报错并以非零状态退出。只有 `schedule` 及其子命令提供 `--help`；其他子命令没有 `--help`，参数以下表为准。
 
@@ -227,7 +227,7 @@ agent 数据目录中的 `agent.json`、`connection.json`、`temporary-files.jso
 | 磁盘搜索结果         | 1,000 条                          | 固定                        |
 | 搜索时长             | 10 秒，超时返回已找到的结果       | `searchTimeout`             |
 
-正文搜索按命中行计数，文件名搜索按文件计数；名称查阅显示去重后的位置数。
+正文搜索按命中行计数，文件名搜索按文件计数。
 
 文本打开、保存、图片预览、上传和下载都占用同时进行的文件传输名额。
 
@@ -269,8 +269,6 @@ agent 数据目录中的 `agent.json`、`connection.json`、`temporary-files.jso
 
 一般设备操作包括文件列表与重命名、Git 读取、定时任务管理和本机命令行请求。复制、移动和删除没有总时限。
 
-RPC 请求和结果按完整 JSON 信封计算 1 MiB 预算；结果超限按[结果语义](../design/protocol.md#结果语义)返回 `limit_exceeded`。
-
 ## 文件位置
 
 ### Linux 和 macOS 上的 agent
@@ -290,7 +288,7 @@ RPC 请求和结果按完整 JSON 信封计算 1 MiB 预算；结果超限按[�
 
 ### Windows 上的 agent
 
-下表中的 `%ProgramFiles%` 和 `%ProgramData%` 表示 Windows 系统目录。安装和命令入口通过系统 API 查询它们，修改同名环境变量不会改变安装位置。
+下表中的 `%ProgramFiles%` 和 `%ProgramData%` 表示 Windows 系统目录。
 
 | 路径                                                       | 内容                           |
 | ---------------------------------------------------------- | ------------------------------ |
@@ -329,7 +327,7 @@ Linux 和 macOS 上，新建的数据目录权限为 `0700`，已有目录保留
 | `SESSION_ID/tmux.conf` | 该终端会话的 tmux 配置                            |
 | `SESSION_ID/pane.json` | 该终端会话的启动参数和环境变量（Windows）         |
 
-会话结束时 agent 删除它的 `SESSION_ID/` 目录。Windows 的 `agent.lock` 在 agent 停止后保留，本机命令通过命名管道连接 agent。
+会话结束时 agent 删除它的 `SESSION_ID/` 目录。
 
 ### server
 
