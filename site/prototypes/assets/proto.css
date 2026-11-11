@@ -113,11 +113,16 @@ button {
   color: #fff;
   background: rgba(255, 255, 255, 0.08);
 }
-.kl-switch a[aria-current="page"] {
+.kl-switch a[aria-current="page"],
+.kl-switch button[aria-pressed="true"] {
   color: #0b1522;
   background: #cfe6f7;
 }
-.kl-switch button {
+.kl-switch-note {
+  padding: 8px 11px;
+  color: #8fa0b6;
+}
+.kl-switch #kl-lang {
   margin-left: 2px;
   border-left: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 0 999px 999px 0;

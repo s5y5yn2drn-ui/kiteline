@@ -47,6 +47,19 @@
       el.innerHTML = el.getAttribute(lang === "zh" ? "data-zh" : "data-en");
       el.removeAttribute("data-split");
     }
+    /* screenshots follow the language: <img src="…-zh.webp" data-src-en="…-en.webp"> */
+    var images = document.querySelectorAll("img[data-src-en]");
+    for (var m = 0; m < images.length; m++) {
+      var img = images[m];
+      if (!img.getAttribute("data-src-zh")) {
+        img.setAttribute("data-src-zh", img.getAttribute("src"));
+        img.setAttribute("data-alt-zh", img.getAttribute("alt") || "");
+      }
+      var src = img.getAttribute(lang === "zh" ? "data-src-zh" : "data-src-en");
+      if (img.getAttribute("src") !== src) img.setAttribute("src", src);
+      var alt = img.getAttribute(lang === "zh" ? "data-alt-zh" : "data-alt-en");
+      if (alt !== null) img.setAttribute("alt", alt);
+    }
     KL.splitAll();
     try {
       localStorage.setItem("kiteline.proto.lang", lang);
@@ -56,6 +69,35 @@
   KL.t = function (zh, en) {
     return KL.lang === "zh" ? zh : en;
   };
+
+  /* ---------- variants of one page ---------- */
+  /* A page lists its variants in <body data-variants="b b1 b2">. The choice comes from the URL hash,
+     then the last choice, then the first entry; switching keeps the scroll position. */
+  var variants = (document.body.getAttribute("data-variants") || "").split(" ").filter(Boolean);
+  function readVariant() {
+    var fromHash = location.hash.replace("#", "");
+    if (variants.indexOf(fromHash) >= 0) return fromHash;
+    try {
+      var saved = localStorage.getItem("kiteline.proto.variant");
+      if (variants.indexOf(saved) >= 0) return saved;
+    } catch (e) {}
+    return variants[0] || "";
+  }
+  KL.variant = readVariant();
+  if (KL.variant) document.body.setAttribute("data-variant", KL.variant);
+  KL.setVariant = function (name) {
+    if (variants.indexOf(name) < 0 || name === KL.variant) return;
+    KL.variant = name;
+    document.body.setAttribute("data-variant", name);
+    try {
+      localStorage.setItem("kiteline.proto.variant", name);
+      history.replaceState(null, "", "#" + name);
+    } catch (e) {}
+    document.dispatchEvent(new CustomEvent("kl:variant", { detail: name }));
+  };
+  window.addEventListener("hashchange", function () {
+    KL.setVariant(location.hash.replace("#", ""));
+  });
 
   /* ---------- text reveal ---------- */
   /* Wraps each Latin word and each CJK character (with its trailing punctuation, so a line never
@@ -307,6 +349,74 @@
     return { draw: draw };
   };
 
+  /* ---------- star field ---------- */
+  /* getAlpha() lets the caller fade the field in and out; nothing is drawn while it is zero. */
+  KL.stars = function (canvas, getAlpha, density) {
+    var ctx = canvas.getContext("2d");
+    var stars = [];
+    var w, h, dpr;
+    var visible = true;
+    function resize() {
+      var rect = canvas.getBoundingClientRect();
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = rect.width;
+      h = rect.height;
+      canvas.width = Math.max(1, w * dpr);
+      canvas.height = Math.max(1, h * dpr);
+      stars = [];
+      var count = Math.round((w * h) / (density || 5200));
+      for (var i = 0; i < count; i++) {
+        stars.push([
+          Math.random() * w,
+          Math.random() * h,
+          0.4 + Math.random() * 1.1,
+          Math.random() * 6.28,
+          0.5 + Math.random(),
+        ]);
+      }
+    }
+    function draw(time) {
+      var alpha = getAlpha();
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, w, h);
+      if (alpha <= 0.01) return;
+      ctx.fillStyle = "#eaf4ff";
+      for (var i = 0; i < stars.length; i++) {
+        var s = stars[i];
+        var twinkle = KL.reduced
+          ? 0.8
+          : 0.35 + 0.65 * Math.abs(Math.sin((time / 1400) * s[4] + s[3]));
+        ctx.globalAlpha = alpha * twinkle;
+        ctx.beginPath();
+        ctx.arc(s[0], s[1], s[2], 0, 6.28);
+        ctx.fill();
+      }
+    }
+    function loop(time) {
+      if (visible) draw(time);
+      requestAnimationFrame(loop);
+    }
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (entries) {
+        visible = entries[0].isIntersecting;
+      }).observe(canvas);
+    }
+    window.addEventListener("resize", function () {
+      resize();
+      draw(0);
+    });
+    resize();
+    draw(0);
+    if (!KL.reduced) requestAnimationFrame(loop);
+    return {
+      resize: function () {
+        resize();
+        draw(0);
+      },
+      draw: draw,
+    };
+  };
+
   /* ---------- scripted terminal ---------- */
   /* targets: one <pre> or several (mirrored surfaces showing the same session). */
   KL.term = function (targets, options) {
@@ -387,33 +497,59 @@
   });
 
   /* ---------- prototype switcher ---------- */
-  var PAGES = [
-    { id: "a", file: "a-night.html", zh: "A 夜航", en: "A Night" },
-    { id: "b", file: "b-sky.html", zh: "B 晴空", en: "B Sky" },
-    { id: "c", file: "c-day.html", zh: "C 昼夜", en: "C Day" },
-  ];
+  /* On the page under development the bar switches variants in place; archived pages only link back. */
+  var VARIANT_NAMES = {
+    b: ["B 基准", "B Base"],
+    b1: ["B1 贯线", "B1 Line"],
+    b2: ["B2 暮色", "B2 Dusk"],
+  };
+  var ARCHIVED = {
+    a: ["A 夜航 · 已归档", "A Night · archived"],
+    c: ["C 昼夜 · 已归档", "C Day · archived"],
+  };
   function buildSwitcher() {
     var current = document.body.getAttribute("data-proto");
     if (!current) return;
     var bar = document.createElement("div");
     bar.className = "kl-switch";
-    var html = '<a class="kl-switch-home" href="index.html" title="Overview">◂</a>';
-    for (var i = 0; i < PAGES.length; i++) {
-      var p = PAGES[i];
+    var html = '<a class="kl-switch-home" href="index.html" data-en="◂ Overview">◂ 总览</a>';
+    if (variants.length) {
+      for (var i = 0; i < variants.length; i++) {
+        var names = VARIANT_NAMES[variants[i]] || [variants[i], variants[i]];
+        html +=
+          '<button type="button" data-variant-pick="' +
+          variants[i] +
+          '" data-en="' +
+          names[1] +
+          '">' +
+          names[0] +
+          "</button>";
+      }
+    } else if (ARCHIVED[current]) {
       html +=
-        '<a href="' +
-        p.file +
-        '"' +
-        (p.id === current ? ' aria-current="page"' : "") +
-        ' data-en="' +
-        p.en +
+        '<span class="kl-switch-note" data-en="' +
+        ARCHIVED[current][1] +
         '">' +
-        p.zh +
-        "</a>";
+        ARCHIVED[current][0] +
+        "</span>";
     }
     html += '<button type="button" id="kl-lang" aria-label="Switch language">EN</button>';
     bar.innerHTML = html;
     document.body.appendChild(bar);
+    var picks = [].slice.call(bar.querySelectorAll("[data-variant-pick]"));
+    function mark() {
+      picks.forEach(function (pick) {
+        var on = pick.getAttribute("data-variant-pick") === KL.variant;
+        pick.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+    }
+    picks.forEach(function (pick) {
+      pick.addEventListener("click", function () {
+        KL.setVariant(pick.getAttribute("data-variant-pick"));
+      });
+    });
+    document.addEventListener("kl:variant", mark);
+    mark();
     var button = bar.querySelector("#kl-lang");
     button.addEventListener("click", function () {
       KL.setLang(KL.lang === "zh" ? "en" : "zh");

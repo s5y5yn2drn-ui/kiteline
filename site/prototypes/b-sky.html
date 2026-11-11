@@ -13,12 +13,13 @@
     />
     <link rel="stylesheet" href="assets/proto.css" />
     <style>
-      /* Layout: a painted daytime sky with a kite on a line; a white sheet slides over it and carries the product. */
+      /* Layout: a painted daytime sky with a kite on a line; a sheet slides over it and carries the product.
+         One page, three modes chosen by body[data-variant]:
+           b   the baseline
+           b1  the kite line continues down the sheet and every section heading hangs on it
+           b2  the sheet moves from daylight through dusk into a night sky as you scroll */
       :root {
         color-scheme: light;
-        --sky-top: #1b5cb2;
-        --sky: #3b8ac4; /* rainng.com header */
-        --sky-low: #97c3dd; /* rainng.com page background */
         --blue: #2875c1; /* rainng.com navigation */
         --blue-soft: #e4eefa;
         --peach: #ffe6cc;
@@ -28,6 +29,10 @@
         --paper: #ffffff;
         --mist: #f4f7fb;
         --hair: #dfe6ef;
+        --art1: #d3e5f7;
+        --art2: #eaf2fb;
+        --art3: #fdf0e2;
+        --art-hi: 1;
         --night: #101b2e;
         --sans:
           "Schibsted Grotesk", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui,
@@ -37,11 +42,22 @@
         --wrap: 1224px;
         --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
       }
+      /* light surfaces keep daytime ink whatever the sheet is doing around them */
+      .day {
+        --ink: #14213a;
+        --ink-2: #44546c;
+        --muted: #76849a;
+        --hair: #dfe6ef;
+        --mist: #f4f7fb;
+        --blue: #2875c1;
+        --blue-soft: #e4eefa;
+        color: var(--ink);
+      }
       html {
-        background: var(--paper);
+        background: #fff;
       }
       body {
-        background: var(--paper);
+        background: #fff;
         color: var(--ink);
         font-family: var(--sans);
         font-size: 17px;
@@ -128,7 +144,7 @@
       }
       .pill.dark {
         background: var(--ink);
-        color: #fff;
+        color: var(--paper);
       }
       .pill.dark:hover {
         box-shadow: 0 12px 26px -10px rgba(20, 33, 58, 0.65);
@@ -311,7 +327,7 @@
         will-change: transform, opacity;
       }
       .hero-copy .eyebrow {
-        color: rgba(255, 255, 255, 0.9);
+        color: rgba(255, 255, 255, 0.92);
       }
       h1 {
         max-width: 17em;
@@ -328,7 +344,8 @@
         margin-top: 18px;
         font-size: clamp(16px, 1.25vw, 18px);
         line-height: 1.65;
-        color: rgba(255, 255, 255, 0.94);
+        color: rgba(255, 255, 255, 0.96);
+        text-shadow: 0 1px 16px rgba(20, 62, 130, 0.5);
       }
       .cta {
         display: flex;
@@ -355,9 +372,12 @@
         margin-top: -26px;
         border-radius: 26px 26px 0 0;
         background: var(--paper);
+        color: var(--ink);
         box-shadow: 0 -20px 60px -30px rgba(20, 33, 58, 0.35);
       }
       section {
+        position: relative;
+        z-index: 1;
         padding-block: clamp(64px, 9vw, 120px);
       }
       .rv {
@@ -390,7 +410,7 @@
         margin: 28px 0 0;
         padding: 0;
         list-style: none;
-        color: #8d99ab;
+        color: var(--muted);
       }
       .runs li {
         font-size: clamp(22px, 2.6vw, 32px);
@@ -482,6 +502,8 @@
       .lift {
         /* scroll parallax lives here so it does not fight the tilt on .frame */
         align-self: start;
+        display: grid;
+        justify-items: center;
         width: 100%;
         will-change: transform;
       }
@@ -499,6 +521,11 @@
       .frame img {
         width: 100%;
         height: auto;
+      }
+      .frame.dialog {
+        /* a single dialog cropped from the workbench, shown close to its real size */
+        width: min(47%, 520px);
+        border-radius: 14px;
       }
       .float {
         position: absolute;
@@ -530,7 +557,6 @@
         min-width: 190px;
         padding: 6px;
         background: #fff;
-        color: var(--ink);
         font-family: var(--sans);
         font-size: 14px;
         white-space: normal;
@@ -568,102 +594,6 @@
       }
       .float .bd {
         color: #ff9aa2;
-      }
-      /* drawn dev-preview browser */
-      .browser {
-        font-family: var(--sans);
-      }
-      .browser-bar {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        height: 40px;
-        padding: 0 14px;
-        border-bottom: 1px solid var(--hair);
-        background: var(--mist);
-      }
-      .browser-bar span {
-        flex: 1;
-        min-width: 0;
-        height: 26px;
-        padding: 0 12px;
-        overflow: hidden;
-        border-radius: 999px;
-        background: #fff;
-        font-family: var(--mono);
-        font-size: 12px;
-        line-height: 26px;
-        color: var(--ink-2);
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-      .browser-bar b {
-        font-weight: 400;
-        color: var(--blue);
-      }
-      .browser-page {
-        display: grid;
-        grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-        gap: 24px;
-        padding: clamp(18px, 3vw, 40px);
-        min-height: 300px;
-      }
-      .browser-page h3 {
-        font-family: var(--serif);
-        font-size: clamp(26px, 3vw, 40px);
-      }
-      .gauge {
-        margin-top: 14px;
-        font-size: clamp(34px, 5vw, 68px);
-        line-height: 1;
-        letter-spacing: -0.04em;
-        font-variant-numeric: tabular-nums;
-      }
-      .gauge small {
-        font-size: 0.32em;
-        letter-spacing: 0;
-        color: var(--muted);
-      }
-      .browser-page dl {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        gap: 6px 18px;
-        margin: 18px 0 0;
-        font-size: 14px;
-        color: var(--ink-2);
-      }
-      .browser-page dd {
-        margin: 0;
-        color: var(--ink);
-        font-variant-numeric: tabular-nums;
-      }
-      .spark {
-        align-self: end;
-        width: 100%;
-        height: auto;
-      }
-      .live {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 12px;
-        color: #1f8a52;
-      }
-      .live::before {
-        content: "";
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: #2fb573;
-        animation: ping 1.6s ease-out infinite;
-      }
-      @keyframes ping {
-        0% {
-          box-shadow: 0 0 0 0 rgba(47, 181, 115, 0.6);
-        }
-        100% {
-          box-shadow: 0 0 0 9px rgba(47, 181, 115, 0);
-        }
       }
       .tabs {
         display: grid;
@@ -738,13 +668,21 @@
         overflow: hidden;
         border-radius: 20px;
         background:
-          radial-gradient(70% 60% at 80% 0%, #fff 0%, rgba(255, 255, 255, 0) 70%),
-          linear-gradient(160deg, #d3e5f7, #eaf2fb);
+          radial-gradient(
+            70% 60% at 80% 0%,
+            rgba(255, 255, 255, var(--art-hi)) 0%,
+            rgba(255, 255, 255, 0) 70%
+          ),
+          linear-gradient(160deg, var(--art1), var(--art2));
       }
       .vig:nth-child(2) .vig-art {
         background:
-          radial-gradient(70% 60% at 10% 0%, #fff 0%, rgba(255, 255, 255, 0) 70%),
-          linear-gradient(200deg, #dfeaf8, #fdf0e2);
+          radial-gradient(
+            70% 60% at 10% 0%,
+            rgba(255, 255, 255, var(--art-hi)) 0%,
+            rgba(255, 255, 255, 0) 70%
+          ),
+          linear-gradient(200deg, var(--art2), var(--art3));
       }
       .vig .mini {
         transition: transform 0.7s var(--ease);
@@ -758,7 +696,7 @@
         font-weight: 500;
         letter-spacing: -0.01em;
       }
-      .vig p {
+      .vig > p {
         margin-top: 8px;
         font-size: 15.5px;
         color: var(--ink-2);
@@ -962,9 +900,9 @@
       .phone {
         margin: 0;
         overflow: hidden;
-        border: 6px solid var(--ink);
+        border: 6px solid #14213a;
         border-radius: clamp(18px, 2.6vw, 32px);
-        background: var(--ink);
+        background: #14213a;
         box-shadow: 0 30px 60px -28px rgba(20, 33, 58, 0.6);
         opacity: 0;
         transform: translateY(60px) rotate(var(--r, 0deg));
@@ -999,6 +937,7 @@
         position: relative;
         overflow: hidden;
         padding: clamp(28px, 5vw, 64px);
+        border: 1px solid transparent;
         border-radius: 24px;
         background:
           radial-gradient(60% 80% at 100% 0%, rgba(59, 138, 196, 0.35), transparent 60%),
@@ -1236,6 +1175,7 @@
       }
       .code {
         position: relative;
+        border: 1px solid transparent;
         border-radius: 18px;
         background: var(--night);
         color: #d7e1ee;
@@ -1283,6 +1223,7 @@
       /* ---------- footer ---------- */
       footer {
         position: relative;
+        z-index: 1;
         margin-top: clamp(64px, 9vw, 120px);
         background: var(--night);
         color: #c9d5e6;
@@ -1344,7 +1285,7 @@
         font-weight: 500;
         line-height: 1;
         letter-spacing: -0.045em;
-        color: var(--ink);
+        color: #14213a;
         text-align: center;
         mix-blend-mode: multiply;
         opacity: 0.92;
@@ -1353,6 +1294,167 @@
       .wordmark .sw {
         padding: 0.2em 0.02em 0.3em;
         margin: -0.2em -0.02em -0.3em;
+      }
+
+      /* ---------- B1: the line continues down the sheet ---------- */
+      .thread {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        display: none;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+        pointer-events: none;
+      }
+      body[data-variant="b1"] .thread {
+        display: block;
+      }
+      .thread path {
+        fill: none;
+        stroke: var(--blue);
+        stroke-linecap: round;
+      }
+      .thread .ghost {
+        stroke-width: 1;
+        stroke-dasharray: 2 8;
+        opacity: 0.38;
+      }
+      .thread .live {
+        stroke-width: 1.5;
+      }
+      .thread .tick {
+        stroke: var(--blue);
+        stroke-width: 1;
+        opacity: 0.45;
+      }
+      .thread .ring {
+        fill: #fff;
+        stroke: var(--blue);
+        stroke-width: 1.5;
+        transition: fill 0.5s;
+      }
+      .thread .ring.lit {
+        fill: var(--blue);
+      }
+      .thread .bead {
+        fill: var(--blue);
+      }
+      .thread .halo {
+        fill: var(--blue);
+        opacity: 0.25;
+        transform-box: fill-box;
+        transform-origin: center;
+        animation: breathe 2.4s ease-in-out infinite;
+      }
+      @keyframes breathe {
+        50% {
+          transform: scale(1.9);
+          opacity: 0.07;
+        }
+      }
+      /* a heading settles on its hook when the line reaches it */
+      body[data-variant="b1"] .hung h2 {
+        transform-origin: 0 0;
+        animation: settle 1.2s var(--ease);
+      }
+      @keyframes settle {
+        0% {
+          transform: rotate(-1.3deg);
+        }
+        45% {
+          transform: rotate(0.5deg);
+        }
+        100% {
+          transform: none;
+        }
+      }
+      @media (max-width: 1330px) {
+        /* make room for the line in the left gutter */
+        body[data-variant="b1"] .sheet .wrap {
+          padding-left: max(52px, env(safe-area-inset-left, 0px));
+        }
+      }
+
+      /* ---------- B2: daylight to dusk to night ---------- */
+      body[data-variant="b2"] .sheet {
+        box-shadow: none;
+      }
+      body[data-variant="b2"] .sheet :where(h2, h3, p, li, b, span, a, button, div) {
+        transition:
+          color 0.5s,
+          border-color 0.5s;
+      }
+      #nightStars {
+        position: absolute;
+        left: 0;
+        z-index: 0;
+        display: none;
+        width: 100%;
+        pointer-events: none;
+      }
+      body[data-variant="b2"] #nightStars {
+        display: block;
+      }
+      .pocket::before {
+        /* the last warm light on the horizon */
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          70% 80% at 72% 118%,
+          rgba(255, 150, 110, 0.6),
+          rgba(255, 150, 110, 0) 70%
+        );
+        opacity: 0;
+        transition: opacity 0.8s;
+        pointer-events: none;
+      }
+      body[data-variant="b2"] .pocket::before {
+        opacity: 1;
+      }
+      .pocket .wrap {
+        position: relative;
+      }
+      body[data-variant="b2"] .night,
+      body[data-variant="b2"] .code {
+        border-color: rgba(160, 195, 240, 0.18);
+      }
+      body[data-variant="b2"] footer {
+        background: none;
+      }
+      body[data-variant="b2"] .foot-sky {
+        background: linear-gradient(180deg, #050a18 0%, #0b1836 45%, #1d3f78 100%);
+      }
+      body[data-variant="b2"] .wordmark {
+        color: #dfeaff;
+        mix-blend-mode: normal;
+        opacity: 0.92;
+      }
+      #footStars,
+      .foot-moon {
+        display: none;
+      }
+      body[data-variant="b2"] #footStars,
+      body[data-variant="b2"] .foot-moon {
+        display: block;
+      }
+      .foot-moon {
+        position: absolute;
+        right: 12%;
+        top: 14%;
+        width: clamp(44px, 6vw, 84px);
+        aspect-ratio: 1;
+        filter: drop-shadow(0 0 22px rgba(170, 205, 255, 0.55));
+      }
+      .foot-moon::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: radial-gradient(circle at 34% 40%, #fdfefe 0 45%, #d3e2f5 100%);
+        -webkit-mask-image: radial-gradient(circle at 70% 36%, transparent 0 49%, #000 50.5%);
+        mask-image: radial-gradient(circle at 70% 36%, transparent 0 49%, #000 50.5%);
       }
 
       /* ---------- small screens ---------- */
@@ -1371,12 +1473,21 @@
         .pane {
           padding: 7% 5% 0;
         }
+        .frame:not(.dialog) {
+          /* on a phone the capture is shown at twice the frame width, anchored on the part that matters */
+          aspect-ratio: 4 / 3.4;
+        }
+        .frame:not(.dialog) img {
+          width: 200%;
+          max-width: none;
+          transform: translateX(var(--shift, 0%));
+        }
+        .frame.dialog {
+          width: 84%;
+        }
         .float {
-          right: 4%;
-          bottom: 6%;
-          min-width: 0;
-          font-size: 10.5px;
-          padding: 10px 12px;
+          /* on a phone the overlay would cover most of the capture */
+          display: none;
         }
         .tabs {
           grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1407,12 +1518,19 @@
         .foot-links {
           grid-template-columns: repeat(2, minmax(0, 1fr));
         }
-        .browser-page {
-          grid-template-columns: minmax(0, 1fr);
-          min-height: 0;
-        }
-        .spark {
-          display: none;
+      }
+      @media (max-width: 760px) {
+        /* on a narrow screen the copy spans the full width, so the wash does too */
+        .hero::before {
+          background:
+            linear-gradient(
+              0deg,
+              rgba(24, 84, 168, 0.97) 0%,
+              rgba(30, 98, 182, 0.93) 42%,
+              rgba(40, 117, 193, 0.62) 62%,
+              rgba(40, 117, 193, 0) 82%
+            ),
+            linear-gradient(180deg, rgba(20, 60, 130, 0.28), transparent 22%);
         }
       }
       @media (max-width: 520px) {
@@ -1422,9 +1540,6 @@
         .pill {
           height: 38px;
           padding: 0 15px;
-        }
-        .browser-page dl {
-          display: none;
         }
       }
       @media (prefers-reduced-motion: reduce) {
@@ -1439,16 +1554,20 @@
         .rise,
         .week i.run,
         .mini.stack .toast,
-        .live::before,
         .wire::after,
         .node.server::after,
-        .panel::before {
+        .panel::before,
+        .thread .halo,
+        body[data-variant="b1"] .hung h2 {
           animation: none;
+        }
+        body[data-variant="b2"] .sheet :where(h2, h3, p, li, b, span, a, button, div) {
+          transition: none;
         }
       }
     </style>
   </head>
-  <body data-proto="b">
+  <body data-proto="b" data-variants="b b1 b2">
     <header class="nav" id="nav">
       <div class="nav-in">
         <a class="brand" href="#top" aria-label="Kiteline">
@@ -1519,7 +1638,16 @@
       </div>
     </div>
 
-    <main class="sheet">
+    <main class="sheet" id="sheet">
+      <canvas id="nightStars" aria-hidden="true"></canvas>
+      <svg class="thread" id="thread" aria-hidden="true">
+        <path class="ghost" id="ghost" />
+        <path class="live" id="live" />
+        <g id="marks"></g>
+        <circle class="halo" id="halo" r="8" />
+        <circle class="bead" id="bead" r="4" />
+      </svg>
+
       <section class="runs">
         <div class="wrap rv">
           <p data-en="Runs the command-line tools you already use, unmodified">
@@ -1538,7 +1666,7 @@
         <div class="wrap">
           <div class="head">
             <div>
-              <div class="eyebrow rv" data-en="Workbench">工作台</div>
+              <div class="eyebrow rv hook" data-en="Workbench">工作台</div>
               <h2 class="sp" data-en="Every agent on every device, <em>managed in one place</em>">
                 在浏览器中，<em
                   ><span class="nb">统一管理</span><span class="nb">每台设备上的 agent</span></em
@@ -1558,31 +1686,35 @@
           <div class="panel rv" id="panel">
             <div class="pane on">
               <div class="lift">
-                <div class="frame">
+                <div class="frame day" style="--shift: -38%">
                   <img
-                    src="assets/readme-desktop.webp"
-                    width="1600"
-                    height="900"
-                    alt="Kiteline 工作台：左侧为 Codex 原生 TUI，中间为 Git diff，右侧为文件树"
+                    src="assets/tui-zh.webp"
+                    data-src-en="assets/tui-en.webp"
+                    width="2000"
+                    height="1250"
+                    alt="Kiteline 工作台：左侧为设备与工作区列表，终端中运行着 OpenCode 的原生界面"
+                    data-alt-en="Kiteline workbench: devices and workspaces on the left, OpenCode's native interface running in the terminal"
                   />
                 </div>
               </div>
-              <div class="float menu" id="menu" aria-hidden="true">
+              <div class="float menu day" id="menu" aria-hidden="true">
                 <div><i></i>Shell</div>
-                <div class="on"><i></i>Claude Code</div>
+                <div><i></i>Claude Code</div>
                 <div><i></i>Codex</div>
-                <div><i></i>OpenCode</div>
+                <div class="on"><i></i>OpenCode</div>
               </div>
             </div>
             <div class="pane">
               <div class="lift">
-                <div class="frame">
+                <div class="frame day">
                   <img
-                    src="assets/desk-light.webp"
-                    width="2200"
-                    height="1375"
+                    src="assets/git-zh.webp"
+                    data-src-en="assets/git-en.webp"
+                    width="2000"
+                    height="1250"
                     loading="lazy"
-                    alt="Kiteline 工作台：wind.js 的 diff、完成测试的终端与 Git 面板"
+                    alt="Kiteline 工作台：上方为 wind.js 的 diff，下方终端显示测试通过，右侧为 Git 面板"
+                    data-alt-en="Kiteline workbench: the diff of wind.js above, passing tests in the terminal below, the Git panel on the right"
                   />
                 </div>
               </div>
@@ -1592,32 +1724,16 @@
             </div>
             <div class="pane">
               <div class="lift">
-                <div class="frame browser" aria-hidden="true">
-                  <div class="browser-bar">
-                    <span>desk.example<b>/proxy/devbox/4173/</b></span>
-                    <div class="live">WebSocket</div>
-                  </div>
-                  <div class="browser-page">
-                    <div>
-                      <h3>skylog</h3>
-                      <div class="gauge"><span id="wind">4.2</span> <small>m/s</small></div>
-                      <dl>
-                        <dt>Beaufort</dt>
-                        <dd id="force">force 3 · fly</dd>
-                        <dt>Line tension</dt>
-                        <dd id="tension">13.8 N</dd>
-                      </dl>
-                    </div>
-                    <svg class="spark" viewBox="0 0 300 120" fill="none">
-                      <path id="sparkArea" fill="rgba(40,117,193,.12)" />
-                      <path
-                        id="sparkLine"
-                        stroke="#2875c1"
-                        stroke-width="2"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                  </div>
+                <div class="frame dialog day">
+                  <img
+                    src="assets/port-zh.webp"
+                    data-src-en="assets/port-en.webp"
+                    width="1120"
+                    height="1042"
+                    loading="lazy"
+                    alt="“访问端口”对话框：填写端口 4173，列出设备上正在监听的端口与代理地址"
+                    data-alt-en="The Open port dialog: port 4173 entered, with the device's listening ports and the proxy URL"
+                  />
                 </div>
               </div>
               <pre class="float" aria-hidden="true"><span class="c">$</span> npm start
@@ -1625,21 +1741,23 @@ skylog on http://127.0.0.1:4173</pre>
             </div>
             <div class="pane">
               <div class="lift">
-                <div class="frame">
+                <div class="frame dialog day">
                   <img
-                    src="assets/term-dark.webp"
-                    width="2200"
-                    height="1375"
+                    src="assets/cli-zh.webp"
+                    data-src-en="assets/cli-en.webp"
+                    width="1120"
+                    height="956"
                     loading="lazy"
-                    alt="Kiteline 深色界面中的全屏终端"
+                    alt="“在 CLI 中接续”对话框：给出带完整目标 ID 的 kiteline terminal attach 命令"
+                    data-alt-en="The Continue in CLI dialog: a kiteline terminal attach command with the full target IDs"
                   />
                 </div>
               </div>
               <pre
                 class="float"
                 aria-hidden="true"
-              ><span class="c">$</span> kiteline terminal attach
-<span class="c">$</span> kiteline terminal send --text 'npm test' --enter
+              ><span class="c">$</span> kiteline terminal send --text 'npm test' --enter
+<span class="c">$</span> kiteline terminal wait
 <span class="c">$</span> kiteline terminal snapshot --tail 40</pre>
             </div>
           </div>
@@ -1682,7 +1800,7 @@ skylog on http://127.0.0.1:4173</pre>
         <div class="wrap">
           <div class="head">
             <div>
-              <div class="eyebrow rv" data-en="Continuity">会话接续</div>
+              <div class="eyebrow rv hook" data-en="Continuity">会话接续</div>
               <h2 class="sp" data-en="Leave the device. <em>The session continues.</em>">
                 离开设备，<em>会话持续运行</em>
               </h2>
@@ -1698,7 +1816,7 @@ skylog on http://127.0.0.1:4173</pre>
           <div class="trio">
             <article class="vig rv">
               <div class="vig-art" aria-hidden="true">
-                <div class="mini" id="workspaces">
+                <div class="mini day" id="workspaces">
                   <div class="row dev">devbox <span class="os">Linux</span></div>
                   <div class="row ws on">skylog <span class="badge">1</span></div>
                   <div class="row ws">media-kit</div>
@@ -1716,7 +1834,7 @@ skylog on http://127.0.0.1:4173</pre>
             </article>
             <article class="vig rv" style="--dl: 0.1s">
               <div class="vig-art" aria-hidden="true">
-                <div class="mini stack">
+                <div class="mini stack day">
                   <div class="toast">
                     <b>Codex <time>10:45</time></b>
                     <small data-en="Terminal notification · skylog">终端通知 · skylog</small>
@@ -1742,7 +1860,7 @@ skylog on http://127.0.0.1:4173</pre>
             </article>
             <article class="vig rv" style="--dl: 0.2s">
               <div class="vig-art" aria-hidden="true">
-                <div class="mini">
+                <div class="mini day">
                   <div class="cron"><b>Daily review</b><code>0 9 * * 1-5</code></div>
                   <div class="week">
                     <i>S</i><i class="run" style="--i: 1">M</i><i class="run" style="--i: 2">T</i
@@ -1763,10 +1881,10 @@ skylog on http://127.0.0.1:4173</pre>
         </div>
       </section>
 
-      <section class="pocket">
+      <section class="pocket" id="pocket">
         <div class="wrap">
           <div>
-            <div class="eyebrow rv" data-en="Mobile">移动端</div>
+            <div class="eyebrow rv hook" data-en="Mobile">移动端</div>
             <h2
               class="sp"
               style="margin-top: 12px"
@@ -1777,9 +1895,9 @@ skylog on http://127.0.0.1:4173</pre>
             <p
               class="rv"
               style="--dl: 0.15s"
-              data-en="The mobile layout provides the terminal with a key toolbar, file previews and the Git panel."
+              data-en="The mobile layout provides the terminal with a key toolbar, the file view and the Git panel."
             >
-              移动端布局同样提供终端（含按键工具栏）、文件预览与 Git 面板。
+              移动端布局同样提供终端（含按键工具栏）、文件视图与 Git 面板。
             </p>
           </div>
           <div>
@@ -1787,33 +1905,39 @@ skylog on http://127.0.0.1:4173</pre>
               <div class="par">
                 <figure class="phone" style="--n: 0; --r: -3deg">
                   <img
-                    src="assets/readme-mobile-terminal.webp"
-                    width="828"
-                    height="1792"
+                    src="assets/m-term-zh.webp"
+                    data-src-en="assets/m-term-en.webp"
+                    width="780"
+                    height="1688"
                     loading="lazy"
-                    alt="手机端接续同一 Codex 会话，下方为移动终端工具栏"
+                    alt="手机端的终端：OpenCode 的原生界面，下方为按键工具栏"
+                    data-alt-en="The terminal on a phone: OpenCode's native interface above the key toolbar"
                   />
                 </figure>
               </div>
               <div class="par">
                 <figure class="phone" style="--n: 1">
                   <img
-                    src="assets/readme-mobile-files.webp"
-                    width="828"
-                    height="1792"
+                    src="assets/m-files-zh.webp"
+                    data-src-en="assets/m-files-en.webp"
+                    width="780"
+                    height="1688"
                     loading="lazy"
-                    alt="手机端预览项目的 README.md"
+                    alt="手机端的文件视图：打开项目的 README.md"
+                    data-alt-en="The file view on a phone with the project's README.md open"
                   />
                 </figure>
               </div>
               <div class="par">
                 <figure class="phone" style="--n: 2; --r: 3deg">
                   <img
-                    src="assets/readme-mobile-git.webp"
-                    width="828"
-                    height="1792"
+                    src="assets/m-git-zh.webp"
+                    data-src-en="assets/m-git-en.webp"
+                    width="780"
+                    height="1688"
                     loading="lazy"
-                    alt="手机端 Git 面板显示工作区与暂存区的修改"
+                    alt="手机端的 Git 面板：列出未暂存的两处更改"
+                    data-alt-en="The Git panel on a phone listing two unstaged changes"
                   />
                 </figure>
               </div>
@@ -1830,7 +1954,7 @@ skylog on http://127.0.0.1:4173</pre>
           <div class="night rv" id="night">
             <div class="head">
               <div>
-                <div class="eyebrow" data-en="Self-hosting">自托管</div>
+                <div class="eyebrow hook" data-en="Self-hosting">自托管</div>
                 <h2 class="sp" data-en="Your devices and data, <em>under your control</em>">
                   设备与数据，<em>均由你掌控</em>
                 </h2>
@@ -1901,7 +2025,7 @@ skylog on http://127.0.0.1:4173</pre>
       <section class="start" id="start">
         <div class="wrap">
           <div class="rv">
-            <div class="eyebrow" data-en="Getting started">开始使用</div>
+            <div class="eyebrow hook" id="startHook" data-en="Getting started">开始使用</div>
             <h2 class="sp" style="margin-top: 12px" data-en="Deployed in <em>four commands</em>">
               <em>四条命令</em>完成部署
             </h2>
@@ -1935,7 +2059,7 @@ skylog on http://127.0.0.1:4173</pre>
               >
             </div>
           </div>
-          <div class="code rv" style="--dl: 0.1s">
+          <div class="code rv" id="codeBlock" style="--dl: 0.1s">
             <button type="button" data-copy="#quickRaw">
               <span data-copy-label data-en="Copy">复制</span>
             </button>
@@ -1953,7 +2077,7 @@ docker compose logs server</pre
         </div>
       </section>
 
-      <footer>
+      <footer id="footer">
         <div class="wrap foot-links">
           <div>
             <a class="brand" href="#top" style="color: #fff">Kiteline</a>
@@ -2008,6 +2132,8 @@ docker compose logs server</pre
           </div>
         </div>
         <div class="foot-sky" id="footSky">
+          <canvas id="footStars" aria-hidden="true"></canvas>
+          <div class="foot-moon" aria-hidden="true"></div>
           <canvas id="sky2" aria-hidden="true"></canvas>
           <div class="wordmark sp" id="wordmark" data-chars aria-hidden="true">Kiteline</div>
         </div>
@@ -2020,6 +2146,11 @@ docker compose logs server</pre
         "use strict";
         var KL = window.KL;
         var scrollY = 0;
+        var sheet = document.getElementById("sheet");
+        var TITLES = { b: "Kiteline · 晴空", b1: "Kiteline · 贯线", b2: "Kiteline · 暮色" };
+        function is(name) {
+          return KL.variant === name;
+        }
 
         /* ---------- painted clouds ---------- */
         var skyCanvas = document.getElementById("sky");
@@ -2028,20 +2159,364 @@ docker compose logs server</pre
             lit: [255, 252, 250],
             low: [255, 246, 228],
             shade: [150, 176, 226],
-            cover: 0.05,
+            /* fewer clouds behind the copy on a narrow screen */
+            cover: window.innerWidth < 760 ? -0.03 : 0.05,
             alpha: 1,
             drift: t * 0.012 + 3.2,
           };
         });
         KL.clouds(document.getElementById("sky2"), function (t) {
+          var nightSky = is("b2");
           return {
-            lit: [255, 252, 250],
-            low: [255, 244, 226],
-            shade: [146, 172, 224],
-            cover: 0.1,
-            alpha: 1,
+            lit: nightSky ? [58, 76, 124] : [255, 252, 250],
+            low: nightSky ? [74, 96, 150] : [255, 244, 226],
+            shade: nightSky ? [14, 22, 48] : [146, 172, 224],
+            cover: nightSky ? 0.02 : 0.1,
+            alpha: nightSky ? 0.7 : 1,
             drift: t * 0.014 + 11.4,
           };
+        });
+
+        /* ---------- B1: the kite line through the sheet ---------- */
+        var ghost = document.getElementById("ghost");
+        var live = document.getElementById("live");
+        var marksGroup = document.getElementById("marks");
+        var bead = document.getElementById("bead");
+        var halo = document.getElementById("halo");
+        var hooks = [].slice.call(document.querySelectorAll(".hook"));
+        var codeBlock = document.getElementById("codeBlock");
+        var line = { x: 0, total: 0, table: [], marks: [], shown: 0, target: 0, raf: 0 };
+        function svgEl(name, attrs) {
+          var el = document.createElementNS("http://www.w3.org/2000/svg", name);
+          for (var key in attrs) el.setAttribute(key, attrs[key]);
+          marksGroup.appendChild(el);
+          return el;
+        }
+        function buildLine() {
+          if (!is("b1")) return;
+          var sr = sheet.getBoundingClientRect();
+          var narrow = window.innerWidth <= 900;
+          var pts = hooks.map(function (hook) {
+            var r = hook.getBoundingClientRect();
+            return {
+              x: r.left - sr.left,
+              y: r.top - sr.top + r.height / 2,
+              top: r.top - sr.top,
+              el: hook,
+            };
+          });
+          var g = Math.max(18, pts[0].x - 30);
+          var code = codeBlock.getBoundingClientRect();
+          var cx = code.left - sr.left,
+            cy = code.top - sr.top;
+          var last = pts[pts.length - 1];
+          var regular = narrow ? pts : pts.slice(0, -1);
+          var d = "M" + g + " 0";
+          var prev = 0;
+          marksGroup.textContent = "";
+          line.marks = [];
+          regular.forEach(function (p, i) {
+            var dy = p.y - prev;
+            /* the line hangs slightly slack between hooks, alternating sides */
+            var s = (i % 2 ? -1 : 1) * Math.min(16, dy * 0.06);
+            d +=
+              "C" +
+              (g + s) +
+              " " +
+              (prev + dy * 0.4).toFixed(1) +
+              "," +
+              (g + s) +
+              " " +
+              (p.y - dy * 0.4).toFixed(1) +
+              "," +
+              g +
+              " " +
+              p.y.toFixed(1);
+            prev = p.y;
+            if (p.x - g > 22)
+              svgEl("line", { class: "tick", x1: g + 7, y1: p.y, x2: p.x - 8, y2: p.y });
+            line.marks.push({
+              x: g,
+              y: p.y,
+              el: svgEl("circle", { class: "ring", cx: g, cy: p.y, r: 4.5 }),
+              head: p.el.parentNode,
+            });
+          });
+          var end;
+          if (narrow) {
+            /* single column: straight down, then a short turn into the commands */
+            var ey = cy + 30;
+            d +=
+              "L" +
+              g +
+              " " +
+              (ey - 16) +
+              "Q" +
+              g +
+              " " +
+              ey +
+              "," +
+              (g + 16) +
+              " " +
+              ey +
+              "L" +
+              cx.toFixed(1) +
+              " " +
+              ey;
+            end = [cx, ey];
+          } else {
+            /* two columns: turn right above the last heading, which hangs below the line, then drop into the commands */
+            var ys = last.top - 36;
+            var r = 26;
+            var xe = cx + 96;
+            var hx = last.x + 8;
+            d +=
+              "L" +
+              g +
+              " " +
+              (ys - r) +
+              "Q" +
+              g +
+              " " +
+              ys +
+              "," +
+              (g + r) +
+              " " +
+              ys +
+              "L" +
+              (xe - r).toFixed(1) +
+              " " +
+              ys +
+              "Q" +
+              xe.toFixed(1) +
+              " " +
+              ys +
+              "," +
+              xe.toFixed(1) +
+              " " +
+              (ys + r) +
+              "L" +
+              xe.toFixed(1) +
+              " " +
+              cy.toFixed(1);
+            svgEl("line", { class: "tick", x1: hx, y1: ys + 7, x2: hx, y2: last.top - 5 });
+            line.marks.push({
+              x: hx,
+              y: ys,
+              el: svgEl("circle", { class: "ring", cx: hx, cy: ys, r: 4.5 }),
+              head: last.el.parentNode,
+            });
+            end = [xe, cy];
+          }
+          line.marks.push({
+            x: end[0],
+            y: end[1],
+            el: svgEl("circle", { class: "ring", cx: end[0], cy: end[1], r: 6.5 }),
+            head: null,
+          });
+          ghost.setAttribute("d", d);
+          live.setAttribute("d", d);
+          line.x = g;
+          line.total = live.getTotalLength();
+          live.style.strokeDasharray = line.total;
+          /* sample the path once: scroll position → length, and each hook → its length along the line */
+          line.table = [];
+          var steps = Math.ceil(line.total / 8);
+          var maxY = -1;
+          for (var m = 0; m < line.marks.length; m++) line.marks[m].best = 1e9;
+          for (var i = 0; i <= steps; i++) {
+            var len = (i / steps) * line.total;
+            var pt = live.getPointAtLength(len);
+            if (pt.y > maxY) {
+              maxY = pt.y;
+              line.table.push([pt.y, len]);
+            }
+            for (var k = 0; k < line.marks.length; k++) {
+              var mark = line.marks[k];
+              var dist = Math.abs(pt.x - mark.x) + Math.abs(pt.y - mark.y);
+              if (dist < mark.best) {
+                mark.best = dist;
+                mark.len = len;
+              }
+            }
+          }
+          line.runY = narrow ? cy + 14 : last.top - 36 - 26;
+        }
+        function lengthAt(y) {
+          var table = line.table;
+          if (!table.length || y <= table[0][0]) return 0;
+          if (y >= line.runY) return line.total;
+          var lo = 0,
+            hi = table.length - 1;
+          while (hi - lo > 1) {
+            var mid = (lo + hi) >> 1;
+            if (table[mid][0] <= y) lo = mid;
+            else hi = mid;
+          }
+          var a = table[lo],
+            b = table[hi];
+          return a[1] + ((y - a[0]) / (b[0] - a[0] || 1)) * (b[1] - a[1]);
+        }
+        function paintLine() {
+          line.raf = 0;
+          if (!is("b1")) return;
+          var gap = line.target - line.shown;
+          line.shown = KL.reduced || Math.abs(gap) < 0.6 ? line.target : line.shown + gap * 0.16;
+          live.style.strokeDashoffset = line.total - line.shown;
+          var pt = live.getPointAtLength(line.shown);
+          bead.setAttribute("cx", pt.x);
+          bead.setAttribute("cy", pt.y);
+          halo.setAttribute("cx", pt.x);
+          halo.setAttribute("cy", pt.y);
+          for (var i = 0; i < line.marks.length; i++) {
+            var mark = line.marks[i];
+            var lit = line.shown >= mark.len - 2;
+            if (lit !== mark.lit) {
+              mark.lit = lit;
+              mark.el.classList.toggle("lit", lit);
+              if (lit && mark.head) mark.head.classList.add("hung");
+            }
+          }
+          if (line.shown !== line.target) line.raf = requestAnimationFrame(paintLine);
+        }
+        function updateLine() {
+          if (!is("b1")) return;
+          var top = sheet.getBoundingClientRect().top;
+          var doc = document.documentElement;
+          var atEnd = window.scrollY + window.innerHeight >= doc.scrollHeight - 4;
+          /* with reduced motion the line is simply there, complete */
+          line.target =
+            KL.reduced || atEnd ? line.total : lengthAt(-top + window.innerHeight * 0.62);
+          if (!line.raf) line.raf = requestAnimationFrame(paintLine);
+        }
+
+        /* ---------- B2: the sheet follows the hour ---------- */
+        /* paper, mist, hairline, three art tones, soft blue, highlight strength */
+        var TONES = [
+          [
+            [255, 255, 255],
+            [244, 247, 251],
+            [223, 230, 239],
+            [211, 229, 247],
+            [234, 242, 251],
+            [253, 240, 226],
+            [228, 238, 250],
+            1,
+          ],
+          [
+            [255, 246, 236],
+            [251, 233, 217],
+            [240, 222, 205],
+            [250, 221, 196],
+            [238, 226, 240],
+            [255, 214, 186],
+            [250, 230, 214],
+            0.9,
+          ],
+          [
+            [44, 44, 98],
+            [57, 46, 108],
+            [86, 80, 142],
+            [70, 62, 128],
+            [92, 70, 132],
+            [126, 80, 124],
+            [66, 62, 128],
+            0.16,
+          ],
+          [
+            [11, 19, 36],
+            [15, 26, 48],
+            [34, 48, 73],
+            [20, 34, 62],
+            [26, 44, 78],
+            [34, 48, 84],
+            [22, 41, 74],
+            0.06,
+          ],
+        ];
+        var TOKENS = ["--paper", "--mist", "--hair", "--art1", "--art2", "--art3", "--blue-soft"];
+        var INK_DARK = {
+          "--ink": "#14213a",
+          "--ink-2": "#44546c",
+          "--muted": "#76849a",
+          "--blue": "#2875c1",
+        };
+        var INK_LIGHT = {
+          "--ink": "#eef1fa",
+          "--ink-2": "#c6cce2",
+          "--muted": "#969ebe",
+          "--blue": "#8ec5ff",
+        };
+        var boundaries = [
+          document.getElementById("everywhere"),
+          document.getElementById("pocket"),
+          document.getElementById("own"),
+        ];
+        var nightStars = document.getElementById("nightStars");
+        var footer = document.getElementById("footer");
+        var nightAmount = 0;
+        function updateTone() {
+          var style = sheet.style;
+          if (!is("b2")) return;
+          var vh = window.innerHeight;
+          var index = 0,
+            k = 0;
+          /* each tone holds for its section and blends while the next section scrolls in */
+          for (var i = 0; i < boundaries.length; i++) {
+            var y = boundaries[i].getBoundingClientRect().top;
+            var blend = KL.smooth((vh * 0.95 - y) / (vh * 0.6));
+            if (blend >= 1) index = i + 1;
+            else {
+              if (blend > 0) {
+                index = i;
+                k = blend;
+              }
+              break;
+            }
+          }
+          var a = TONES[index],
+            b = TONES[Math.min(index + 1, TONES.length - 1)];
+          var paper;
+          for (var t = 0; t < TOKENS.length; t++) {
+            var c = [
+              a[t][0] + (b[t][0] - a[t][0]) * k,
+              a[t][1] + (b[t][1] - a[t][1]) * k,
+              a[t][2] + (b[t][2] - a[t][2]) * k,
+            ];
+            if (t === 0) paper = c;
+            style.setProperty(
+              TOKENS[t],
+              "rgb(" + Math.round(c[0]) + "," + Math.round(c[1]) + "," + Math.round(c[2]) + ")",
+            );
+          }
+          style.setProperty("--art-hi", (a[7] + (b[7] - a[7]) * k).toFixed(3));
+          /* ink flips once, when the paper passes mid-grey; CSS eases the change */
+          var ink =
+            (paper[0] * 0.299 + paper[1] * 0.587 + paper[2] * 0.114) / 255 < 0.56
+              ? INK_LIGHT
+              : INK_DARK;
+          for (var key in ink) style.setProperty(key, ink[key]);
+          nightAmount = index >= 3 ? 1 : index === 2 ? k : 0;
+        }
+        function clearTone() {
+          TOKENS.concat(["--art-hi", "--ink", "--ink-2", "--muted", "--blue"]).forEach(
+            function (token) {
+              sheet.style.removeProperty(token);
+            },
+          );
+          nightAmount = 0;
+        }
+        function placeStars() {
+          var own = document.getElementById("own");
+          nightStars.style.top = own.offsetTop + "px";
+          nightStars.style.height = footer.offsetTop - own.offsetTop + "px";
+        }
+        placeStars();
+        var starField = KL.stars(nightStars, function () {
+          return is("b2") ? nightAmount : 0;
+        });
+        var footStarField = KL.stars(document.getElementById("footStars"), function () {
+          return is("b2") ? 1 : 0;
         });
 
         /* ---------- the kite, its line, stars and a passing contrail ---------- */
@@ -2086,7 +2561,7 @@ docker compose logs server</pre
           }
           function contrail(t, sx, sy, ex, ey, speed, phase, width) {
             /* the head crosses the sky slowly; the trail behind it thins out */
-            var q = (t * speed + phase) % 1.5;
+            var q = KL.reduced ? 0.8 : (t * speed + phase) % 1.5;
             var tail = Math.max(0, q - 0.5);
             var hx = KL.lerp(sx, ex, Math.min(q, 1)),
               hy = KL.lerp(sy, ey, Math.min(q, 1));
@@ -2106,7 +2581,7 @@ docker compose logs server</pre
           }
           function draw(time) {
             if (!started) started = time;
-            var t = time / 1000;
+            var t = KL.reduced ? 0 : time / 1000;
             /* launch: the kite is let out along its line during the first seconds */
             var k = KL.reduced ? 1 : KL.clamp((time - started - 250) / 2800, 0, 1);
             var launch = 1 - Math.pow(1 - k, 3);
@@ -2138,8 +2613,13 @@ docker compose logs server</pre
             /* kite position: wind sway, a lean toward the pointer, and a climb as you scroll */
             var narrow = w < 760;
             var size = (narrow ? 34 : KL.clamp(w / 26, 44, 62)) * KL.lerp(0.55, 1, launch);
+            /* the line is held below the hero; in B1 it is handed to the line on the sheet instead */
             var ax = w * (narrow ? 0.14 : 0.3);
             var ay = h + 30;
+            if (is("b1")) {
+              ax = line.x;
+              ay = Math.min(h + 30, sheet.getBoundingClientRect().top + 2);
+            }
             var gx =
               w * (narrow ? 0.72 : 0.735) +
               Math.sin(t * 0.55) * 20 +
@@ -2154,6 +2634,11 @@ docker compose logs server</pre
             var ky = KL.lerp(h * 0.9, gy, launch);
             var mx = (ax + kx) / 2 + 40 * launch;
             var my = (ay + ky) / 2 + h * 0.2 * launch + Math.sin(t * 0.8) * 8;
+            if (is("b1")) {
+              /* handed over at the sheet's corner, the line first runs low, beneath the copy, then climbs */
+              mx = KL.lerp(ax, kx, 0.54);
+              my = ay + 18 + Math.sin(t * 0.8) * 5;
+            }
 
             ctx.strokeStyle = "rgba(255,255,255,.92)";
             ctx.lineWidth = 1.15;
@@ -2226,14 +2711,26 @@ docker compose logs server</pre
             if (scrollY < h) draw(time);
             requestAnimationFrame(loop);
           }
-          window.addEventListener("resize", resize);
+          function still() {
+            draw(performance.now());
+          }
+          window.addEventListener("resize", function () {
+            resize();
+            if (KL.reduced) still();
+          });
           window.addEventListener("pointermove", function (event) {
             tx = event.clientX / window.innerWidth;
             ty = event.clientY / window.innerHeight;
           });
           resize();
-          if (KL.reduced) draw(3000);
-          else requestAnimationFrame(loop);
+          if (KL.reduced) {
+            /* a still picture; redrawn only when the line's anchor moves */
+            still();
+            window.addEventListener("scroll", still, { passive: true });
+            document.addEventListener("kl:variant", function () {
+              requestAnimationFrame(still);
+            });
+          } else requestAnimationFrame(loop);
         })();
 
         /* ---------- scroll-linked motion ---------- */
@@ -2254,6 +2751,8 @@ docker compose logs server</pre
           scrollY = window.scrollY;
           var vh = window.innerHeight;
           nav.classList.toggle("float", scrollY > vh * 0.62);
+          updateLine();
+          updateTone();
           if (KL.reduced) return;
           var k = KL.clamp(scrollY / vh, 0, 1);
           heroCopy.style.transform = "translate3d(0," + (-k * 70).toFixed(1) + "px,0)";
@@ -2270,8 +2769,57 @@ docker compose logs server</pre
           var f = centred(footSky, vh);
           wordmark.style.transform = "translate3d(0," + ((0.12 - f) * 60).toFixed(1) + "px,0)";
         }
-        window.addEventListener("scroll", onScroll, { passive: true });
-        onScroll();
+        var ticking = false;
+        window.addEventListener(
+          "scroll",
+          function () {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(function () {
+              ticking = false;
+              onScroll();
+            });
+          },
+          { passive: true },
+        );
+
+        /* ---------- variants ---------- */
+        function relayout() {
+          placeStars();
+          starField.resize();
+          footStarField.resize();
+          buildLine();
+          line.shown = Math.min(line.shown, line.total);
+          onScroll();
+        }
+        function applyVariant() {
+          document.title = TITLES[KL.variant] || TITLES.b;
+          if (!is("b2")) clearTone();
+          if (is("b1")) line.shown = 0;
+          /* the gutter padding of B1 changes the layout; measure after it has applied */
+          requestAnimationFrame(relayout);
+        }
+        document.addEventListener("kl:variant", applyVariant);
+        document.addEventListener("kl:lang", function () {
+          requestAnimationFrame(relayout);
+        });
+        window.addEventListener("resize", relayout);
+        window.addEventListener("load", relayout);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(relayout);
+        [].forEach.call(document.images, function (img) {
+          if (!img.complete) img.addEventListener("load", relayout);
+        });
+        applyVariant();
+
+        /* in-page links scroll without touching the hash, which names the variant */
+        document.addEventListener("click", function (event) {
+          var link = event.target.closest && event.target.closest('a[href^="#"]');
+          if (!link) return;
+          var target = document.querySelector(link.getAttribute("href"));
+          if (!target) return;
+          event.preventDefault();
+          target.scrollIntoView({ behavior: KL.reduced ? "auto" : "smooth", block: "start" });
+        });
 
         /* ---------- reveals ---------- */
         setTimeout(function () {
@@ -2304,18 +2852,18 @@ docker compose logs server</pre
           });
         });
         /* the progress bar only runs while the panel is on screen */
-        if ("IntersectionObserver" in window) {
+        if ("IntersectionObserver" in window && !KL.reduced) {
           new IntersectionObserver(
             function (entries) {
               tabBar.classList.toggle("idle", !entries[0].isIntersecting);
             },
             { threshold: 0.3 },
           ).observe(panel);
-        } else tabBar.classList.remove("idle");
+        }
 
         /* the “new terminal” menu steps through the CLIs it offers */
         var menuRows = [].slice.call(document.querySelectorAll("#menu div"));
-        var menuIndex = 1;
+        var menuIndex = 3;
         /* workspaces: the selection moves between projects */
         var wsRows = [].slice.call(document.querySelectorAll("#workspaces .ws"));
         var wsIndex = 0;
@@ -2333,36 +2881,6 @@ docker compose logs server</pre
             });
           }, 2400);
         }
-
-        /* ---------- dev preview: a live gauge, as a hot-reloading page would show ---------- */
-        var BEAUFORT = [0.5, 1.5, 3.3, 5.5, 7.9, 10.7, 13.8];
-        var samples = [];
-        for (var s = 0; s < 40; s++) samples.push(4.2 + Math.sin(s * 0.5) * 1.4);
-        function gauge() {
-          var last = samples[samples.length - 1];
-          var next = KL.clamp(last + (Math.random() - 0.5) * 1.3 + (5 - last) * 0.08, 1.2, 9.5);
-          samples.push(next);
-          samples.shift();
-          var force = 0;
-          while (force < BEAUFORT.length && next >= BEAUFORT[force]) force++;
-          document.getElementById("wind").textContent = next.toFixed(1);
-          document.getElementById("force").textContent =
-            "force " + force + (force >= 2 && force <= 5 ? " · fly" : " · stay");
-          document.getElementById("tension").textContent =
-            (0.5 * 1.225 * next * next * 1.6 * 0.8).toFixed(1) + " N";
-          var d = "";
-          for (var i = 0; i < samples.length; i++) {
-            d +=
-              (i ? "L" : "M") +
-              ((i / (samples.length - 1)) * 300).toFixed(1) +
-              " " +
-              (112 - samples[i] * 10).toFixed(1);
-          }
-          document.getElementById("sparkLine").setAttribute("d", d);
-          document.getElementById("sparkArea").setAttribute("d", d + "L300 120L0 120Z");
-        }
-        gauge();
-        if (!KL.reduced) setInterval(gauge, 900);
 
         /* ---------- night panel: light follows the pointer ---------- */
         var night = document.getElementById("night");
