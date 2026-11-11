@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Kiteline · 贯线</title>
+    <title>Kiteline</title>
     <meta name="theme-color" content="#1b5cb2" />
     <!-- Self-hosted subsets; regenerate with tools/build-fonts.py after changing copy. -->
     <link rel="stylesheet" href="assets/fonts/fonts.css" />
@@ -383,6 +383,22 @@
         gap: 12px;
         margin-top: 28px;
       }
+      .trust {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 18px;
+        margin-top: 18px;
+        font-family: var(--mono);
+        font-size: 12.5px;
+        color: rgba(255, 255, 255, 0.86);
+      }
+      .trust a {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+        transition: border-color 0.3s;
+      }
+      .trust a:hover {
+        border-color: #fff;
+      }
       /* load sequence: eyebrow, headline (split), paragraph, buttons */
       .rise {
         animation: rise 1s var(--ease) both;
@@ -420,7 +436,7 @@
         transform: none;
       }
 
-      /* runs-with strip */
+      /* agents strip: a slow, pausable line of names */
       .runs {
         padding-block: 44px 8px;
         text-align: center;
@@ -429,31 +445,50 @@
         font-size: 18px;
         color: var(--ink-2);
       }
-      .runs ul {
+      .marquee {
         display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 18px clamp(28px, 6vw, 84px);
-        margin: 28px 0 0;
-        padding: 0;
+        margin-top: 26px;
+        overflow: hidden;
+        -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+        mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+      }
+      .track {
+        display: flex;
+        flex: none;
+        align-items: baseline;
+        gap: clamp(36px, 5vw, 72px);
+        margin: 0;
+        padding: 6px clamp(18px, 2.5vw, 36px);
         list-style: none;
         color: #8d99ab;
+        font-size: clamp(20px, 2.3vw, 28px);
+        letter-spacing: -0.02em;
+        white-space: nowrap;
+        animation: marquee 56s linear infinite;
       }
-      .runs li {
-        font-size: clamp(22px, 2.6vw, 32px);
-        letter-spacing: -0.03em;
+      .marquee:hover .track,
+      .marquee:focus-within .track {
+        animation-play-state: paused;
+      }
+      @keyframes marquee {
+        to {
+          transform: translateX(-100%);
+        }
+      }
+      .track li {
         transition: color 0.4s;
       }
-      .runs li:hover {
+      .track li:hover {
         color: var(--ink);
       }
-      .runs li:nth-child(odd) {
-        font-family: var(--serif);
+      .track .etc {
+        font-size: 0.78em;
+        letter-spacing: 0;
       }
-      .runs li:nth-child(4) {
-        font-family: var(--mono);
-        font-size: clamp(18px, 2.1vw, 26px);
-        letter-spacing: -0.02em;
+      .runs .runs-note {
+        margin-top: 14px;
+        font-size: 13px;
+        color: var(--muted);
       }
 
       /* section heads */
@@ -1113,7 +1148,7 @@
       }
       .facts {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 28px;
         margin-top: 44px;
         padding-top: 28px;
@@ -1474,9 +1509,11 @@
         .tab span {
           font-size: 13.5px;
         }
-        .trio,
-        .facts {
+        .trio {
           grid-template-columns: minmax(0, 1fr);
+        }
+        .facts {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
         }
         .vig-art {
           aspect-ratio: 16 / 10;
@@ -1522,6 +1559,11 @@
         body[data-variant^="b1"] h1 {
           max-width: none;
         }
+        html:lang(zh-CN) h1,
+        html:lang(zh-CN) body[data-variant="b1s"] h1 {
+          /* the second phrase must fit on one line of a phone */
+          font-size: clamp(26px, 7.7vw, 34px);
+        }
       }
       @media (max-width: 520px) {
         .nav-cta .line {
@@ -1556,10 +1598,27 @@
         .thread .ripple {
           display: none;
         }
+        .marquee {
+          -webkit-mask-image: none;
+          mask-image: none;
+        }
+        .track {
+          /* clear of the line in the left gutter */
+          padding-inline: clamp(44px, 10vw, 150px);
+          flex: 1 1 auto;
+          flex-wrap: wrap;
+          justify-content: center;
+          row-gap: 14px;
+          white-space: normal;
+          animation: none;
+        }
+        .track[aria-hidden] {
+          display: none;
+        }
       }
     </style>
   </head>
-  <body data-proto="b" data-variants="b1 b1s b">
+  <body data-proto="b" data-variants="b1s b1 b">
     <header class="nav" id="nav">
       <div class="nav-in">
         <a class="brand" href="#top" aria-label="Kiteline">
@@ -1608,31 +1667,40 @@
             style="--dl: 0.2s"
             data-en="A self-hosted workbench for coding agents"
           >
-            自托管的 coding agent 工作台
+            自托管的 Coding Agent 工作台
           </div>
           <h1
             class="sp"
             id="heroTitle"
-            data-en="Run agents on your own machines. Stay in control from anywhere."
+            data-en="Control the agents on every device, from anywhere."
           >
-            <span class="nb">在自己的设备上</span><span class="nb">运行 agent，</span
-            ><span class="nb">在任何地方</span><span class="nb">掌控会话</span>
+            <span class="nb">在任何地方，</span><span class="nb">掌控每台设备上的 Agent</span>
           </h1>
           <p
             class="rise"
             id="heroText"
             style="--dl: 0.9s"
-            data-en="Claude Code, Codex and other command-line tools run as native TUIs on devices you own. Manage multiple devices and projects from a browser, and continue the same terminal session across a computer, a phone and a remote CLI."
+            data-en="Run any command-line agent in its native TUI, and continue the same session across a browser, a phone and a remote CLI."
           >
-            Claude Code、Codex 等命令行工具以原生 TUI
-            运行在你自己的设备上。通过浏览器统一管理多台设备与项目，同一终端会话可在电脑、手机与远程
-            CLI 之间接续。
+            以原生 TUI 运行任意命令行 Agent，在浏览器、手机与远程 CLI 之间接续同一会话。
           </p>
           <div class="cta rise" id="heroCta" style="--dl: 1.1s">
             <a class="pill dark" href="#start"
               ><span data-en="Get started">开始部署</span> <span class="arr">↗</span></a
             >
-            <a class="pill glass" href="#workbench" data-en="Explore the workbench">了解工作台</a>
+            <a class="pill glass" href="https://github.com/Azure99/kiteline"
+              ><span data-en="Source on GitHub">在 GitHub 查看源码</span>
+              <span class="arr">↗</span></a
+            >
+          </div>
+          <!-- The version is copied from packages/shared/src/version.json; wire it to the build when this becomes the real site. -->
+          <div class="trust rise" id="heroTrust" style="--dl: 1.25s">
+            <a href="https://github.com/Azure99/kiteline/releases/latest">v0.4.1</a>
+            <a
+              href="https://github.com/Azure99/kiteline/blob/main/LICENSE"
+              data-en="Apache-2.0 licensed"
+              >Apache-2.0 许可</a
+            >
           </div>
         </div>
       </div>
@@ -1649,15 +1717,35 @@
 
       <section class="runs">
         <div class="wrap rv">
-          <p data-en="Runs the command-line tools you already use, unmodified">
-            原生运行你已在使用的命令行工具
-          </p>
-          <ul>
+          <p data-en="Runs any command-line agent">可运行任意命令行 Agent</p>
+        </div>
+        <!-- Names as their publishers write them, checked against each official site. Text only: a list
+             of examples, not of integrations. The script below clones the track for the loop. -->
+        <div class="marquee rv" id="marquee">
+          <ul class="track">
             <li>Claude Code</li>
-            <li>Codex</li>
+            <li>Codex CLI</li>
             <li>OpenCode</li>
-            <li>$ shell</li>
+            <li>Gemini CLI</li>
+            <li>GitHub Copilot CLI</li>
+            <li>Cursor CLI</li>
+            <li>Qwen Code</li>
+            <li>Amp</li>
+            <li>Aider</li>
+            <li>goose</li>
+            <li>Pi</li>
+            <li>Grok Build</li>
+            <li>Command Code</li>
+            <li class="etc" data-en="and more">等</li>
           </ul>
+        </div>
+        <div class="wrap rv">
+          <p
+            class="runs-note"
+            data-en="Listed as common examples, not as official integrations. Names belong to their respective owners."
+          >
+            以上为常见示例，并非官方集成；各名称归其所有者所有。
+          </p>
         </div>
       </section>
 
@@ -1668,7 +1756,7 @@
               <div class="eyebrow rv hook" data-en="Workbench">工作台</div>
               <h2 class="sp" data-en="Every agent on every device, <em>managed in one place</em>">
                 在浏览器中，<em
-                  ><span class="nb">统一管理</span><span class="nb">每台设备上的 agent</span></em
+                  ><span class="nb">统一管理</span><span class="nb">每台设备上的 Agent</span></em
                 >
               </h2>
             </div>
@@ -1676,7 +1764,7 @@
               <p
                 data-en="Terminals, files and Git are presented side by side. Follow an agent as it works and review its changes at any point, without leaving the page."
               >
-                终端、文件与 Git 并列呈现。可随时观察 agent
+                终端、文件与 Git 并列呈现。可随时观察 Agent
                 的执行过程并审阅其改动，无需离开当前页面。
               </p>
             </div>
@@ -1766,31 +1854,26 @@ skylog on http://127.0.0.1:4173</pre>
           <div class="tabs rv idle" id="tabs" role="tablist">
             <button class="tab on" type="button" role="tab">
               <b data-en="Native TUI">原生 TUI</b>
-              <span
-                data-en="Agents run in a real terminal and keep their own interface and interaction, using the toolchain and environment already on the device."
-                >agent 运行在真实终端中，保留原有界面与交互，沿用设备已有的工具链与环境。</span
+              <span data-en="Agents run unmodified in a real terminal."
+                >Agent 在真实终端中原样运行</span
               >
             </button>
             <button class="tab" type="button" role="tab">
               <b data-en="Files and Git">文件与 Git</b>
-              <span
-                data-en="Group and split terminals, edit files, preview images and Markdown or HTML drafts, and review Git changes."
-                >终端支持分组与分屏；可编辑文件、预览图片与 Markdown/HTML 草稿，并查看 Git
-                改动。</span
+              <span data-en="Edit files, preview drafts, review changes."
+                >编辑文件、预览草稿、审阅改动</span
               >
             </button>
             <button class="tab" type="button" role="tab">
               <b data-en="Development preview">开发预览</b>
-              <span
-                data-en="Access web services running on a device from your browser, with WebSocket and hot reload supported."
-                >在浏览器中访问设备上的 Web 服务，支持 WebSocket 与热更新。</span
+              <span data-en="Open a device’s web services in your browser."
+                >在浏览器中访问设备上的服务</span
               >
             </button>
             <button class="tab" type="button" role="tab">
               <b data-en="Remote CLI">远程 CLI</b>
-              <span
-                data-en="Continue the same session from a local terminal, or use short commands to send input, read output and transfer files."
-                >在本机终端接续同一会话，或以短命令发送输入、查看输出、上传与下载文件。</span
+              <span data-en="Continue the same session from a local terminal."
+                >在本机终端接续同一会话</span
               >
             </button>
           </div>
@@ -1805,13 +1888,6 @@ skylog on http://127.0.0.1:4173</pre>
               <h2 class="sp" data-en="Leave the device. <em>The session continues.</em>">
                 离开设备，<em>会话持续运行</em>
               </h2>
-            </div>
-            <div class="rv" style="--dl: 0.15s">
-              <p
-                data-en="Sessions keep running when you switch between a computer and a phone. Terminals notify you when they need attention, and recurring work can be handed to scheduled tasks."
-              >
-                在电脑与手机之间切换时，会话持续运行。终端需要处理时会发出通知，周期性工作可交由定时任务执行。
-              </p>
             </div>
           </div>
           <div class="trio">
@@ -1875,7 +1951,7 @@ skylog on http://127.0.0.1:4173</pre>
               <p
                 data-en="Run scripts or agents on a device according to a cron schedule, with run history retained. Agents can also create tasks themselves."
               >
-                按 cron 计划在设备上运行脚本或 agent，并保留运行记录；agent 亦可自行创建任务。
+                按 cron 计划在设备上运行脚本或 Agent，并保留运行记录；Agent 亦可自行创建任务。
               </p>
             </article>
           </div>
@@ -2003,11 +2079,18 @@ skylog on http://127.0.0.1:4173</pre>
                 </p>
               </div>
               <div>
-                <b data-en="Uses your existing environment">沿用现有环境</b>
+                <b data-en="Data stays on your machines">数据存放于自有设备</b>
                 <p
-                  data-en="Devices need Git 2.23 or later, the shell you use, and a coding CLI that is already signed in."
+                  data-en="The owner password, sign-in sessions, CLI credentials and device registry are kept in the server's data directory; workspace registrations and scheduled tasks stay on each device."
                 >
-                  开发设备需安装 Git 2.23+、所需 Shell，以及已登录的 coding CLI。
+                  密码、登录会话、CLI 凭据与设备登记保存在 server
+                  数据目录；工作区登记与定时任务保存在各设备上。
+                </p>
+              </div>
+              <div>
+                <b data-en="Open source">开源许可</b>
+                <p data-en="The source is released under the Apache-2.0 licence.">
+                  源码以 Apache-2.0 许可发布。
                 </p>
               </div>
               <div>
@@ -2099,9 +2182,9 @@ docker compose logs server</pre
             </a>
             <p
               style="margin-top: 10px"
-              data-en="A self-hosted workbench for coding agents, released under Apache-2.0."
+              data-en="A self-hosted workbench for coding agents, released under Apache-2.0. Current version v0.4.1."
             >
-              自托管的 coding agent 工作台，以 Apache-2.0 许可发布。
+              自托管的 Coding Agent 工作台，以 Apache-2.0 许可发布。当前版本 v0.4.1。
             </p>
           </div>
           <div>
@@ -2162,11 +2245,7 @@ docker compose logs server</pre
         var scrollY = 0;
         var hero = document.getElementById("top");
         var sheet = document.getElementById("sheet");
-        var TITLES = {
-          b: "Kiteline · 晴空",
-          b1: "Kiteline · 贯线",
-          b1s: "Kiteline · 贯线（宋体标题）",
-        };
+        var TITLES = { b1s: "Kiteline", b1: "Kiteline · 无衬线标题", b: "Kiteline · 基准" };
         function lineMode() {
           return KL.variant.indexOf("b1") === 0;
         }
@@ -2636,11 +2715,14 @@ docker compose logs server</pre
               add(el.getBoundingClientRect());
             });
             /* block elements span the full column, so measure their text line by line instead */
-            [].forEach.call(heroCopy.querySelectorAll(".eyebrow, #heroText"), function (el) {
-              var range = document.createRange();
-              range.selectNodeContents(el);
-              [].forEach.call(range.getClientRects(), add);
-            });
+            [].forEach.call(
+              heroCopy.querySelectorAll(".eyebrow, #heroText, .trust a"),
+              function (el) {
+                var range = document.createRange();
+                range.selectNodeContents(el);
+                [].forEach.call(range.getClientRects(), add);
+              },
+            );
             var ax = line.x,
               ay = h - 25;
             var home = kiteHome(narrow);
@@ -2931,7 +3013,7 @@ docker compose logs server</pre
           onScroll();
         }
         function applyVariant() {
-          document.title = TITLES[KL.variant] || TITLES.b1;
+          document.title = TITLES[KL.variant] || TITLES.b1s;
           if (lineMode()) {
             line.shown = 0;
             line.painted = false;
@@ -2967,6 +3049,12 @@ docker compose logs server</pre
           event.preventDefault();
           target.scrollIntoView({ behavior: KL.reduced ? "auto" : "smooth", block: "start" });
         });
+
+        /* ---------- agents strip: a second copy of the track makes the loop seamless ---------- */
+        var marquee = document.getElementById("marquee");
+        var copy = marquee.firstElementChild.cloneNode(true);
+        copy.setAttribute("aria-hidden", "true");
+        marquee.appendChild(copy);
 
         /* ---------- reveals ---------- */
         setTimeout(function () {

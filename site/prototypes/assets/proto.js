@@ -506,8 +506,8 @@
   /* On the page under development the bar switches variants in place; archived pages only link back. */
   var VARIANT_NAMES = {
     b: ["B 基准", "B Base"],
-    b1: ["B1 贯线", "B1 Line"],
     b1s: ["B1 宋体标题", "B1 Serif"],
+    b1: ["B1 无衬线", "B1 Sans"],
     b2: ["B2 暮色", "B2 Dusk"],
   };
   var ARCHIVED = {
