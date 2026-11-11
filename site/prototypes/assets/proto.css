@@ -47,6 +47,32 @@ button {
   }
 }
 
+/* text reveal: KL.split wraps each word or CJK character; .split-in slides them up */
+.sw {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  padding: 0.1em 0.04em 0.16em;
+  margin: -0.1em -0.04em -0.16em;
+}
+.sw > span {
+  display: inline-block;
+  transform: translateY(115%);
+  transition: transform 1.05s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition-delay: calc(var(--i) * var(--stagger, 26ms) + var(--dl, 0s));
+  will-change: transform;
+}
+.split-in .sw > span,
+.split-in.sp .sw > span {
+  transform: none;
+}
+
+/* a phrase that must stay on one line while its characters animate */
+.nb {
+  display: inline-block;
+  white-space: nowrap;
+}
+
 /* prototype switcher */
 .kl-switch {
   position: fixed;
@@ -103,5 +129,9 @@ button {
 @media (prefers-reduced-motion: reduce) {
   .cur {
     animation: none;
+  }
+  .sw > span {
+    transform: none;
+    transition: none;
   }
 }

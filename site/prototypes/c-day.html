@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="assets/proto.css" />
     <style>
       /* Layout: one day told top to bottom. Scrolling moves the clock, the sky follows it, and a single
-         kite line runs from the kite at the top through every chapter to your hand at the end. */
+         kite line runs from the kite at the top through every chapter to the deployment commands. */
       :root {
         color-scheme: light;
         --s1: rgb(143, 192, 228); /* sky top; JS drives these three from the clock */
@@ -35,6 +35,7 @@
           "Hanken Grotesk", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
         --mono: "Martian Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
         --wrap: 1180px;
+        --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
       }
       body[data-phase="night"] {
         --ink: #f1f5fb;
@@ -55,7 +56,7 @@
         color: var(--ink);
         font-family: var(--sans);
         font-size: 17px;
-        line-height: 1.6;
+        line-height: 1.65;
         overflow-x: hidden;
         transition: color 0.6s;
       }
@@ -73,6 +74,23 @@
         inset: 0;
         width: 100%;
         height: 100%;
+      }
+      .glow {
+        /* warm light along the horizon at sunset and before dawn */
+        position: absolute;
+        left: 0;
+        bottom: -42vh;
+        width: 130vw;
+        height: 84vh;
+        margin-left: -65vw;
+        background: radial-gradient(
+          closest-side,
+          rgba(255, 176, 120, 0.85),
+          rgba(255, 150, 110, 0.3) 55%,
+          rgba(255, 150, 110, 0)
+        );
+        opacity: 0;
+        will-change: transform, opacity;
       }
       .orb {
         position: absolute;
@@ -93,6 +111,21 @@
         );
         box-shadow: 0 0 120px 60px rgba(255, 240, 200, 0.45);
       }
+      .sun::after {
+        /* the disc reddens as it nears the horizon */
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          #ffd9a0 0 34%,
+          rgba(255, 170, 110, 0.8) 48%,
+          rgba(255, 140, 90, 0) 72%
+        );
+        box-shadow: 0 0 140px 70px rgba(255, 160, 100, 0.5);
+        opacity: var(--warm, 0);
+      }
       .moon {
         width: clamp(70px, 8vw, 110px);
         margin: calc(clamp(70px, 8vw, 110px) / -2);
@@ -107,51 +140,6 @@
         background: radial-gradient(circle at 34% 40%, #fdfefe 0 45%, #d3e2f5 100%);
         -webkit-mask-image: radial-gradient(circle at 70% 36%, transparent 0 49%, #000 50.5%);
         mask-image: radial-gradient(circle at 70% 36%, transparent 0 49%, #000 50.5%);
-      }
-      .puff {
-        position: absolute;
-        width: 44vw;
-        height: 15vw;
-        background:
-          radial-gradient(
-            38% 60% at 30% 58%,
-            rgba(255, 255, 255, 0.9),
-            rgba(255, 255, 255, 0) 100%
-          ),
-          radial-gradient(
-            30% 70% at 52% 42%,
-            rgba(255, 255, 255, 0.95),
-            rgba(255, 255, 255, 0) 100%
-          ),
-          radial-gradient(40% 52% at 72% 62%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0) 100%);
-        filter: blur(10px);
-        opacity: calc(var(--cloud, 1) * 0.8);
-        animation: drift 90s ease-in-out infinite;
-      }
-      .puff:nth-of-type(1) {
-        top: 54%;
-        left: 50%;
-      }
-      .puff:nth-of-type(2) {
-        top: 24%;
-        left: 56%;
-        width: 30vw;
-        height: 10vw;
-        animation-duration: 130s;
-        animation-delay: -40s;
-      }
-      .puff:nth-of-type(3) {
-        top: 74%;
-        left: -14%;
-        width: 64vw;
-        height: 20vw;
-        animation-duration: 160s;
-        animation-delay: -90s;
-      }
-      @keyframes drift {
-        50% {
-          transform: translateX(12vw);
-        }
       }
 
       /* ---------- top bar ---------- */
@@ -186,6 +174,11 @@
       .brand svg {
         width: 22px;
         height: 22px;
+        transform-origin: 20% 90%;
+        transition: transform 0.6s var(--ease);
+      }
+      .brand:hover svg {
+        transform: rotate(-10deg) translateY(-2px);
       }
       .clock {
         display: flex;
@@ -222,6 +215,26 @@
         font-size: 14.5px;
         font-weight: 500;
       }
+      .top nav a:not(.btn) {
+        position: relative;
+        padding: 4px 0;
+      }
+      .top nav a:not(.btn)::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 1px;
+        background: currentColor;
+        transform: scaleX(0);
+        transform-origin: right;
+        transition: transform 0.45s var(--ease);
+      }
+      .top nav a:not(.btn):hover::after {
+        transform: scaleX(1);
+        transform-origin: left;
+      }
       .btn {
         display: inline-flex;
         align-items: center;
@@ -236,13 +249,25 @@
         white-space: nowrap;
         cursor: pointer;
         transition:
-          transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
+          transform 0.35s var(--ease),
           background 0.6s,
           color 0.6s,
-          border-color 0.6s;
+          border-color 0.6s,
+          box-shadow 0.35s;
       }
       .btn:hover {
         transform: translateY(-2px);
+        box-shadow: 0 12px 26px -14px rgba(10, 30, 70, 0.6);
+      }
+      .btn:active {
+        transform: translateY(0) scale(0.98);
+      }
+      .btn .arr {
+        display: inline-block;
+        transition: transform 0.35s var(--ease);
+      }
+      .btn:hover .arr {
+        transform: translateX(3px);
       }
       .btn.solid {
         border-color: transparent;
@@ -259,6 +284,7 @@
       main {
         position: relative;
         z-index: 1;
+        overflow-x: clip;
       }
       .wrap {
         width: 100%;
@@ -294,6 +320,18 @@
         fill: var(--thread);
         transition: fill 0.6s;
       }
+      #halo {
+        opacity: 0.28;
+        transform-box: fill-box;
+        transform-origin: center;
+        animation: breathe 2.4s ease-in-out infinite;
+      }
+      @keyframes breathe {
+        50% {
+          transform: scale(1.9);
+          opacity: 0.08;
+        }
+      }
       h1,
       h2 {
         margin: 0;
@@ -311,6 +349,16 @@
         margin: 0;
         text-wrap: pretty;
       }
+      .rise {
+        animation: rise 1s var(--ease) both;
+        animation-delay: var(--dl, 0s);
+      }
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(18px);
+        }
+      }
 
       /* hero */
       .hero {
@@ -326,15 +374,16 @@
         line-height: 0.98;
       }
       :lang(zh-CN) .hero h1 {
-        font-size: clamp(40px, 5.8vw, 82px);
+        font-size: clamp(42px, 6.2vw, 88px);
         line-height: 1.14;
       }
       .hero h1 i {
+        display: block;
         font-style: normal;
         color: var(--accent);
       }
       .hero p {
-        max-width: 32em;
+        max-width: 33em;
         margin-top: 24px;
         font-size: clamp(16px, 1.3vw, 19px);
         color: var(--ink-2);
@@ -381,6 +430,17 @@
         justify-self: center;
         width: clamp(120px, 17vw, 230px);
         margin-top: -12vh;
+        animation: launch 2.2s var(--ease) both 0.2s;
+      }
+      @keyframes launch {
+        from {
+          opacity: 0;
+          transform: translate(-70px, 150px) scale(0.6);
+        }
+      }
+      .kite-lean {
+        /* pointer parallax; kept apart from the sway so the two do not fight */
+        will-change: transform;
       }
       .kite {
         display: block;
@@ -398,6 +458,16 @@
         }
         50% {
           transform: rotate(23deg);
+        }
+      }
+      .kite .tail {
+        stroke-dasharray: 6 0;
+        animation: flutter 1.8s ease-in-out infinite alternate;
+        transform-origin: 100px 212px;
+      }
+      @keyframes flutter {
+        to {
+          transform: rotate(-9deg) scaleY(1.05);
         }
       }
       #knot {
@@ -445,8 +515,8 @@
         background: var(--s2);
         transition:
           border-color 0.6s,
-          box-shadow 0.4s,
-          transform 0.4s;
+          box-shadow 0.5s,
+          transform 0.5s var(--ease);
       }
       .ch.lit .dot {
         box-shadow: 0 0 0 7px color-mix(in srgb, var(--thread) 18%, transparent);
@@ -472,19 +542,18 @@
       .ch h2 {
         margin-top: 14px;
         font-size: clamp(30px, 3.5vw, 48px);
-        line-height: 1.05;
+        line-height: 1.06;
       }
       :lang(zh-CN) .ch h2 {
-        line-height: 1.22;
+        line-height: 1.24;
       }
       .ch-copy p {
-        max-width: 27em;
+        max-width: 28em;
         margin-top: 16px;
         color: var(--ink-2);
         transition: color 0.6s;
       }
-      .ch-copy code,
-      .end code {
+      .ch-copy code {
         padding: 2px 6px;
         border: 1px solid var(--card-line);
         border-radius: 6px;
@@ -505,26 +574,44 @@
           background 0.6s,
           border-color 0.6s;
       }
-      /* each visual drifts in from its own side */
-      .ch-vis,
-      .ch-copy {
+      /* a chapter arrives in order: time, headline (split), text, then the visual from its own side */
+      .when,
+      .ch-copy p,
+      .tag {
         opacity: 0;
+        transform: translateY(16px);
         transition:
-          opacity 0.9s cubic-bezier(0.2, 0.7, 0.2, 1),
-          transform 1.1s cubic-bezier(0.2, 0.7, 0.2, 1);
+          opacity 0.9s var(--ease),
+          transform 0.9s var(--ease),
+          color 0.6s,
+          background 0.6s,
+          border-color 0.6s;
       }
-      .ch-copy {
-        transform: translateY(24px);
+      .ch-copy p {
+        transition-delay: 0.25s;
+      }
+      .tag {
+        transition-delay: 0.38s;
       }
       .ch-vis {
+        opacity: 0;
         transform: translateX(46px) rotate(1.2deg);
+        transition:
+          opacity 1s var(--ease),
+          transform 1.3s var(--ease);
+        transition-delay: 0.12s;
       }
       .ch.alt .ch-vis {
         transform: translateX(-46px) rotate(-1.2deg);
       }
-      .ch.in .ch-vis,
-      .ch.in .ch-copy {
+      .in .when,
+      .in .ch-copy p,
+      .in .tag,
+      .ch.in .ch-vis {
         opacity: 1;
+        transform: none;
+      }
+      .in .sw > span {
         transform: none;
       }
 
@@ -539,10 +626,19 @@
         transition:
           background 0.6s,
           border-color 0.6s;
+        will-change: transform;
       }
       .card img {
         width: 100%;
         height: auto;
+      }
+      .wipe {
+        /* the frame appears first, then the screenshot is drawn down into it */
+        clip-path: inset(0 0 100% 0);
+        transition: clip-path 1.3s var(--ease) 0.35s;
+      }
+      .ch.in .wipe {
+        clip-path: inset(0 0 0 0);
       }
       .pad {
         padding: 18px;
@@ -564,19 +660,32 @@
         max-width: 470px;
         margin: 0 auto;
       }
+      .par {
+        will-change: transform;
+      }
+      .par:last-child {
+        margin-top: 44px;
+      }
       .ph {
         overflow: hidden;
         border: 6px solid #12203a;
         border-radius: 30px;
         background: #12203a;
         box-shadow: 0 30px 70px -28px rgba(10, 30, 70, 0.7);
+        opacity: 0;
+        transform: translateY(50px);
+        transition:
+          opacity 1s var(--ease),
+          transform 1.2s var(--ease);
+        transition-delay: calc(var(--n) * 0.18s + 0.2s);
+      }
+      .ch.in .ph {
+        opacity: 1;
+        transform: none;
       }
       .ph img {
         width: 100%;
         height: auto;
-      }
-      .ph:last-child {
-        margin-top: 44px;
       }
       .note {
         display: grid;
@@ -591,9 +700,9 @@
         transform: translateY(-10px) scale(0.98);
         transition:
           opacity 0.6s,
-          transform 0.6s cubic-bezier(0.2, 1.2, 0.3, 1),
+          transform 0.7s cubic-bezier(0.2, 1.2, 0.3, 1),
           background 0.6s;
-        transition-delay: calc(var(--n) * 0.45s + 0.4s);
+        transition-delay: calc(var(--n) * 0.45s + 0.5s);
       }
       .note + .note {
         margin-top: 8px;
@@ -606,12 +715,21 @@
         grid-row: span 2;
         width: 9px;
         height: 9px;
-        margin-top: 7px;
+        margin-top: 8px;
         border-radius: 50%;
         background: var(--accent);
       }
       .note i.w {
         background: #e9a23b;
+        animation: ask 1.8s ease-out infinite;
+      }
+      @keyframes ask {
+        0% {
+          box-shadow: 0 0 0 0 rgba(233, 162, 59, 0.6);
+        }
+        100% {
+          box-shadow: 0 0 0 9px rgba(233, 162, 59, 0);
+        }
       }
       .note b {
         font-weight: 600;
@@ -672,9 +790,6 @@
       .t .ok {
         color: #7fd9a2;
       }
-      .t .wa {
-        color: #f2b84b;
-      }
       .t .in {
         color: #b9d9eb;
       }
@@ -691,9 +806,9 @@
         opacity: 0;
         transform: translateX(-10px);
         transition:
-          opacity 0.5s,
-          transform 0.5s;
-        transition-delay: calc(var(--n) * 0.5s + 0.5s);
+          opacity 0.6s,
+          transform 0.6s var(--ease);
+        transition-delay: calc(var(--n) * 0.3s + 0.5s);
       }
       .ch.in .runlog div {
         opacity: 1;
@@ -708,6 +823,26 @@
       }
       .runlog em.skip {
         color: var(--ink-3);
+      }
+      .runlog em.busy {
+        color: var(--accent);
+      }
+      .runlog em.busy::before {
+        content: "";
+        display: inline-block;
+        width: 9px;
+        height: 9px;
+        margin-right: 7px;
+        border: 1.5px solid currentColor;
+        border-top-color: transparent;
+        border-radius: 50%;
+        vertical-align: -1px;
+        animation: spin 0.9s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
       }
       .task-h {
         display: flex;
@@ -733,24 +868,84 @@
         text-align: center;
       }
       .hand {
+        position: relative;
         width: 16px;
         height: 16px;
-        margin: 0 auto 34px;
+        margin: 0 auto 30px;
         border-radius: 50%;
         background: var(--thread);
-        box-shadow: 0 0 0 8px color-mix(in srgb, var(--thread) 20%, transparent);
+        transition: background 0.6s;
+      }
+      .hand::before,
+      .hand::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border: 1px solid var(--thread);
+        border-radius: 50%;
+        animation: ripple 3s ease-out infinite;
+      }
+      .hand::after {
+        animation-delay: 1.5s;
+      }
+      @keyframes ripple {
+        from {
+          transform: scale(1);
+          opacity: 0.7;
+        }
+        to {
+          transform: scale(4.2);
+          opacity: 0;
+        }
+      }
+      .end .when {
+        justify-content: center;
       }
       .end h2 {
+        margin-top: 14px;
         font-size: clamp(34px, 5vw, 68px);
         line-height: 1.04;
       }
       :lang(zh-CN) .end h2 {
         line-height: 1.2;
       }
-      .end > .wrap > p {
-        max-width: 34em;
+      .end .lead {
+        max-width: 35em;
         margin: 18px auto 0;
         color: var(--ink-2);
+      }
+      .end code {
+        font-family: var(--mono);
+        font-size: 0.85em;
+      }
+      .end .lead,
+      .end .quick,
+      .end .cta,
+      .end .fine {
+        opacity: 0;
+        transform: translateY(18px);
+        transition:
+          opacity 1s var(--ease),
+          transform 1s var(--ease);
+      }
+      .end .lead {
+        transition-delay: 0.3s;
+      }
+      .end .quick {
+        transition-delay: 0.42s;
+      }
+      .end .cta {
+        transition-delay: 0.54s;
+      }
+      .end .fine {
+        transition-delay: 0.66s;
+      }
+      .end.in .lead,
+      .end.in .quick,
+      .end.in .cta,
+      .end.in .fine {
+        opacity: 1;
+        transform: none;
       }
       .quick {
         position: relative;
@@ -760,6 +955,7 @@
       }
       .quick pre.t {
         height: auto;
+        min-height: 9.4em;
         padding: 18px 20px;
         overflow-x: auto;
         font-size: 13px;
@@ -779,6 +975,10 @@
         color: #d7e1ee;
         font-size: 12px;
         cursor: pointer;
+        transition: background 0.3s;
+      }
+      .quick button:hover {
+        background: #213251;
       }
       .end .cta {
         justify-content: center;
@@ -851,16 +1051,33 @@
       }
       @media (prefers-reduced-motion: reduce) {
         .kite,
-        .puff,
-        .hint::before {
+        .kite .tail,
+        .kite-box,
+        .rise,
+        .hint::before,
+        #halo,
+        .hand::before,
+        .hand::after,
+        .note i.w {
           animation: none;
         }
         .ch-vis,
-        .ch-copy,
+        .when,
+        .ch-copy p,
+        .tag,
         .note,
-        .runlog div {
+        .ph,
+        .runlog div,
+        .end .lead,
+        .end .quick,
+        .end .cta,
+        .end .fine {
           opacity: 1;
           transform: none;
+          transition: none;
+        }
+        .wipe {
+          clip-path: none;
           transition: none;
         }
       }
@@ -869,11 +1086,10 @@
   <body data-proto="c" data-phase="day">
     <div class="sky" aria-hidden="true">
       <canvas id="stars"></canvas>
+      <div class="glow" id="glow"></div>
       <div class="orb sun" id="sun"></div>
       <div class="orb moon" id="moon"></div>
-      <div class="puff"></div>
-      <div class="puff"></div>
-      <div class="puff"></div>
+      <canvas id="clouds"></canvas>
     </div>
 
     <header class="top">
@@ -890,14 +1106,14 @@
         Kiteline
       </a>
       <div class="clock" aria-hidden="true">
-        <b id="clock">08:00</b><span id="clockLabel" data-en="morning">早晨</span>
+        <b id="clock">08:00</b><span id="clockLabel">清晨</span>
       </div>
       <nav>
         <a href="https://github.com/Azure99/kiteline/blob/main/docs/guide/usage.md" data-en="Docs"
           >文档</a
         >
         <a href="https://github.com/Azure99/kiteline">GitHub ↗</a>
-        <a class="btn solid small" href="#start" data-en="Deploy">开始部署</a>
+        <a class="btn solid small" href="#start" data-en="Get started">开始部署</a>
       </nav>
     </header>
 
@@ -905,109 +1121,126 @@
       <svg class="thread" id="thread" aria-hidden="true">
         <path class="ghost" id="ghost" />
         <path class="live" id="live" />
+        <circle id="halo" r="9" />
         <circle id="bead" r="4.5" />
       </svg>
 
       <div class="wrap">
         <section class="hero">
           <div>
-            <h1 data-en="One line, <i>from morning to midnight.</i>">
-              从早到晚，<i>线一直在你手里。</i>
+            <h1 class="sp" id="heroTitle" data-en="One session, <i>through the whole day.</i>">
+              一个会话，<i>贯穿全天。</i>
             </h1>
             <p
-              data-en="Kiteline is a self-hosted workbench for coding agents. Claude Code and Codex run as native TUIs on your own machines, and one terminal session follows you across your computer, your phone and a remote CLI."
+              class="rise"
+              style="--dl: 0.8s"
+              data-en="Kiteline is a self-hosted workbench for coding agents. Claude Code, Codex and other command-line tools run as native TUIs on devices you own, and the same terminal session continues across a computer, a phone and a remote CLI."
             >
-              Kiteline 是自托管的 coding agent 工作台。Claude Code、Codex 以原生 TUI
-              跑在你自己的设备上，同一个终端会话跟着你在电脑、手机和远程 CLI 之间接续。
+              Kiteline 是自托管的 coding agent 工作台。Claude Code、Codex 等命令行工具以原生 TUI
+              运行在你自己的设备上，同一终端会话可在电脑、手机与远程 CLI 之间接续。
             </p>
-            <div class="cta">
-              <a class="btn solid" href="#start" data-en="Deploy in four commands →"
-                >四行命令部署 →</a
+            <div class="cta rise" style="--dl: 1s">
+              <a class="btn solid" href="#start"
+                ><span data-en="Deploy in four commands">四条命令完成部署</span>
+                <span class="arr">→</span></a
               >
               <a class="btn" href="https://github.com/Azure99/kiteline">GitHub ↗</a>
             </div>
-            <div class="hint" data-en="SCROLL THROUGH A DAY WITH IT">往下滚，和它过一天</div>
+            <div class="hint rise" style="--dl: 1.3s" data-en="SCROLL TO FOLLOW A DAY OF USE">
+              向下滚动，查看一天中的使用场景
+            </div>
           </div>
           <div class="kite-box" aria-hidden="true">
-            <svg class="kite" viewBox="0 0 200 300" fill="none">
-              <path d="M100 6 178 96 100 212 22 96Z" fill="#fff" />
-              <path d="M100 6 178 96H100Z" fill="#ffe6cc" />
-              <path d="M100 96v116L22 96Z" fill="#cfe3f6" />
-              <path
-                d="M100 6v206M22 96h156"
-                stroke="#2875c1"
-                stroke-opacity=".5"
-                stroke-width="2"
-              />
-              <path
-                d="M100 212c-14 16 10 26-4 44s8 22-6 38"
-                stroke="#fff"
-                stroke-width="4"
-                stroke-linecap="round"
-              />
-            </svg>
+            <div class="kite-lean" id="kiteLean">
+              <svg class="kite" viewBox="0 0 200 300" fill="none">
+                <path d="M100 6 178 96 100 212 22 96Z" fill="#fff" />
+                <path d="M100 6 178 96H100Z" fill="#ffe6cc" />
+                <path d="M100 96v116L22 96Z" fill="#cfe3f6" />
+                <path
+                  d="M100 6v206M22 96h156"
+                  stroke="#2875c1"
+                  stroke-opacity=".5"
+                  stroke-width="2"
+                />
+                <path
+                  class="tail"
+                  d="M100 212c-14 16 10 26-4 44s8 22-6 38"
+                  stroke="#fff"
+                  stroke-width="4"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </div>
             <span id="knot"></span>
           </div>
         </section>
 
         <section class="ch" data-min="540">
           <div class="ch-copy">
-            <div class="when"><b>09:00</b><span data-en="AT YOUR DESK">书桌前</span></div>
-            <h2 data-en="Open the terminal it was built for.">打开它原本的终端。</h2>
+            <div class="when"><b>09:00</b><span data-en="AT THE DESK">办公桌前</span></div>
+            <h2 class="sp" data-en="Start agents in their native TUI">
+              <span class="nb">以原生 TUI</span> <span class="nb">启动 agent</span>
+            </h2>
             <p
-              data-en="Agents run in a real terminal on your device, with their own interface and keystrokes and the toolchain already installed there. The browser is just where you watch."
+              data-en="Agents run in a real terminal on the device, keeping their own interface and interaction and using the toolchain and environment already in place. The browser presents the session and relays your input."
             >
               agent
-              运行在设备的真实终端里，保留原有的界面与交互，沿用已有的工具链与环境。浏览器只是你看着它的地方。
+              运行在设备的真实终端中，保留原有界面与交互，沿用设备已有的工具链与环境；浏览器负责呈现会话并传递输入。
             </p>
             <span class="tag" data-en="Native TUI">原生 TUI</span>
           </div>
           <div class="dot"></div>
           <div class="ch-vis">
-            <div class="card">
-              <img
-                src="assets/readme-desktop.webp"
-                width="1600"
-                height="900"
-                alt="Kiteline 工作台：Codex 原生 TUI、Git diff 与文件树"
-              />
+            <div class="card shot">
+              <div class="wipe">
+                <img
+                  src="assets/readme-desktop.webp"
+                  width="1600"
+                  height="900"
+                  alt="Kiteline 工作台：Codex 原生 TUI、Git diff 与文件树"
+                />
+              </div>
             </div>
           </div>
         </section>
 
         <section class="ch alt" data-min="750">
           <div class="ch-copy">
-            <div class="when">
-              <b>12:30</b><span data-en="ON THE WAY TO LUNCH">去吃午饭的路上</span>
-            </div>
-            <h2 data-en="Pick up your phone. It is still running.">拿起手机，它还在跑。</h2>
+            <div class="when"><b>12:30</b><span data-en="AWAY FROM THE DESK">外出途中</span></div>
+            <h2 class="sp" data-en="Continue the session on your phone">
+              <span class="nb">在手机上</span><span class="nb">接续会话</span>
+            </h2>
             <p
-              data-en="Switch from computer to phone and the session carries on. The mobile layout keeps the terminal, file previews and the Git panel."
+              data-en="When you move from a computer to a phone, the session keeps running. The mobile layout provides the terminal, file previews and the Git panel."
             >
-              从电脑换到手机，会话继续运行。手机布局保留了终端、文件预览和 Git 面板。
+              从电脑切换到手机时，会话持续运行。移动端布局同样提供终端、文件预览与 Git 面板。
             </p>
             <span class="tag" data-en="Devices and workspaces">多设备与工作区</span>
           </div>
           <div class="dot"></div>
           <div class="ch-vis">
-            <div class="duo-phones">
-              <div class="ph">
-                <img
-                  src="assets/readme-mobile-terminal.webp"
-                  width="828"
-                  height="1792"
-                  loading="lazy"
-                  alt="手机端接续同一个 Codex 会话"
-                />
+            <div class="duo-phones" id="phones">
+              <div class="par">
+                <div class="ph" style="--n: 0">
+                  <img
+                    src="assets/readme-mobile-terminal.webp"
+                    width="828"
+                    height="1792"
+                    loading="lazy"
+                    alt="手机端接续同一 Codex 会话"
+                  />
+                </div>
               </div>
-              <div class="ph">
-                <img
-                  src="assets/readme-mobile-git.webp"
-                  width="828"
-                  height="1792"
-                  loading="lazy"
-                  alt="手机端 Git 面板"
-                />
+              <div class="par">
+                <div class="ph" style="--n: 1">
+                  <img
+                    src="assets/readme-mobile-git.webp"
+                    width="828"
+                    height="1792"
+                    loading="lazy"
+                    alt="手机端 Git 面板"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -1015,12 +1248,14 @@
 
         <section class="ch" data-min="910">
           <div class="ch-copy">
-            <div class="when"><b>15:10</b><span data-en="BETWEEN MEETINGS">两个会之间</span></div>
-            <h2 data-en="It stopped to ask. You know.">它停下来等你，你会知道。</h2>
+            <div class="when"><b>15:10</b><span data-en="BETWEEN MEETINGS">会议间隙</span></div>
+            <h2 class="sp" data-en="Know when a terminal is waiting">
+              <span class="nb">及时获知</span><span class="nb">等待中的终端</span>
+            </h2>
             <p
-              data-en="Notifications and waiting reports from every terminal collect in the workspace list. One click takes you back to the terminal that sent them."
+              data-en="Notifications and waiting reports issued by programs appear in the workspace list. Select the source to return to its terminal."
             >
-              各个终端主动发出的通知和等待报告，汇总在工作区列表里。点一下来源，回到对应的终端。
+              程序主动发出的通知与等待报告汇总于工作区列表，点击来源即可回到对应终端。
             </p>
             <span class="tag" data-en="Terminal notifications">终端通知</span>
           </div>
@@ -1032,19 +1267,19 @@
               </div>
               <div class="note" style="--n: 0">
                 <i class="w"></i><b>Claude Code · ios-app</b><time>15:02</time>
-                <p data-en="Waiting for you: approve running the migration?">
-                  等待确认：是否运行数据库迁移？
+                <p data-en="Awaiting confirmation to run the database migration.">
+                  等待确认：是否执行数据库迁移。
                 </p>
               </div>
               <div class="note" style="--n: 1">
                 <i></i><b>Codex · skylog</b><time>15:07</time>
-                <p data-en="Gust handling is in. All 6 tests pass, nothing committed.">
-                  阵风判断已加入，6 项测试全部通过，尚未提交。
+                <p data-en="Gust handling added. All 6 tests pass; nothing committed yet.">
+                  已加入阵风判断；6 项测试全部通过，尚未提交。
                 </p>
               </div>
               <div class="note" style="--n: 2">
                 <i></i><b>Shell · media-kit</b><time>15:09</time>
-                <p data-en="Build finished in 3m 12s.">构建完成，用时 3 分 12 秒。</p>
+                <p data-en="Build completed in 3 min 12 s.">构建完成，用时 3 分 12 秒。</p>
               </div>
             </div>
           </div>
@@ -1053,14 +1288,16 @@
         <section class="ch alt" data-min="1125">
           <div class="ch-copy">
             <div class="when">
-              <b>18:45</b><span data-en="ON ANOTHER LAPTOP">另一台电脑上</span>
+              <b>18:45</b><span data-en="ON ANOTHER COMPUTER">另一台电脑</span>
             </div>
-            <h2 data-en="Attach from the terminal you are already in.">在手边的终端里，接住它。</h2>
+            <h2 class="sp" data-en="Attach through the remote CLI">
+              <span class="nb">通过远程 CLI</span> <span class="nb">接入</span>
+            </h2>
             <p
-              data-en="<code>kiteline terminal attach</code> joins the same session from your own terminal. Short commands send input, read output and move files."
+              data-en="<code>kiteline terminal attach</code> continues the same session from a local terminal. Short commands send input, read output and transfer files."
             >
               <code>kiteline terminal attach</code>
-              在本机终端接续同一个会话；短命令可以发送输入、查看输出、上传下载文件。
+              可在本机终端接续同一会话；亦可使用短命令发送输入、查看输出、上传与下载文件。
             </p>
             <span class="tag" data-en="Remote CLI">远程 CLI</span>
           </div>
@@ -1075,41 +1312,46 @@
 
         <section class="ch" data-min="1290">
           <div class="ch-copy">
-            <div class="when"><b>21:30</b><span data-en="BEFORE BED">睡前</span></div>
-            <h2 data-en="See exactly what it changed today.">看一眼它今天改了什么。</h2>
+            <div class="when"><b>21:30</b><span data-en="END OF THE DAY">当日收尾</span></div>
+            <h2 class="sp" data-en="Review the day's changes">
+              <span class="nb">审阅当日的</span><span class="nb">全部改动</span>
+            </h2>
             <p
-              data-en="Split terminals, edit files, preview images and Markdown or HTML drafts, review the diff. A web service running on the device opens right in your browser, WebSocket and hot reload included."
+              data-en="Group and split terminals, edit files, preview images and Markdown or HTML drafts, and review Git changes. Web services running on a device can be opened in the browser, with WebSocket and hot reload supported."
             >
-              终端分屏，编辑文件，预览图片和 Markdown/HTML 草稿，查看 Git 改动。设备上跑着的 Web
-              服务也能直接在浏览器里打开，支持 WebSocket 与热更新。
+              终端支持分组与分屏；可编辑文件、预览图片与 Markdown/HTML 草稿、查看 Git
+              改动，并在浏览器中访问设备上的 Web 服务（支持 WebSocket 与热更新）。
             </p>
-            <span class="tag" data-en="Terminal, files, Git, dev preview"
+            <span class="tag" data-en="Terminal, files, Git and preview"
               >终端、文件、Git 与开发预览</span
             >
           </div>
           <div class="dot"></div>
           <div class="ch-vis">
-            <div class="card">
-              <img
-                src="assets/desk-dark.webp"
-                width="2200"
-                height="1375"
-                loading="lazy"
-                alt="Kiteline 深色界面：wind.js 的 diff、终端里通过的测试和 Git 面板"
-              />
+            <div class="card shot">
+              <div class="wipe">
+                <img
+                  src="assets/desk-dark.webp"
+                  width="2200"
+                  height="1375"
+                  loading="lazy"
+                  alt="Kiteline 深色界面：wind.js 的 diff、通过测试的终端与 Git 面板"
+                />
+              </div>
             </div>
           </div>
         </section>
 
         <section class="ch alt" data-min="1560">
           <div class="ch-copy">
-            <div class="when"><b>02:00</b><span data-en="WHILE YOU SLEEP">你睡着了</span></div>
-            <h2 data-en="cron is still awake.">cron 还醒着。</h2>
+            <div class="when"><b>02:00</b><span data-en="OVERNIGHT">夜间</span></div>
+            <h2 class="sp" data-en="Scheduled tasks run as planned">
+              <span class="nb">定时任务</span><span class="nb">按计划执行</span>
+            </h2>
             <p
-              data-en="Scheduled tasks run scripts or agents on a cron plan, on the device, and keep the run history. Agents can create tasks themselves."
+              data-en="Scheduled tasks run scripts or agents on the device according to a cron schedule, with run history retained. Agents can also create tasks themselves."
             >
-              定时任务按 cron 计划在设备上运行脚本或 agent，并保留运行记录；agent
-              也可以自行创建任务。
+              定时任务按 cron 计划在设备上运行脚本或 agent，并保留运行记录；agent 亦可自行创建任务。
             </p>
             <span class="tag" data-en="Scheduled tasks">定时任务</span>
           </div>
@@ -1122,13 +1364,14 @@
               </div>
               <div class="runlog">
                 <div style="--n: 0">
-                  <time>02:00</time><span data-en="today">今天</span><em>✔ exit 0</em>
+                  <time>02:00</time><span data-en="Today">今日</span
+                  ><em class="busy" id="running">running</em>
                 </div>
                 <div style="--n: 1">
-                  <time>02:00</time><span data-en="yesterday">昨天</span><em>✔ exit 0</em>
+                  <time>02:00</time><span data-en="Yesterday">昨日</span><em>✔ exit 0</em>
                 </div>
                 <div style="--n: 2">
-                  <time>02:00</time><span data-en="2 days ago">前天</span
+                  <time>02:00</time><span data-en="2 days ago">2 天前</span
                   ><em class="skip" data-en="skipped">已跳过</em>
                 </div>
                 <div style="--n: 3">
@@ -1143,18 +1386,20 @@
       <section class="end" id="start" data-min="1800">
         <div class="wrap">
           <div class="hand" id="hand"></div>
-          <h2 data-en="Tomorrow morning, the line is still in your hand.">
-            明天早上，线还在你手里。
+          <div class="when"><b>06:00</b><span data-en="THE NEXT MORNING">次日清晨</span></div>
+          <h2 class="sp" data-en="Four commands, on a host you own">
+            <span class="nb">四条命令，</span><span class="nb">部署于自有主机</span>
           </h2>
           <p
-            data-en="One Linux host with Docker runs the server. Agents on your devices connect outward to it, so nothing on them listens for inbound traffic. Built for personal use."
+            class="lead"
+            data-en="The server runs on a single Linux host with Docker. Agents on your devices open outbound connections to it, so the devices need no inbound ports. Kiteline is designed for personal use."
           >
-            一台装了 Docker 的 Linux 主机运行 server；设备上的 agent
-            主动向外连接，不需要开放入站端口。面向个人使用。
+            server 运行于一台安装了 Docker 的 Linux 主机；设备上的 agent 主动向 server
+            发起连接，设备无需开放入站端口。Kiteline 面向个人使用。
           </p>
           <div class="card term quick">
             <div class="term-bar"><i></i><i></i><i></i><span>sh</span></div>
-            <pre class="t"><span class="p">$</span> mkdir kiteline && cd kiteline
+            <pre class="t" id="quick"><span class="p">$</span> mkdir kiteline && cd kiteline
 <span class="p">$</span> curl -fsSLO https://github.com/Azure99/kiteline/releases/latest/download/compose.yaml
 <span class="p">$</span> docker compose up -d
 <span class="p">$</span> docker compose logs server</pre>
@@ -1169,11 +1414,9 @@ docker compose logs server</pre
             >
           </div>
           <div class="cta">
-            <a
-              class="btn solid"
-              href="https://github.com/Azure99/kiteline#开始使用"
-              data-en="Read the quick start →"
-              >阅读快速开始 →</a
+            <a class="btn solid" href="https://github.com/Azure99/kiteline#开始使用"
+              ><span data-en="Read the deployment guide">阅读部署指南</span>
+              <span class="arr">→</span></a
             >
             <a class="btn" href="https://github.com/Azure99/kiteline">GitHub ↗</a>
           </div>
@@ -1190,71 +1433,154 @@ docker compose logs server</pre
         var rootStyle = document.documentElement.style;
         var main = document.querySelector("main");
         var chapters = [].slice.call(document.querySelectorAll(".ch"));
+        var endSection = document.querySelector(".end");
+        var minutesNow = 480;
 
-        /* ---------- sky colours keyed to minutes since midnight ---------- */
+        /* ---------- sky and cloud colours keyed to minutes since midnight ---------- */
+        /* [minutes, sky top, sky middle, sky bottom, cloud lit, cloud lit near horizon, cloud shade, cloud alpha] */
         var KEYS = [
-          [480, [143, 192, 228], [188, 217, 236], [233, 241, 246]],
-          [750, [104, 172, 228], [166, 207, 238], [227, 238, 246]],
-          [960, [118, 164, 220], [190, 196, 226], [246, 222, 200]],
-          [1110, [58, 72, 140], [150, 96, 146], [214, 112, 104]],
-          [1200, [20, 30, 78], [52, 50, 112], [120, 70, 110]],
-          [1320, [6, 12, 30], [12, 24, 56], [22, 48, 96]],
-          [1620, [3, 6, 16], [7, 14, 36], [14, 32, 72]],
-          [1800, [12, 26, 60], [40, 78, 140], [128, 136, 190]],
+          [
+            480,
+            [143, 192, 228],
+            [188, 217, 236],
+            [233, 241, 246],
+            [255, 255, 255],
+            [255, 250, 240],
+            [168, 196, 232],
+            0.85,
+          ],
+          [
+            750,
+            [104, 172, 228],
+            [166, 207, 238],
+            [227, 238, 246],
+            [255, 255, 255],
+            [255, 252, 244],
+            [160, 190, 232],
+            0.9,
+          ],
+          [
+            960,
+            [118, 164, 220],
+            [190, 196, 226],
+            [246, 222, 200],
+            [255, 248, 236],
+            [255, 222, 190],
+            [166, 166, 212],
+            0.85,
+          ],
+          [
+            1110,
+            [58, 72, 140],
+            [150, 96, 146],
+            [214, 112, 104],
+            [255, 190, 160],
+            [255, 146, 116],
+            [108, 82, 140],
+            0.7,
+          ],
+          [
+            1200,
+            [20, 30, 78],
+            [52, 50, 112],
+            [120, 70, 110],
+            [112, 96, 152],
+            [150, 90, 122],
+            [38, 38, 84],
+            0.55,
+          ],
+          [
+            1320,
+            [6, 12, 30],
+            [12, 24, 56],
+            [22, 48, 96],
+            [52, 66, 112],
+            [44, 60, 104],
+            [14, 22, 48],
+            0.5,
+          ],
+          [
+            1620,
+            [3, 6, 16],
+            [7, 14, 36],
+            [14, 32, 72],
+            [40, 54, 96],
+            [36, 50, 92],
+            [10, 16, 38],
+            0.45,
+          ],
+          [
+            1800,
+            [12, 26, 60],
+            [40, 78, 140],
+            [128, 136, 190],
+            [126, 136, 186],
+            [214, 168, 172],
+            [30, 44, 86],
+            0.55,
+          ],
         ];
         var LABELS = [
-          [690, "早晨", "morning"],
-          [840, "中午", "midday"],
-          [1050, "下午", "afternoon"],
+          [690, "清晨", "morning"],
+          [840, "正午", "midday"],
+          [1050, "午后", "afternoon"],
           [1200, "傍晚", "evening"],
-          [1410, "夜里", "night"],
-          [1710, "深夜", "small hours"],
-          [9999, "天快亮了", "before dawn"],
+          [1410, "夜间", "night"],
+          [1710, "深夜", "late night"],
+          [9999, "拂晓", "before dawn"],
         ];
-        function mix(a, b, k) {
-          return (
-            "rgb(" +
-            Math.round(a[0] + (b[0] - a[0]) * k) +
-            "," +
-            Math.round(a[1] + (b[1] - a[1]) * k) +
-            "," +
-            Math.round(a[2] + (b[2] - a[2]) * k) +
-            ")"
-          );
+        function mix3(a, b, k) {
+          return [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k, a[2] + (b[2] - a[2]) * k];
         }
-        var sun = document.getElementById("sun");
-        var moon = document.getElementById("moon");
-        var clock = document.getElementById("clock");
-        var clockLabel = document.getElementById("clockLabel");
-        var night = 0;
-        function setTime(minutes) {
+        function css(c) {
+          return "rgb(" + Math.round(c[0]) + "," + Math.round(c[1]) + "," + Math.round(c[2]) + ")";
+        }
+        function keyAt(minutes) {
           var i = 1;
           while (i < KEYS.length - 1 && minutes > KEYS[i][0]) i++;
           var a = KEYS[i - 1],
             b = KEYS[i];
-          var k = KL.clamp((minutes - a[0]) / (b[0] - a[0]), 0, 1);
-          rootStyle.setProperty("--s1", mix(a[1], b[1], k));
-          rootStyle.setProperty("--s2", mix(a[2], b[2], k));
-          rootStyle.setProperty("--s3", mix(a[3], b[3], k));
+          return [a, b, KL.clamp((minutes - a[0]) / (b[0] - a[0]), 0, 1)];
+        }
+        var sun = document.getElementById("sun");
+        var moon = document.getElementById("moon");
+        var glow = document.getElementById("glow");
+        var clock = document.getElementById("clock");
+        var clockLabel = document.getElementById("clockLabel");
+        var night = 0;
+        function pad(n) {
+          return ("0" + n).slice(-2);
+        }
+        function fmt(minutes) {
+          var m = ((Math.round(minutes) % 1440) + 1440) % 1440;
+          return pad(Math.floor(m / 60)) + ":" + pad(m % 60);
+        }
+        function setTime(minutes) {
+          minutesNow = minutes;
+          var key = keyAt(minutes);
+          var a = key[0],
+            b = key[1],
+            k = key[2];
+          rootStyle.setProperty("--s1", css(mix3(a[1], b[1], k)));
+          rootStyle.setProperty("--s2", css(mix3(a[2], b[2], k)));
+          rootStyle.setProperty("--s3", css(mix3(a[3], b[3], k)));
           document.body.setAttribute("data-phase", minutes >= 1085 ? "night" : "day");
           night =
             KL.smooth((minutes - 1090) / 170) * (1 - 0.45 * KL.smooth((minutes - 1680) / 120));
-          rootStyle.setProperty(
-            "--cloud",
-            (1 - KL.smooth((minutes - 1000) / 200) * 0.92).toFixed(3),
-          );
 
           var w = window.innerWidth,
             h = window.innerHeight;
           /* the sun rises at 06:00 and sets at 19:00; the moon follows */
           var su = (minutes - 360) / 780;
+          var sunX = w * (0.06 + 0.88 * su);
           sun.style.opacity = su > 1.02 ? 0 : 1;
           sun.style.transform =
             "translate3d(" +
-            (w * (0.06 + 0.88 * su)).toFixed(1) +
+            sunX.toFixed(1) +
             "px," +
             (h * (0.92 - Math.sin(Math.PI * su) * 0.8)).toFixed(1) +
             "px,0)";
+          rootStyle.setProperty("--warm", KL.smooth((su - 0.68) / 0.26).toFixed(3));
           var mu = (minutes - 1120) / 650;
           moon.style.opacity = mu < 0 ? 0 : KL.smooth(mu * 6) * (1 - KL.smooth((mu - 0.92) * 10));
           moon.style.transform =
@@ -1263,10 +1589,14 @@ docker compose logs server</pre
             "px," +
             (h * (0.9 - Math.sin(Math.PI * KL.clamp(mu, 0, 1)) * 0.72)).toFixed(1) +
             "px,0)";
+          /* horizon glow: strongest around sunset, returning faintly before dawn in the east */
+          var dusk = KL.smooth((minutes - 930) / 150) * (1 - KL.smooth((minutes - 1130) / 90));
+          var dawn = KL.smooth((minutes - 1690) / 110);
+          glow.style.opacity = Math.max(dusk * 0.9, dawn * 0.75).toFixed(3);
+          glow.style.transform =
+            "translate3d(" + (dawn > dusk ? w * 0.12 : sunX).toFixed(1) + "px,0,0)";
 
-          var m = Math.round(minutes) % 1440;
-          clock.textContent =
-            ("0" + Math.floor(m / 60)).slice(-2) + ":" + ("0" + (m % 60)).slice(-2);
+          clock.textContent = fmt(minutes);
           for (var l = 0; l < LABELS.length; l++) {
             if (minutes < LABELS[l][0]) {
               var text = KL.t(LABELS[l][1], LABELS[l][2]);
@@ -1276,11 +1606,33 @@ docker compose logs server</pre
           }
         }
 
-        /* ---------- stars ---------- */
+        /* ---------- clouds, lit by the hour ---------- */
+        KL.clouds(
+          document.getElementById("clouds"),
+          function (t) {
+            var key = keyAt(minutesNow);
+            var a = key[0],
+              b = key[1],
+              k = key[2];
+            return {
+              lit: mix3(a[4], b[4], k),
+              low: mix3(a[5], b[5], k),
+              shade: mix3(a[6], b[6], k),
+              cover: -0.03,
+              alpha: a[7] + (b[7] - a[7]) * k,
+              drift: t * 0.01 + window.scrollY * 0.00022 + 1.7,
+            };
+          },
+          { resolution: 400 },
+        );
+
+        /* ---------- stars and the occasional meteor ---------- */
         (function () {
           var canvas = document.getElementById("stars");
           var ctx = canvas.getContext("2d");
           var stars = [];
+          var meteor = null;
+          var nextMeteor = 0;
           var w, h, dpr;
           function resize() {
             dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -1312,6 +1664,36 @@ docker compose logs server</pre
                 ctx.arc(s[0], s[1], s[2], 0, 6.28);
                 ctx.fill();
               }
+              if (!meteor && night > 0.7 && time > nextMeteor) {
+                meteor = {
+                  x: w * (0.25 + Math.random() * 0.7),
+                  y: h * Math.random() * 0.3,
+                  born: time,
+                };
+                nextMeteor = time + 5200 + Math.random() * 6000;
+              }
+              if (meteor) {
+                var age = (time - meteor.born) / 900;
+                if (age >= 1) meteor = null;
+                else {
+                  var hx = meteor.x - age * 260,
+                    hy = meteor.y + age * 150;
+                  var g = ctx.createLinearGradient(hx + 90, hy - 52, hx, hy);
+                  g.addColorStop(0, "rgba(234,244,255,0)");
+                  g.addColorStop(
+                    1,
+                    "rgba(234,244,255," + (Math.sin(Math.PI * age) * night).toFixed(3) + ")",
+                  );
+                  ctx.globalAlpha = 1;
+                  ctx.strokeStyle = g;
+                  ctx.lineWidth = 1.4;
+                  ctx.lineCap = "round";
+                  ctx.beginPath();
+                  ctx.moveTo(hx + 90, hy - 52);
+                  ctx.lineTo(hx, hy);
+                  ctx.stroke();
+                }
+              }
             }
             if (!KL.reduced) requestAnimationFrame(draw);
           }
@@ -1324,6 +1706,7 @@ docker compose logs server</pre
         var ghost = document.getElementById("ghost");
         var live = document.getElementById("live");
         var bead = document.getElementById("bead");
+        var halo = document.getElementById("halo");
         var total = 0;
         var table = []; /* [y, length] samples for scroll → length lookup */
         var marks = []; /* [y, minutes] for the clock */
@@ -1406,20 +1789,31 @@ docker compose logs server</pre
           }
           return marks[marks.length - 1][1];
         }
+        var pars = [].slice.call(document.querySelectorAll(".par"));
+        var phoneBox = document.getElementById("phones");
         function update() {
           var top = main.getBoundingClientRect().top;
+          var vh = window.innerHeight;
           var doc = document.documentElement;
-          var atEnd = window.scrollY + window.innerHeight >= doc.scrollHeight - 4;
+          var atEnd = window.scrollY + vh >= doc.scrollHeight - 4;
           /* the tip of the line sits a little below the middle of the screen */
-          var tipY = atEnd ? 1e9 : -top + window.innerHeight * 0.58;
+          var tipY = atEnd ? 1e9 : -top + vh * 0.58;
           var len = lengthAt(tipY);
           live.style.strokeDashoffset = total - len;
           var point = live.getPointAtLength(len);
           bead.setAttribute("cx", point.x);
           bead.setAttribute("cy", point.y);
+          halo.setAttribute("cx", point.x);
+          halo.setAttribute("cy", point.y);
           setTime(minutesAt(Math.min(tipY, marks[marks.length - 1][0])));
           for (var i = 0; i < chapters.length; i++)
             chapters[i].classList.toggle("lit", marks[i + 1][0] <= tipY + 2);
+          if (!KL.reduced) {
+            var r = phoneBox.getBoundingClientRect();
+            var p = KL.clamp((vh - r.top) / (vh + r.height), 0, 1) - 0.5;
+            pars[0].style.transform = "translate3d(0," + (p * 40).toFixed(1) + "px,0)";
+            pars[1].style.transform = "translate3d(0," + (-p * 56).toFixed(1) + "px,0)";
+          }
         }
         var ticking = false;
         function onScroll() {
@@ -1446,29 +1840,72 @@ docker compose logs server</pre
         });
         rebuild();
 
-        /* ---------- chapters come in as the line reaches them ---------- */
-        if ("IntersectionObserver" in window && !KL.reduced) {
-          var io = new IntersectionObserver(
-            function (entries) {
-              for (var i = 0; i < entries.length; i++) {
-                if (entries[i].isIntersecting) {
-                  entries[i].target.classList.add("in");
-                  io.unobserve(entries[i].target);
-                }
-              }
-            },
-            { rootMargin: "0px 0px -18% 0px" },
-          );
-          chapters.forEach(function (c) {
-            io.observe(c);
+        /* ---------- hero ---------- */
+        setTimeout(function () {
+          document.getElementById("heroTitle").classList.add("split-in");
+        }, 300);
+        var lean = document.getElementById("kiteLean");
+        if (!KL.reduced && !KL.touch) {
+          var lx = 0,
+            ly = 0,
+            gx = 0,
+            gy = 0;
+          window.addEventListener("pointermove", function (event) {
+            gx = (event.clientX / window.innerWidth - 0.5) * 34;
+            gy = (event.clientY / window.innerHeight - 0.5) * 22;
           });
-        } else {
-          chapters.forEach(function (c) {
-            c.classList.add("in");
-          });
+          (function follow() {
+            lx += (gx - lx) * 0.05;
+            ly += (gy - ly) * 0.05;
+            if (window.scrollY < window.innerHeight) {
+              lean.style.transform =
+                "translate3d(" +
+                lx.toFixed(2) +
+                "px," +
+                ly.toFixed(2) +
+                "px,0) rotate(" +
+                (lx * 0.12).toFixed(2) +
+                "deg)";
+            }
+            requestAnimationFrame(follow);
+          })();
         }
 
-        /* ---------- 18:45: attach from another laptop ---------- */
+        /* ---------- chapters arrive as the line reaches them ---------- */
+        function roll(el) {
+          /* the time counts up to its value, like a clock being set */
+          var parts = el.textContent.split(":");
+          var target = +parts[0] * 60 + +parts[1];
+          var from = target - 47;
+          var start = performance.now();
+          (function frame(now) {
+            var k = KL.clamp((now - start) / 900, 0, 1);
+            k = 1 - Math.pow(1 - k, 3);
+            el.textContent = fmt(from + (target - from) * k);
+            if (k < 1) requestAnimationFrame(frame);
+          })(start);
+        }
+        var running = document.getElementById("running");
+        KL.observe(chapters.concat([endSection]), "in", "0px 0px -18% 0px", function (section) {
+          if (KL.reduced) return;
+          var time = section.querySelector(".when b");
+          if (time) roll(time);
+          if (section.contains(running)) {
+            setTimeout(function () {
+              running.className = "";
+              running.textContent = "✔ exit 0";
+            }, 2600);
+          }
+        });
+        if (KL.reduced) {
+          running.className = "";
+          running.textContent = "✔ exit 0";
+        }
+        [].forEach.call(document.querySelectorAll(".card.shot"), function (card) {
+          KL.tilt(card, 2.4);
+        });
+
+        /* ---------- 18:45: attach from another computer ---------- */
         (async function cli() {
           var el = document.getElementById("cliTerm");
           var term = KL.term(el);
@@ -1508,8 +1945,8 @@ docker compose logs server</pre
               [
                 '<span class="m">' +
                   KL.t(
-                    "Ctrl+B d  脱离，会话继续运行",
-                    "Ctrl+B d  detach — the session keeps running",
+                    "Ctrl+B d  脱离连接，会话继续运行",
+                    "Ctrl+B d  detach; the session keeps running",
                   ) +
                   "</span>",
               ],
@@ -1519,6 +1956,24 @@ docker compose logs server</pre
             term.clear();
             term.prompt(LOCAL);
             await KL.sleep(2400);
+          }
+        })();
+
+        /* ---------- 06:00: the four commands are typed once ---------- */
+        (async function quick() {
+          if (KL.reduced) return;
+          var el = document.getElementById("quick");
+          var commands = document.getElementById("quickRaw").textContent.trim().split("\n");
+          var term = KL.term(el, { max: 8 });
+          var PS = '<span class="p">$</span> ';
+          await KL.visible(el);
+          term.clear();
+          term.prompt(PS);
+          await KL.sleep(600);
+          for (var i = 0; i < commands.length; i++) {
+            await term.type(PS, commands[i], 13);
+            await KL.sleep(260);
+            if (i < commands.length - 1) term.prompt(PS);
           }
         })();
       })();

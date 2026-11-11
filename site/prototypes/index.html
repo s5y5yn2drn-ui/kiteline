@@ -122,6 +122,20 @@
         letter-spacing: 0.08em;
         color: var(--ink-3);
       }
+      .state {
+        margin-left: 8px;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-family: var(--sans);
+        letter-spacing: 0;
+      }
+      .state.idle {
+        background: none;
+        border: 1px solid var(--hair);
+        color: var(--ink-3);
+      }
       h2 {
         margin-top: 6px;
         font-size: 26px;
@@ -172,8 +186,8 @@
       }
       .notes {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: clamp(20px, 4vw, 48px);
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: clamp(20px, 3vw, 40px);
         margin-top: clamp(36px, 5vw, 64px);
         padding-top: 28px;
         border-top: 1px solid var(--hair);
@@ -234,10 +248,72 @@
     <div class="page">
       <h1>Kiteline 主页原型</h1>
       <p class="lead">
-        三个方向，内容和配色来源相同，版式与动效不同。每一版都是可以完整滚动、交互的页面；页面底部的切换条可以在三版之间跳转，也可以切换中英文。
+        以下为三个设计方向。三者的内容与配色来源一致，版式与动效各不相同；每一版均为可完整滚动与交互的页面。页面底部的切换条可在各版之间跳转，并切换中英文。
       </p>
 
       <div class="rows">
+        <article class="row">
+          <div class="frames">
+            <img
+              src="assets/thumb-b.webp"
+              width="1120"
+              height="700"
+              alt="B 版首屏：蓝色天空与云层中有一只白色风筝，风筝线延伸至左下角的文案旁"
+            />
+            <img
+              src="assets/thumb-b2.webp"
+              width="1120"
+              height="700"
+              alt="B 版工作台区块：浅色面板中展示产品截图，下方为四个功能标签"
+            />
+          </div>
+          <div class="brief">
+            <div class="kicker">B · CLEAR SKY <span class="state">本轮已更新</span></div>
+            <h2>晴空</h2>
+            <p>参照 Trajectory：浅色基调，实时绘制的天空，白色内容页自天空上方滑入。</p>
+            <dl>
+              <dt>背景</dt>
+              <dd>云层与星点实时绘制；风筝在载入时沿线放出，随风摆动并跟随指针</dd>
+              <dt>演示</dt>
+              <dd>真实截图配合自动轮播的功能标签、连接拓扑示意与页脚字标</dd>
+              <dt>气质</dt>
+              <dd>明亮、从容，与雨凝博客的头图最为接近</dd>
+            </dl>
+            <a class="open" href="b-sky.html">查看 B 版 →</a>
+          </div>
+        </article>
+
+        <article class="row">
+          <div class="frames">
+            <img
+              src="assets/thumb-c.webp"
+              width="1120"
+              height="700"
+              alt="C 版首屏：浅蓝天空与云层，左侧为标题，右侧为风筝，顶部为时钟"
+            />
+            <img
+              src="assets/thumb-c2.webp"
+              width="1120"
+              height="700"
+              alt="C 版傍晚章节：天空转为暮色，一条线穿过各时间节点"
+            />
+          </div>
+          <div class="brief">
+            <div class="kicker">C · DAY INTO NIGHT <span class="state">本轮已更新</span></div>
+            <h2>昼夜</h2>
+            <p>独立于参考站的方向：以一天的时间线组织内容，滚动即推进时钟。</p>
+            <dl>
+              <dt>背景</dt>
+              <dd>天空与云层随时间由清晨过渡至黄昏、深夜与拂晓，日落月升</dd>
+              <dt>演示</dt>
+              <dd>一条风筝线自首屏贯穿各时间节点，最终落于部署命令</dd>
+              <dt>气质</dt>
+              <dd>叙事性强；日间章节使用浅色截图，夜间章节使用深色截图</dd>
+            </dl>
+            <a class="open" href="c-day.html">查看 C 版 →</a>
+          </div>
+        </article>
+
         <article class="row">
           <div class="frames">
             <img
@@ -250,94 +326,48 @@
               src="assets/thumb-a2.webp"
               width="1120"
               height="700"
-              alt="A 版第二幕：浏览器、手机和命令行三个窗口显示同一个终端会话"
+              alt="A 版第二幕：浏览器、手机与命令行三个窗口显示同一终端会话"
             />
           </div>
           <div class="brief">
-            <div class="kicker">A · NIGHT FLIGHT</div>
+            <div class="kicker">A · NIGHT FLIGHT <span class="state idle">保留供参考</span></div>
             <h2>夜航</h2>
-            <p>贴近 Tern 的做法：深色，一屏一幕，滚轮把六个分镜依次推上来。</p>
+            <p>参照 Tern：深色基调，一屏一幕，由滚轮依次推进六个分镜。本轮未作调整。</p>
             <dl>
               <dt>背景</dt>
-              <dd>像素抖动的夜空地平线，随滚动转动，最后一幕升起</dd>
+              <dd>像素抖动的夜空地平线，随滚动转动</dd>
               <dt>演示</dt>
-              <dd>页面内画出的工作台和终端，回放真实命令；三端同步输入</dd>
+              <dd>页面内绘制的工作台与终端，回放真实命令</dd>
               <dt>气质</dt>
-              <dd>硬朗、技术感强，等宽小字和编号导航</dd>
+              <dd>硬朗、技术感强</dd>
             </dl>
-            <a class="open" href="a-night.html">打开 A 版 →</a>
-          </div>
-        </article>
-
-        <article class="row">
-          <div class="frames">
-            <img
-              src="assets/thumb-b.webp"
-              width="1120"
-              height="700"
-              alt="B 版首屏：蓝色天空里一只白色风筝，线一直延伸到左下角的文案旁"
-            />
-            <img
-              src="assets/thumb-b2.webp"
-              width="1120"
-              height="700"
-              alt="B 版工作台区块：浅色面板里放着产品截图，下面是四个功能标签"
-            />
-          </div>
-          <div class="brief">
-            <div class="kicker">B · CLEAR SKY</div>
-            <h2>晴空</h2>
-            <p>贴近 Trajectory 的做法：浅色，一片画出来的天空，白色内容页从上面滑过。</p>
-            <dl>
-              <dt>背景</dt>
-              <dd>实时绘制的云和星点，风筝随风摆动，跟随指针</dd>
-              <dt>演示</dt>
-              <dd>真实截图配自动轮播的功能标签，连接示意图，页脚大字标</dd>
-              <dt>气质</dt>
-              <dd>明亮、从容，和雨凝博客的头图最接近</dd>
-            </dl>
-            <a class="open" href="b-sky.html">打开 B 版 →</a>
-          </div>
-        </article>
-
-        <article class="row">
-          <div class="frames">
-            <img
-              src="assets/thumb-c.webp"
-              width="1120"
-              height="700"
-              alt="C 版首屏：浅蓝天空，左侧大标题，右侧一只风筝，顶部有时钟"
-            />
-            <img
-              src="assets/thumb-c2.webp"
-              width="1120"
-              height="700"
-              alt="C 版夜间章节：深蓝星空和月牙，一条线穿过时间节点"
-            />
-          </div>
-          <div class="brief">
-            <div class="kicker">C · DAY INTO NIGHT</div>
-            <h2>昼夜</h2>
-            <p>一个不照搬参考站的方向：把用它的一天从早讲到晚，滚动就是拨动时钟。</p>
-            <dl>
-              <dt>背景</dt>
-              <dd>天空随时间从清晨变到黄昏再到深夜，太阳落下、月亮升起</dd>
-              <dt>演示</dt>
-              <dd>一根风筝线从首屏贯穿每个时间节点，最后落到部署命令</dd>
-              <dt>气质</dt>
-              <dd>有叙事，白天用浅色截图、夜里用深色截图</dd>
-            </dl>
-            <a class="open" href="c-day.html">打开 C 版 →</a>
+            <a class="open" href="a-night.html">查看 A 版 →</a>
           </div>
         </article>
       </div>
 
       <div class="notes">
         <section>
+          <h3>本轮更新</h3>
+          <ul>
+            <li>文案：B、C 两版的中英文文案统一改为正式的书面表述，内容以 README 与文档为准。</li>
+            <li>文字：标题逐词揭示，中文按短语断行；正文、按钮与列表按顺序进入。</li>
+            <li>
+              B
+              版：风筝载入时沿线放出；航迹云缓慢划过；截图随指针轻微倾斜并带滚动视差；拓扑图以光点表示连接方向；部署命令逐条键入。
+            </li>
+            <li>
+              C
+              版：云层改为实时绘制并随时间变色；增加日落与拂晓的地平线光晕、夜间流星；章节时间滚动计数；截图自上而下展开。
+            </li>
+            <li>以上动效在系统开启“减少动态效果”时均会停用。</li>
+          </ul>
+        </section>
+        <section>
           <h3>配色来源</h3>
           <p>
-            从 rainng.com
-            取色：导航栏、链接、头图天空和页面背景的蓝。三版都只在这组蓝上加了少量暖色做高光。
+            取自 rainng.com
+            的导航栏、链接、头图天空与页面背景；各版仅在这组蓝色之上加入少量暖色作为高光。
           </p>
           <div class="swatches">
             <div class="sw"><i style="background: #2875c1"></i><b>导航蓝</b>#2875c1</div>
@@ -351,13 +381,12 @@
         <section>
           <h3>素材与内容</h3>
           <ul>
+            <li>深色与浅色的桌面截图来自从源码运行的实例（server、agent 与一个演示工作区）。</li>
+            <li>含 Codex 的桌面截图与手机截图为仓库 README 的现有素材。</li>
             <li>
-              深浅两套桌面截图和手机截图，来自这次从源码真实跑起来的实例（server、agent
-              和一个演示工作区）。
+              终端回放中的命令与输出取自实际运行结果；页面内的设备名、通知与任务条目为演示数据。
             </li>
-            <li>带 Codex 的截图是仓库 README 现有的那几张。</li>
-            <li>终端回放里的命令和输出取自真实运行结果；文案只写了 README 和文档里有的功能。</li>
-            <li>风筝图标是为原型临时画的，不是现有的产品图标。</li>
+            <li>风筝图标为原型临时绘制，并非现有的产品图标。</li>
           </ul>
         </section>
       </div>
