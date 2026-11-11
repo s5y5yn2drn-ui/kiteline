@@ -1,0 +1,107 @@
+/* Shared pieces for the Kiteline homepage prototypes. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+img {
+  display: block;
+  max-width: 100%;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+button {
+  font: inherit;
+  color: inherit;
+}
+:focus-visible {
+  outline: 2px solid #7fd0ff;
+  outline-offset: 3px;
+}
+
+/* blinking terminal cursor used by KL.term */
+.cur {
+  display: inline-block;
+  width: 0.6em;
+  height: 1.15em;
+  margin-left: 1px;
+  vertical-align: text-bottom;
+  background: currentColor;
+  opacity: 0.85;
+  animation: kl-blink 1.1s steps(1) infinite;
+}
+@keyframes kl-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* prototype switcher */
+.kl-switch {
+  position: fixed;
+  left: 50%;
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  transform: translateX(-50%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: rgba(12, 18, 28, 0.82);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  font:
+    500 12px/1 "Geist",
+    "Inter",
+    "Noto Sans SC",
+    system-ui,
+    sans-serif;
+  color: #c9d3e0;
+  white-space: nowrap;
+}
+.kl-switch a,
+.kl-switch button {
+  padding: 8px 11px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.kl-switch a:hover,
+.kl-switch button:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+.kl-switch a[aria-current="page"] {
+  color: #0b1522;
+  background: #cfe6f7;
+}
+.kl-switch button {
+  margin-left: 2px;
+  border-left: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 0 999px 999px 0;
+}
+.kl-switch-home {
+  opacity: 0.7;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cur {
+    animation: none;
+  }
+}

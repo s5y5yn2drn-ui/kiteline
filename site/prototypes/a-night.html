@@ -1,0 +1,1871 @@
+<!doctype html>
+<html lang="zh-CN" data-lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Kiteline · 夜航</title>
+    <meta name="theme-color" content="#04070d" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap"
+    />
+    <link rel="stylesheet" href="assets/proto.css" />
+    <style>
+      /* Layout: one pinned viewport; the wheel moves through numbered scenes over a dithered night horizon. */
+      :root {
+        color-scheme: dark;
+        --bg: #04070d;
+        --surface: #0a111c;
+        --surface-2: #101a29;
+        --line: rgba(150, 195, 255, 0.11);
+        --line-strong: rgba(150, 195, 255, 0.2);
+        --text: #eaf0f8;
+        --text-2: #97a5b8;
+        --text-3: #5d6b7e;
+        --sky: #2875c1; /* rainng.com navigation blue */
+        --sky-2: #3b8dbd; /* rainng.com link blue */
+        --ice: #b9d9eb; /* rainng.com cloud highlight */
+        --cyan: #7fd3ff;
+        --ok: #7fd9a2;
+        --warn: #f2b84b;
+        --bad: #ff8f97;
+        --grad: linear-gradient(95deg, #a6e6ff 0%, #5fb2f0 48%, #3d86da 100%);
+        --sans: "Geist", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+        --mono: "Geist Mono", ui-monospace, "SFMono-Regular", Consolas, "Noto Sans SC", monospace;
+      }
+      html {
+        background: var(--bg);
+        scroll-snap-type: y proximity;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--sans);
+        font-size: 16px;
+        line-height: 1.5;
+        overflow-x: hidden;
+      }
+      #field {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+        pointer-events: none;
+      }
+      .mono {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--text-3);
+      }
+      .g {
+        background: var(--grad);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      /* ---------- top bar ---------- */
+      .top {
+        position: fixed;
+        inset: 0 0 auto;
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: calc(22px + env(safe-area-inset-top, 0px)) max(20px, 3.2vw) 0;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+        font-size: 18px;
+        letter-spacing: -0.02em;
+      }
+      .brand svg {
+        width: 22px;
+        height: 22px;
+      }
+      .top nav {
+        display: flex;
+        align-items: center;
+        gap: 26px;
+      }
+      .top nav a.mono:hover {
+        color: var(--text);
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        height: 36px;
+        padding: 0 16px;
+        border: 1px solid var(--line-strong);
+        border-radius: 999px;
+        background: rgba(8, 13, 22, 0.6);
+        font-size: 14px;
+        font-weight: 500;
+        white-space: nowrap;
+        cursor: pointer;
+        transition:
+          border-color 0.2s,
+          background 0.2s,
+          transform 0.2s;
+      }
+      .btn:hover {
+        border-color: rgba(170, 215, 255, 0.5);
+        background: rgba(20, 32, 52, 0.7);
+      }
+      .btn.primary {
+        height: 42px;
+        padding: 0 20px;
+        border: 0;
+        background: var(--grad);
+        color: #06121f;
+        box-shadow:
+          0 0 0 1px rgba(255, 255, 255, 0.25) inset,
+          0 10px 34px -8px rgba(95, 178, 240, 0.7);
+      }
+      .btn.primary:hover {
+        transform: translateY(-1px);
+      }
+      .btn.big {
+        height: 42px;
+        padding: 0 20px;
+      }
+
+      /* ---------- scene index ---------- */
+      .idx {
+        position: fixed;
+        right: max(16px, 2.6vw);
+        top: 50%;
+        z-index: 40;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding-right: 12px;
+        border-right: 1px solid var(--line);
+        transform: translateY(-50%);
+      }
+      .idx a {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 3px 0;
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        color: var(--text-3);
+        transition: color 0.25s;
+      }
+      .idx a span {
+        max-width: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        opacity: 0;
+        transition:
+          max-width 0.35s,
+          opacity 0.35s;
+      }
+      .idx a.on {
+        color: var(--cyan);
+      }
+      .idx a.on span,
+      .idx a:hover span {
+        max-width: 140px;
+        opacity: 1;
+        color: var(--text);
+      }
+      .idx::after {
+        content: "";
+        position: absolute;
+        right: -1px;
+        top: 0;
+        width: 1px;
+        height: calc(100% / 6);
+        background: var(--cyan);
+        transform: translateY(calc(var(--pos, 0) * 100%));
+        transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+        opacity: var(--idx-on, 0);
+      }
+
+      /* ---------- reel ---------- */
+      .reel {
+        position: relative;
+        height: 700vh;
+      }
+      .snaps i {
+        position: absolute;
+        left: 0;
+        width: 1px;
+        height: 100vh;
+        scroll-snap-align: start;
+      }
+      .stage {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        height: 100svh;
+        overflow: hidden;
+      }
+      .scene {
+        --d: 0;
+        --a: 0;
+        position: absolute;
+        inset: 0;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto minmax(0, 1fr);
+        justify-items: center;
+        gap: clamp(18px, 3.4vh, 40px);
+        padding: clamp(84px, 11vh, 120px) max(20px, 7vw) clamp(72px, 9vh, 96px);
+        opacity: 0;
+        visibility: hidden;
+        will-change: opacity;
+      }
+      .scene > .copy {
+        order: -1;
+      }
+      .copy {
+        max-width: 880px;
+        text-align: center;
+        transform: translate3d(0, calc(var(--d) * -70px), 0);
+      }
+      .copy .mono {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+      .copy .mono b {
+        font-weight: 500;
+        color: var(--cyan);
+      }
+      .copy .mono::after {
+        content: "";
+        width: 40px;
+        height: 1px;
+        background: linear-gradient(90deg, var(--cyan), transparent);
+      }
+      h1,
+      h2 {
+        margin: 0;
+        font-weight: 600;
+        letter-spacing: -0.045em;
+        text-wrap: balance;
+      }
+      :lang(zh-CN) h1,
+      :lang(zh-CN) h2 {
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+      h2 {
+        font-size: clamp(28px, 4.1vw, 54px);
+        line-height: 1.08;
+      }
+      :lang(zh-CN) h2 {
+        line-height: 1.22;
+      }
+      h2 .g {
+        display: block;
+      }
+      .copy p {
+        max-width: 620px;
+        margin: 16px auto 0;
+        font-size: clamp(14px, 1.15vw, 16.5px);
+        line-height: 1.7;
+        color: var(--text-2);
+        text-wrap: pretty;
+        text-shadow:
+          0 0 18px var(--bg),
+          0 0 6px var(--bg);
+      }
+      .copy code {
+        padding: 2px 6px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: rgba(120, 170, 230, 0.08);
+        font-family: var(--mono);
+        font-size: 0.9em;
+        color: var(--ice);
+      }
+      .vis {
+        position: relative;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        place-items: center;
+        width: 100%;
+        min-height: 0;
+        container-type: size;
+        transform: translate3d(0, calc(var(--d) * -150px), 0) scale(calc(1 - var(--a) * 0.05));
+      }
+
+      /* ---------- window chrome ---------- */
+      .win {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        border: 1px solid var(--line-strong);
+        border-radius: 14px;
+        background: var(--surface);
+        box-shadow:
+          0 0 0 1px rgba(0, 0, 0, 0.6),
+          0 40px 120px -20px rgba(0, 0, 0, 0.9),
+          0 0 90px -30px rgba(63, 141, 218, 0.55);
+      }
+      .bar {
+        display: flex;
+        flex: none;
+        align-items: center;
+        gap: 12px;
+        height: 36px;
+        padding: 0 14px;
+        border-bottom: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.02);
+      }
+      .dots {
+        display: flex;
+        gap: 6px;
+      }
+      .dots i {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: #263347;
+      }
+      .url {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        height: 22px;
+        padding: 0 12px;
+        margin: 0 auto;
+        border-radius: 999px;
+        background: rgba(150, 195, 255, 0.07);
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text-2);
+      }
+      .url::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--ok);
+        box-shadow: 0 0 8px var(--ok);
+      }
+      .shot {
+        --ratio: 1.7778;
+        width: min(1040px, 100cqw, calc((100cqh - 38px) * var(--ratio)));
+      }
+      .shot img {
+        width: 100%;
+        height: auto;
+      }
+      pre.t {
+        margin: 0;
+        padding: 14px 16px;
+        overflow: hidden;
+        font-family: var(--mono);
+        font-size: 12.5px;
+        line-height: 1.62;
+        color: #cbd6e4;
+        white-space: pre-wrap;
+        word-break: break-all;
+        text-align: left;
+      }
+      .t .p {
+        color: var(--cyan);
+      }
+      .t .m {
+        color: var(--text-3);
+      }
+      .t .ok {
+        color: var(--ok);
+      }
+      .t .wa {
+        color: var(--warn);
+      }
+      .t .bd {
+        color: var(--bad);
+      }
+      .t .hi {
+        color: #fff;
+      }
+      .t .in {
+        color: var(--ice);
+      }
+
+      /* ---------- hero ---------- */
+      .s0 {
+        grid-template-rows: auto minmax(0, 1fr);
+        padding-bottom: 0;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        height: 32px;
+        padding: 0 14px;
+        margin-bottom: 26px;
+        border: 1px solid var(--line-strong);
+        border-radius: 999px;
+        background: rgba(8, 13, 22, 0.5);
+      }
+      .badge::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--cyan);
+        box-shadow: 0 0 10px var(--cyan);
+      }
+      h1 {
+        font-size: clamp(42px, 7.6vw, 108px);
+        line-height: 0.98;
+      }
+      :lang(zh-CN) h1 {
+        font-size: clamp(40px, 6.6vw, 96px);
+        line-height: 1.12;
+      }
+      h1 span {
+        display: block;
+      }
+      h1 .dim {
+        color: #6e7a8b;
+      }
+      .s0 .copy p {
+        font-size: clamp(15px, 1.35vw, 18.5px);
+      }
+      .cta {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 28px;
+      }
+      .s0 .vis {
+        align-items: start;
+      }
+      /* the drawn workbench */
+      .wb {
+        width: min(1000px, 100%);
+        height: 100%;
+        min-height: 220px;
+        border-bottom: 0;
+        border-radius: 14px 14px 0 0;
+      }
+      .wb-body {
+        display: grid;
+        flex: 1;
+        grid-template-columns: 178px minmax(0, 1fr) 208px;
+        min-height: 0;
+        text-align: left;
+      }
+      .wb-side,
+      .wb-tool {
+        padding: 12px 10px;
+        font-size: 12.5px;
+        color: var(--text-2);
+      }
+      .wb-side {
+        border-right: 1px solid var(--line);
+      }
+      .wb-tool {
+        border-left: 1px solid var(--line);
+      }
+      .wb-h {
+        margin: 2px 6px 8px;
+        font-size: 11px;
+        color: var(--text-3);
+      }
+      .dev {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 5px 6px;
+        font-family: var(--mono);
+        font-size: 11.5px;
+      }
+      .dev::after {
+        content: "";
+        width: 6px;
+        height: 6px;
+        margin-left: auto;
+        border-radius: 50%;
+        background: var(--ok);
+      }
+      .dev.off::after {
+        background: #344154;
+      }
+      .ws {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 6px 10px;
+        margin: 1px 0 1px 8px;
+        border-radius: 7px;
+      }
+      .ws.on {
+        background: rgba(95, 178, 240, 0.14);
+        color: #cfe8ff;
+        box-shadow: inset 2px 0 0 var(--cyan);
+      }
+      .pip {
+        display: grid;
+        place-items: center;
+        min-width: 17px;
+        height: 17px;
+        border-radius: 999px;
+        background: var(--cyan);
+        font-size: 10.5px;
+        font-weight: 600;
+        color: #06121f;
+        transform: scale(0);
+        transition: transform 0.4s cubic-bezier(0.3, 1.6, 0.5, 1);
+      }
+      .pip.show {
+        transform: scale(1);
+      }
+      .wb-main {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        background: #070c15;
+      }
+      .tabs {
+        display: flex;
+        flex: none;
+        align-items: center;
+        gap: 4px;
+        height: 34px;
+        padding: 0 8px;
+        border-bottom: 1px solid var(--line);
+        background: var(--surface);
+        font-size: 12px;
+        color: var(--text-3);
+      }
+      .tabs span {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 7px;
+      }
+      .tabs .on {
+        background: rgba(150, 195, 255, 0.1);
+        color: var(--text);
+      }
+      .tabs .on::after {
+        content: "";
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--cyan);
+      }
+      .chg {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px;
+        border-radius: 7px;
+        font-family: var(--mono);
+        font-size: 11.5px;
+        opacity: 0;
+        transform: translateX(8px);
+        transition:
+          opacity 0.4s,
+          transform 0.4s;
+      }
+      .chg.show {
+        opacity: 1;
+        transform: none;
+      }
+      .chg b {
+        font-weight: 500;
+        color: var(--warn);
+      }
+      .chg em {
+        margin-left: auto;
+        font-style: normal;
+        color: var(--ok);
+      }
+
+      /* ---------- scene 2: one session, three surfaces ---------- */
+      .surfaces {
+        position: relative;
+        display: grid;
+        grid-template-columns: minmax(0, 1.55fr) minmax(0, 0.62fr) minmax(0, 1fr);
+        align-items: end;
+        gap: 22px;
+        width: min(1060px, 100%);
+      }
+      .sf {
+        position: relative;
+        transition:
+          border-color 0.3s,
+          box-shadow 0.3s;
+      }
+      .sf.typing {
+        border-color: rgba(127, 211, 255, 0.65);
+        box-shadow:
+          0 0 0 1px rgba(0, 0, 0, 0.6),
+          0 40px 120px -20px rgba(0, 0, 0, 0.9),
+          0 0 70px -18px rgba(127, 211, 255, 0.75);
+      }
+      .sf pre.t {
+        height: min(262px, calc(100cqh - 130px));
+        font-size: 11.5px;
+      }
+      .sf.phone {
+        border-radius: 26px;
+      }
+      .sf.phone pre.t {
+        height: min(300px, calc(100cqh - 110px));
+        padding: 12px;
+        font-size: 9.6px;
+      }
+      .sf.phone .bar {
+        justify-content: center;
+        height: 30px;
+      }
+      .sf.phone .bar::before {
+        content: "";
+        width: 54px;
+        height: 5px;
+        border-radius: 99px;
+        background: #263347;
+      }
+      .keys {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 4px;
+        padding: 8px;
+        border-top: 1px solid var(--line);
+        font-family: var(--mono);
+        font-size: 8px;
+        color: var(--text-3);
+        text-align: center;
+      }
+      .keys span {
+        padding: 5px 0;
+        border-radius: 4px;
+        background: rgba(150, 195, 255, 0.07);
+      }
+      .who {
+        position: absolute;
+        left: 14px;
+        bottom: -13px;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        height: 26px;
+        padding: 0 11px;
+        border: 1px solid var(--line-strong);
+        border-radius: 999px;
+        background: #0b1422;
+        font-size: 11.5px;
+        color: var(--text-2);
+        white-space: nowrap;
+      }
+      .who::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #344154;
+      }
+      .typing .who {
+        color: #dff3ff;
+      }
+      .typing .who::before {
+        background: var(--cyan);
+        box-shadow: 0 0 10px var(--cyan);
+      }
+      .tether {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-top: 24px;
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text-2);
+      }
+      .tether::before,
+      .tether::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: repeating-linear-gradient(90deg, var(--sky-2) 0 6px, transparent 6px 12px);
+        opacity: 0.7;
+      }
+      .tether b {
+        font-weight: 500;
+        color: var(--cyan);
+      }
+
+      /* ---------- scene 3: remote CLI ---------- */
+      .cli {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+        gap: 22px;
+        width: min(1000px, 100%);
+      }
+      .cli pre.t {
+        height: min(300px, calc(100cqh - 60px));
+      }
+      .cli .cheat pre.t {
+        line-height: 1.95;
+      }
+      .tip {
+        position: absolute;
+        right: 16px;
+        bottom: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 12px;
+        border: 1px solid var(--line-strong);
+        border-radius: 10px;
+        background: rgba(11, 20, 34, 0.92);
+        font-size: 12px;
+        color: var(--text-2);
+        opacity: 0;
+        transform: translateY(8px);
+        transition:
+          opacity 0.4s,
+          transform 0.4s;
+      }
+      .tip.show {
+        opacity: 1;
+        transform: none;
+      }
+      kbd {
+        padding: 2px 6px;
+        border: 1px solid var(--line-strong);
+        border-bottom-width: 2px;
+        border-radius: 5px;
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text);
+      }
+
+      /* ---------- scene 4: chips over the real screenshot ---------- */
+      .chips {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+      .chip {
+        position: absolute;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 13px;
+        border: 1px solid var(--line-strong);
+        border-radius: 999px;
+        background: rgba(8, 14, 24, 0.9);
+        font-family: var(--mono);
+        font-size: 11.5px;
+        color: var(--ice);
+        white-space: nowrap;
+        box-shadow: 0 14px 40px rgba(0, 0, 0, 0.6);
+        animation: bob 6s ease-in-out infinite;
+      }
+      .chip i {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--cyan);
+      }
+      .chip:nth-child(1) {
+        left: -3%;
+        top: 18%;
+      }
+      .chip:nth-child(2) {
+        right: -4%;
+        top: 46%;
+        animation-delay: -2s;
+      }
+      .chip:nth-child(3) {
+        left: 6%;
+        bottom: 9%;
+        animation-delay: -4s;
+      }
+      @keyframes bob {
+        50% {
+          transform: translateY(-8px);
+        }
+      }
+
+      /* ---------- scene 5: notifications and schedules ---------- */
+      .duo {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 22px;
+        width: min(940px, 100%);
+        text-align: left;
+      }
+      .card {
+        padding: 18px;
+        border-radius: 14px;
+      }
+      .card-h {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+      }
+      .note {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        gap: 4px 10px;
+        padding: 12px;
+        margin-top: 8px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: rgba(150, 195, 255, 0.04);
+        font-size: 13px;
+        opacity: 0.35;
+        transform: translateY(6px);
+        transition:
+          opacity 0.5s,
+          transform 0.5s,
+          border-color 0.5s;
+      }
+      .note.show {
+        opacity: 1;
+        transform: none;
+      }
+      .note.fresh {
+        border-color: rgba(127, 211, 255, 0.55);
+      }
+      .note i {
+        grid-row: span 2;
+        width: 8px;
+        height: 8px;
+        margin-top: 6px;
+        border-radius: 50%;
+        background: var(--cyan);
+      }
+      .note i.w {
+        background: var(--warn);
+      }
+      .note b {
+        font-weight: 500;
+      }
+      .note time {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text-3);
+      }
+      .note p {
+        grid-column: 2 / -1;
+        margin: 0;
+        color: var(--text-2);
+        line-height: 1.5;
+      }
+      .task {
+        padding: 12px;
+        margin-top: 8px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: rgba(150, 195, 255, 0.04);
+        font-size: 13px;
+      }
+      .task-top {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .task code {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--cyan);
+      }
+      .task small {
+        display: block;
+        margin-top: 2px;
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text-3);
+      }
+      .runs {
+        display: flex;
+        gap: 4px;
+        margin-top: 10px;
+      }
+      .runs i {
+        flex: 1;
+        height: 16px;
+        border-radius: 3px;
+        background: rgba(127, 217, 162, 0.75);
+        transform-origin: bottom;
+        animation: grow 0.5s backwards;
+      }
+      .runs i.f {
+        background: var(--bad);
+      }
+      .runs i.s {
+        background: #2b384b;
+      }
+      .runs i.now {
+        background: var(--cyan);
+        animation: pulse 1.2s ease-in-out infinite;
+      }
+      @keyframes grow {
+        from {
+          transform: scaleY(0);
+        }
+      }
+      @keyframes pulse {
+        50% {
+          opacity: 0.35;
+        }
+      }
+
+      /* ---------- scene 6: start ---------- */
+      .s6 {
+        grid-template-rows: minmax(0, 1fr);
+        align-items: center;
+      }
+      .s6 .copy {
+        max-width: 720px;
+      }
+      .kite {
+        width: 92px;
+        height: 92px;
+        margin: 0 auto 22px;
+        filter: drop-shadow(0 0 28px rgba(95, 178, 240, 0.7));
+        animation: sway 7s ease-in-out infinite;
+        transform-origin: 20% 90%;
+      }
+      @keyframes sway {
+        50% {
+          transform: rotate(-5deg) translateY(-6px);
+        }
+      }
+      .quick {
+        position: relative;
+        max-width: 100%;
+        margin: 26px auto 0;
+        text-align: left;
+      }
+      .copy {
+        min-width: 0;
+        width: 100%;
+      }
+      .quick pre.t {
+        padding: 18px 20px;
+        font-size: clamp(11px, 1.05vw, 13.5px);
+        line-height: 1.85;
+        overflow-x: auto;
+        white-space: pre;
+        word-break: normal;
+      }
+      .quick .btn {
+        position: absolute;
+        top: 44px;
+        right: 10px;
+        height: 28px;
+        padding: 0 11px;
+        font-size: 12px;
+      }
+      .fine {
+        margin-top: 18px;
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        color: var(--text-3);
+      }
+      .fine a {
+        color: var(--text-2);
+        border-bottom: 1px solid var(--line-strong);
+      }
+
+      /* ---------- small screens ---------- */
+      @media (max-width: 860px) {
+        .top nav a.mono {
+          display: none;
+        }
+        .idx {
+          right: 8px;
+          padding-right: 8px;
+        }
+        .idx a span {
+          display: none;
+        }
+        .scene {
+          padding-left: 16px;
+          padding-right: 34px;
+        }
+        .wb-body {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .wb-side,
+        .wb-tool {
+          display: none;
+        }
+        .surfaces {
+          grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.9fr);
+          gap: 12px;
+        }
+        .surfaces .cliwin {
+          display: none;
+        }
+        .sf pre.t {
+          height: min(210px, calc(100cqh - 110px));
+          font-size: 9.5px;
+        }
+        .sf.phone pre.t {
+          height: min(196px, calc(100cqh - 110px));
+          font-size: 8px;
+        }
+        .cli,
+        .duo {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 12px;
+        }
+        .cli .cheat {
+          display: none;
+        }
+        .cli pre.t {
+          height: min(230px, calc(100cqh - 50px));
+          font-size: 11px;
+        }
+        .chip:nth-child(1) {
+          left: 0;
+        }
+        .chip:nth-child(2) {
+          right: 0;
+        }
+        .card {
+          padding: 12px;
+        }
+        .note:nth-of-type(n + 3),
+        .task:nth-of-type(n + 3) {
+          display: none;
+        }
+        .shot {
+          width: 100%;
+        }
+        .kite {
+          width: 64px;
+          height: 64px;
+        }
+      }
+      @media (max-height: 720px) {
+        .copy p {
+          margin-top: 10px;
+        }
+        .badge {
+          margin-bottom: 14px;
+        }
+        .copy .mono {
+          margin-bottom: 8px;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-snap-type: none;
+        }
+        .chip,
+        .kite,
+        .runs i {
+          animation: none;
+        }
+      }
+    </style>
+  </head>
+  <body data-proto="a">
+    <canvas id="field" aria-hidden="true"></canvas>
+
+    <header class="top">
+      <a class="brand" href="#top" aria-label="Kiteline">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="kg" x1="4" y1="2" x2="20" y2="16">
+              <stop stop-color="#a6e6ff" />
+              <stop offset="1" stop-color="#3d86da" />
+            </linearGradient>
+          </defs>
+          <path d="M14.5 2 21 8.5 11.5 15 6 7.5Z" fill="url(#kg)" />
+          <path
+            d="M11.5 15c-1.6 1.7-.4 3.300-2.700 4.200S6 21.300 3 21.800"
+            stroke="#a6e6ff"
+            stroke-width="1.4"
+            stroke-linecap="round"
+          />
+        </svg>
+        Kiteline
+      </a>
+      <nav>
+        <a
+          class="mono"
+          href="https://github.com/Azure99/kiteline/blob/main/docs/guide/usage.md"
+          data-en="Docs"
+          >文档</a
+        >
+        <a class="mono" href="https://github.com/Azure99/kiteline">GitHub ↗</a>
+        <a class="btn" href="#s6" data-jump="6" data-en="Deploy">开始部署</a>
+      </nav>
+    </header>
+
+    <nav class="idx" aria-label="Sections">
+      <a href="#s1" data-jump="1">01 <span data-en="NATIVE TUI">原生 TUI</span></a>
+      <a href="#s2" data-jump="2">02 <span data-en="EVERYWHERE">多端接续</span></a>
+      <a href="#s3" data-jump="3">03 <span data-en="REMOTE CLI">远程 CLI</span></a>
+      <a href="#s4" data-jump="4">04 <span data-en="WORKBENCH">工作台</span></a>
+      <a href="#s5" data-jump="5">05 <span data-en="UNATTENDED">无人值守</span></a>
+      <a href="#s6" data-jump="6">06 <span data-en="START">开始</span></a>
+    </nav>
+
+    <main class="reel" id="top">
+      <div class="snaps" aria-hidden="true">
+        <i style="top: 0"></i><i style="top: 100vh"></i><i style="top: 200vh"></i
+        ><i style="top: 300vh"></i><i style="top: 400vh"></i><i style="top: 500vh"></i
+        ><i style="top: 600vh"></i>
+      </div>
+      <div class="stage">
+        <!-- 00 hero -->
+        <section class="scene s0" id="s0">
+          <div class="copy">
+            <div class="badge mono" data-en="SELF-HOSTED · APACHE-2.0">自托管 · APACHE-2.0</div>
+            <h1
+              data-en='<span class="g">Let agents fly.</span><span class="dim">Keep hold</span><span>of the line.</span>'
+            >
+              <span class="g">放飞 agent，</span><span class="dim">线还在</span
+              ><span>你手里。</span>
+            </h1>
+            <p
+              data-en="A self-hosted workbench for coding agents. Claude Code and Codex run as native TUIs on your own machines; pick the same session up from a browser, a phone, or a CLI."
+            >
+              自托管的 coding agent 工作台。Claude Code、Codex 以原生 TUI
+              跑在你自己的设备上，浏览器、手机和命令行接续同一个会话。
+            </p>
+            <div class="cta">
+              <a class="btn primary" href="#s6" data-jump="6"
+                ><span data-en="Deploy in four commands">四行命令部署</span> →</a
+              >
+              <a class="btn big" href="#s1" data-jump="1" data-en="See it work">看它运行</a>
+            </div>
+          </div>
+          <div class="vis">
+            <div class="win wb" aria-hidden="true">
+              <div class="bar">
+                <div class="dots"><i></i><i></i><i></i></div>
+                <div class="url">desk.example</div>
+              </div>
+              <div class="wb-body">
+                <div class="wb-side">
+                  <div class="wb-h" data-en="Devices and workspaces">设备与工作区</div>
+                  <div class="dev">devbox</div>
+                  <div class="ws on">skylog <span class="pip" id="pip">1</span></div>
+                  <div class="ws">media-kit</div>
+                  <div class="dev">mac-mini</div>
+                  <div class="ws">ios-app</div>
+                  <div class="dev off">win-desk</div>
+                </div>
+                <div class="wb-main">
+                  <div class="tabs">
+                    <span class="on">Codex</span><span>Shell</span><span>+</span>
+                  </div>
+                  <pre class="t" id="heroTerm" data-rows="13"></pre>
+                </div>
+                <div class="wb-tool">
+                  <div class="wb-h">Git · main</div>
+                  <div class="chg" id="chg1"><b>M</b> wind.js <em>+2 −1</em></div>
+                  <div class="chg" id="chg2"><b>M</b> wind.test.js <em>+1</em></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 01 native TUI -->
+        <section class="scene" id="s1">
+          <div class="vis">
+            <div class="win shot">
+              <div class="bar">
+                <div class="dots"><i></i><i></i><i></i></div>
+                <div class="url">desk.example</div>
+              </div>
+              <img
+                src="assets/readme-desktop.webp"
+                width="1600"
+                height="900"
+                alt="Kiteline 工作台：Codex 的原生 TUI 与项目检查上下分屏，中间是 Git diff，右侧是文件树"
+              />
+            </div>
+          </div>
+          <div class="copy">
+            <div class="mono"><b>01</b> <span data-en="NATIVE TUI">原生 TUI</span></div>
+            <h2
+              data-en='No wrapper. No redraw. <span class="g">The terminal it was built for.</span>'
+            >
+              不套壳，不重画。<span class="g">就是它原本的终端。</span>
+            </h2>
+            <p
+              data-en="Agents run in a real terminal, keeping their own interface and keystrokes, with the toolchain and environment already on the machine."
+            >
+              agent 运行在真实终端里，保留原有的界面与交互，沿用设备上已有的工具链与环境。
+            </p>
+          </div>
+        </section>
+
+        <!-- 02 everywhere -->
+        <section class="scene flip" id="s2">
+          <div class="copy">
+            <div class="mono"><b>02</b> <span data-en="EVERYWHERE">多端接续</span></div>
+            <h2 data-en='Desktop, phone, CLI. <span class="g">One session, still running.</span>'>
+              电脑、手机、命令行。<span class="g">同一个会话，一直在跑。</span>
+            </h2>
+            <p
+              data-en="Connect Linux, Windows and macOS machines and switch workspaces by project. Change devices and the session carries on; input is shared across every surface."
+            >
+              接入 Linux、Windows 和 macOS
+              设备，按项目切换工作区。换一台电脑或拿起手机，会话继续运行，各端共享同一份输入与画面。
+            </p>
+          </div>
+          <div class="vis">
+            <div class="surfaces" aria-hidden="true">
+              <div class="win sf" data-sf="0">
+                <div class="bar">
+                  <div class="dots"><i></i><i></i><i></i></div>
+                  <div class="url">desk.example</div>
+                </div>
+                <pre class="t mirror" data-rows="12"></pre>
+                <div class="who" data-en="Browser">浏览器</div>
+              </div>
+              <div class="win sf phone" data-sf="1">
+                <div class="bar"></div>
+                <pre class="t mirror" data-rows="16"></pre>
+                <div class="keys">
+                  <span>TAB</span><span>/</span><span>@</span><span>PGUP</span><span>↑</span
+                  ><span>PGDN</span><span>ESC</span>
+                </div>
+                <div class="who" data-en="Phone">手机</div>
+              </div>
+              <div class="win sf cliwin" data-sf="2">
+                <div class="bar">
+                  <div class="dots"><i></i><i></i><i></i></div>
+                  <span class="mono" style="letter-spacing: 0.06em; text-transform: none"
+                    >kiteline terminal attach</span
+                  >
+                </div>
+                <pre class="t mirror" data-rows="12"></pre>
+                <div class="who" data-en="Remote CLI">远程 CLI</div>
+              </div>
+              <div class="tether">
+                <span><b>tmux</b> · devbox / skylog</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 03 remote CLI -->
+        <section class="scene" id="s3">
+          <div class="vis">
+            <div class="cli" aria-hidden="true">
+              <div class="win cheat">
+                <div class="bar"><span class="mono" data-en="SHORT COMMANDS">短命令</span></div>
+                <pre class="t" id="cheat"></pre>
+              </div>
+              <div class="win">
+                <div class="bar">
+                  <div class="dots"><i></i><i></i><i></i></div>
+                  <span class="mono" style="letter-spacing: 0.06em; text-transform: none"
+                    >laptop — zsh</span
+                  >
+                </div>
+                <pre class="t" id="cliTerm" data-rows="13"></pre>
+                <div class="tip" id="tip">
+                  <kbd>Ctrl</kbd><kbd>B</kbd><kbd>d</kbd>
+                  <span data-en="detach — the session keeps running">脱离，会话继续运行</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="copy">
+            <div class="mono"><b>03</b> <span data-en="REMOTE CLI">远程 CLI</span></div>
+            <h2
+              data-en='From your own terminal, <span class="g">attach to a session far away.</span>'
+            >
+              在本机终端，<span class="g">接住远处的会话。</span>
+            </h2>
+            <p
+              data-en="<code>kiteline terminal attach</code> joins the same session. Or script it with short commands: send input, read output, move files."
+            >
+              <code>kiteline terminal attach</code>
+              接续同一个会话；也可以用短命令发送输入、查看输出、上传下载文件。
+            </p>
+          </div>
+        </section>
+
+        <!-- 04 workbench -->
+        <section class="scene flip" id="s4">
+          <div class="copy">
+            <div class="mono"><b>04</b> <span data-en="WORKBENCH">工作台</span></div>
+            <h2
+              data-en='Terminal, files, Git. <span class="g">See exactly what the agent changed.</span>'
+            >
+              终端、文件、Git。<span class="g">一屏看清 agent 改了什么。</span>
+            </h2>
+            <p
+              data-en="Group and split terminals, edit files, preview images and Markdown or HTML drafts, review diffs. Open the web service running on a device right in your browser, WebSocket and hot reload included."
+            >
+              终端分组与分屏，编辑文件，预览图片和 Markdown/HTML 草稿，查看 Git 改动。设备上的 Web
+              服务也能直接在浏览器里打开，支持 WebSocket 与热更新。
+            </p>
+          </div>
+          <div class="vis">
+            <div class="win shot" style="--ratio: 1.6">
+              <div class="bar">
+                <div class="dots"><i></i><i></i><i></i></div>
+                <div class="url">desk.example</div>
+              </div>
+              <img
+                src="assets/desk-dark.webp"
+                width="2200"
+                height="1375"
+                alt="Kiteline 深色界面：上方是 wind.js 的 diff，下方终端刚跑完测试，右侧 Git 面板列出两处未暂存改动"
+              />
+              <div class="chips" aria-hidden="true">
+                <div class="chip"><i></i>diff · src/wind.js +2 −1</div>
+                <div class="chip"><i></i>/proxy/devbox/4173/ → skylog</div>
+                <div class="chip"><i></i>✔ 6 passed</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 05 unattended -->
+        <section class="scene" id="s5">
+          <div class="vis">
+            <div class="duo" aria-hidden="true">
+              <div class="win card">
+                <div class="card-h">
+                  <span class="mono" data-en="TERMINAL NOTIFICATIONS">终端通知</span>
+                  <span class="mono" id="noteCount">0</span>
+                </div>
+                <div class="note" data-note>
+                  <i class="w"></i><b>Claude Code · ios-app</b><time>10:42</time>
+                  <p data-en="Waiting for you: approve running the migration?">
+                    等待确认：是否运行数据库迁移？
+                  </p>
+                </div>
+                <div class="note" data-note>
+                  <i></i><b>Codex · skylog</b><time>10:45</time>
+                  <p data-en="Gust handling is in. All 6 tests pass, nothing committed.">
+                    阵风判断已加入，6 项测试全部通过，尚未提交。
+                  </p>
+                </div>
+                <div class="note" data-note>
+                  <i></i><b>Shell · media-kit</b><time>10:51</time>
+                  <p data-en="Build finished in 3m 12s.">构建完成，用时 3 分 12 秒。</p>
+                </div>
+              </div>
+              <div class="win card">
+                <div class="card-h">
+                  <span class="mono" data-en="SCHEDULED TASKS">定时任务</span>
+                  <span class="mono">Asia/Shanghai</span>
+                </div>
+                <div class="task">
+                  <div class="task-top"><b>Daily review</b><code>0 9 * * 1-5</code></div>
+                  <small>./daily-review.sh · devbox</small>
+                  <div class="runs">
+                    <i></i><i></i><i></i><i></i><i class="f"></i><i></i><i></i><i></i><i></i
+                    ><i class="now"></i>
+                  </div>
+                </div>
+                <div class="task">
+                  <div class="task-top"><b>Nightly tests</b><code>30 2 * * *</code></div>
+                  <small>npm test · devbox / skylog</small>
+                  <div class="runs">
+                    <i></i><i></i><i class="s"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="copy">
+            <div class="mono"><b>05</b> <span data-en="UNATTENDED">无人值守</span></div>
+            <h2
+              data-en='Know when it is waiting. <span class="g">Let it work while you sleep.</span>'
+            >
+              它在等你时，你会知道。<span class="g">你睡着时，它照常干活。</span>
+            </h2>
+            <p
+              data-en="Notifications and waiting reports from every terminal collect in the workspace list; one click returns to the source. Scheduled tasks run scripts or agents on a cron plan and keep the run history."
+            >
+              各终端发出的通知与等待报告汇总在工作区列表，点一下回到对应终端。定时任务按 cron
+              计划在设备上运行脚本或 agent，并保留运行记录。
+            </p>
+          </div>
+        </section>
+
+        <!-- 06 start -->
+        <section class="scene s6" id="s6">
+          <div class="copy">
+            <svg class="kite" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M14.5 2 21 8.5 11.5 15 6 7.5Z" fill="url(#kg)" />
+              <path
+                d="M11.5 15c-1.6 1.7-.4 3.300-2.700 4.200S6 21.300 3 21.800"
+                stroke="#a6e6ff"
+                stroke-width="1"
+                stroke-linecap="round"
+              />
+            </svg>
+            <h2 data-en='Four commands, <span class="g">on a host you own.</span>'>
+              四行命令，<span class="g">部署在你自己的主机上。</span>
+            </h2>
+            <p
+              data-en="One Linux host with Docker runs the server. Your devices connect outward to it, so nothing on them listens for inbound traffic."
+            >
+              一台装了 Docker 的 Linux 主机运行 server；设备上的 agent
+              主动向外连接，不需要在设备上开放入站端口。
+            </p>
+            <div class="win quick">
+              <div class="bar"><span class="mono">sh</span></div>
+              <pre class="t" id="quick"><span class="p">$</span> mkdir kiteline && cd kiteline
+<span class="p">$</span> curl -fsSLO https://github.com/Azure99/kiteline/releases/latest/download/compose.yaml
+<span class="p">$</span> docker compose up -d
+<span class="p">$</span> docker compose logs server</pre>
+              <button class="btn" type="button" data-copy="#quickRaw">
+                <span data-copy-label data-en="Copy">复制</span>
+              </button>
+              <pre id="quickRaw" hidden>
+mkdir kiteline && cd kiteline
+curl -fsSLO https://github.com/Azure99/kiteline/releases/latest/download/compose.yaml
+docker compose up -d
+docker compose logs server</pre
+              >
+            </div>
+            <div class="cta">
+              <a class="btn primary" href="https://github.com/Azure99/kiteline#开始使用"
+                ><span data-en="Read the quick start">阅读快速开始</span> →</a
+              >
+              <a class="btn big" href="https://github.com/Azure99/kiteline">GitHub ↗</a>
+            </div>
+            <div class="fine">
+              <span data-en="BUILT FOR PERSONAL USE · APACHE-2.0 · BY "
+                >面向个人使用 · APACHE-2.0 · 作者 </span
+              ><a href="https://www.rainng.com/">Azure99</a>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script src="assets/proto.js"></script>
+    <script>
+      (function () {
+        "use strict";
+        var KL = window.KL;
+        var scenes = [].slice.call(document.querySelectorAll(".scene"));
+        var idx = document.querySelector(".idx");
+        var idxLinks = [].slice.call(idx.querySelectorAll("a"));
+        var progress = 0;
+
+        /* ---------- reel: scroll position drives every scene ---------- */
+        function layout() {
+          var vh = window.innerHeight;
+          progress = KL.clamp(window.scrollY / vh, 0, scenes.length - 1);
+          for (var i = 0; i < scenes.length; i++) {
+            var d = progress - i;
+            var a = Math.abs(d);
+            var opacity = KL.clamp(1 - (a - 0.2) / 0.28, 0, 1);
+            var s = scenes[i];
+            if (opacity <= 0) {
+              if (s.style.visibility !== "hidden") {
+                s.style.visibility = "hidden";
+                s.style.opacity = 0;
+              }
+              continue;
+            }
+            s.style.visibility = "visible";
+            s.style.opacity = opacity;
+            s.style.pointerEvents = opacity > 0.6 ? "auto" : "none";
+            s.style.setProperty("--d", KL.reduced ? 0 : d.toFixed(4));
+            s.style.setProperty("--a", KL.reduced ? 0 : Math.min(a, 1).toFixed(4));
+          }
+          var active = Math.round(progress);
+          for (var k = 0; k < idxLinks.length; k++)
+            idxLinks[k].classList.toggle("on", k + 1 === active);
+          idx.style.setProperty("--pos", Math.max(active - 1, 0));
+          idx.style.setProperty("--idx-on", active > 0 ? 1 : 0);
+        }
+        var ticking = false;
+        function onScroll() {
+          if (ticking) return;
+          ticking = true;
+          requestAnimationFrame(function () {
+            ticking = false;
+            layout();
+          });
+        }
+        window.addEventListener("scroll", onScroll, { passive: true });
+        window.addEventListener("resize", layout);
+        document.addEventListener("click", function (event) {
+          var link = event.target.closest && event.target.closest("[data-jump]");
+          if (!link) return;
+          event.preventDefault();
+          window.scrollTo({
+            top: +link.getAttribute("data-jump") * window.innerHeight,
+            behavior: KL.reduced ? "auto" : "smooth",
+          });
+        });
+        layout();
+
+        /* ---------- dithered night horizon ---------- */
+        (function field() {
+          var canvas = document.getElementById("field");
+          var ctx = canvas.getContext("2d");
+          var CELL = 3;
+          var w, h, image, rnd, rnd2;
+          var mx = 0,
+            my = 0,
+            tx = 0,
+            ty = 0;
+          var BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+          function resize() {
+            w = canvas.width = Math.ceil(window.innerWidth / CELL);
+            h = canvas.height = Math.ceil(window.innerHeight / CELL);
+            image = ctx.createImageData(w, h);
+            rnd = new Float32Array(w * h);
+            rnd2 = new Float32Array(w * h);
+            for (var i = 0; i < rnd.length; i++) {
+              rnd[i] = Math.random();
+              rnd2[i] = Math.random();
+            }
+          }
+          /* rim → body → deep: sampled from rainng.com's sky header */
+          var STOPS = [
+            [166, 230, 255],
+            [70, 151, 201],
+            [40, 117, 193],
+            [20, 58, 112],
+            [9, 24, 52],
+          ];
+          function ramp(t, out) {
+            var f = KL.clamp(t, 0, 0.9999) * (STOPS.length - 1);
+            var i = f | 0;
+            var k = f - i;
+            var a = STOPS[i],
+              b = STOPS[i + 1];
+            out[0] = a[0] + (b[0] - a[0]) * k;
+            out[1] = a[1] + (b[1] - a[1]) * k;
+            out[2] = a[2] + (b[2] - a[2]) * k;
+          }
+          var color = [0, 0, 0];
+          function draw(time) {
+            var t = time / 1000;
+            mx += (tx - mx) * 0.04;
+            my += (ty - my) * 0.04;
+            var p = progress / 6;
+            /* the horizon swings as the reel advances, and rises for the last scene */
+            var R = h * (1.5 + 0.25 * Math.sin(p * Math.PI));
+            var cx = w * (-0.12 + 0.34 * p) + mx * 6;
+            var cy = h * (2.06 - 0.62 * KL.smooth(progress - 5)) + my * 4 + (R - h * 1.5);
+            var data = image.data;
+            var tick = Math.floor(t * 5);
+            var glow = h * 0.075;
+            for (var y = 0; y < h; y++) {
+              var dy = y - cy;
+              for (var x = 0; x < w; x++) {
+                var i = y * w + x;
+                var dx = x - cx;
+                var dist = Math.sqrt(dx * dx + dy * dy) - R;
+                var o = i * 4;
+                var r = 0,
+                  g = 0,
+                  b = 0,
+                  alpha = 0;
+                if (dist < 0) {
+                  var depth = -dist;
+                  if (depth < 1.6) {
+                    r = 190;
+                    g = 240;
+                    b = 255;
+                    alpha = 255;
+                  } else {
+                    var k = depth / (h * 0.5);
+                    var density =
+                      0.72 * Math.exp(-k * 5.5) +
+                      0.075 +
+                      0.045 * Math.sin(x * 0.045 + t * 0.7 + y * 0.03);
+                    var threshold = rnd[i] * 0.72 + (BAYER[(y & 3) * 4 + (x & 3)] / 16) * 0.28;
+                    if (threshold < density) {
+                      ramp(Math.min(k * 2.4, 1) * 0.92 + 0.05, color);
+                      r = color[0];
+                      g = color[1];
+                      b = color[2];
+                      alpha = 255;
+                    } else {
+                      r = 4;
+                      g = 9;
+                      b = 20;
+                      alpha = 255;
+                    }
+                  }
+                } else {
+                  var prob = 0.42 * Math.exp(-dist / glow) + 0.0018;
+                  var seed = rnd[i] + ((tick + ((rnd2[i] * 40) | 0)) % 9) * 0.031;
+                  seed -= seed | 0;
+                  if (seed < prob) {
+                    var bright = 150 + rnd2[i] * 105;
+                    r = bright * 0.86;
+                    g = bright * 0.95;
+                    b = 255;
+                    alpha = dist < glow * 1.5 ? 255 : 120 + rnd2[i] * 135;
+                  }
+                }
+                data[o] = r;
+                data[o + 1] = g;
+                data[o + 2] = b;
+                data[o + 3] = alpha;
+              }
+            }
+            ctx.putImageData(image, 0, 0);
+          }
+          var last = 0;
+          function loop(time) {
+            if (time - last > 42) {
+              last = time;
+              draw(time);
+            }
+            if (!KL.reduced) requestAnimationFrame(loop);
+          }
+          window.addEventListener("resize", function () {
+            resize();
+            draw(performance.now());
+          });
+          window.addEventListener("pointermove", function (event) {
+            tx = event.clientX / window.innerWidth - 0.5;
+            ty = event.clientY / window.innerHeight - 0.5;
+          });
+          window.addEventListener("scroll", function () {
+            if (KL.reduced) draw(performance.now());
+          });
+          resize();
+          requestAnimationFrame(loop);
+          if (KL.reduced) draw(0);
+        })();
+
+        /* ---------- hero: an agent session, replayed ---------- */
+        var AGENT = '<span class="p">›</span> ';
+        (async function hero() {
+          var term = KL.term(document.getElementById("heroTerm"));
+          var pip = document.getElementById("pip");
+          var chg1 = document.getElementById("chg1");
+          var chg2 = document.getElementById("chg2");
+          for (;;) {
+            term.clear();
+            pip.classList.remove("show");
+            chg1.classList.remove("show");
+            chg2.classList.remove("show");
+            term.out(['<span class="m">Codex · ~/work/skylog · main</span>', ""], 0);
+            term.prompt(AGENT);
+            await KL.sleep(900);
+            await term.type(
+              AGENT,
+              KL.t(
+                "给 canFly 加上阵风判断，并补一个测试",
+                "add gust handling to canFly and cover it with a test",
+              ),
+              46,
+            );
+            await KL.sleep(500);
+            await term.out(
+              ["", '<span class="m">• Explored</span>  src/wind.js, test/wind.test.js'],
+              420,
+            );
+            await term.out(
+              [
+                '<span class="m">• Edited</span>    src/wind.js <span class="ok">+2</span> <span class="bd">−1</span>',
+              ],
+              520,
+            );
+            chg1.classList.add("show");
+            await term.out(
+              ['<span class="m">• Edited</span>    test/wind.test.js <span class="ok">+1</span>'],
+              520,
+            );
+            chg2.classList.add("show");
+            await term.out(
+              [
+                '<span class="m">• Ran</span>       npm test',
+                '  <span class="m">└</span> <span class="ok">✔ 6 passed</span> <span class="m">· 0 failed</span>',
+                "",
+              ],
+              480,
+            );
+            await term.out(
+              [
+                '<span class="hi">' +
+                  KL.t(
+                    "阵风过大时不再放飞。6 项测试全部通过。",
+                    "Gusty air now grounds the kite. All 6 tests pass.",
+                  ) +
+                  "</span>",
+                "",
+              ],
+              200,
+            );
+            term.prompt(AGENT);
+            pip.classList.add("show");
+            await KL.sleep(6500);
+          }
+        })();
+
+        /* ---------- scene 2: the same session on three surfaces ---------- */
+        var PS = '<span class="p">skylog</span> <span class="m">main</span> $ ';
+        (async function everywhere() {
+          var surfaces = [].slice.call(document.querySelectorAll(".sf"));
+          var term = KL.term([].slice.call(document.querySelectorAll(".mirror")));
+          function focus(n) {
+            for (var i = 0; i < surfaces.length; i++)
+              surfaces[i].classList.toggle("typing", i === n);
+          }
+          await KL.visible(document.querySelector(".surfaces"));
+          for (;;) {
+            term.clear();
+            focus(0);
+            term.prompt(PS);
+            await KL.sleep(700);
+            await term.type(PS, "git status -sb", 60);
+            await term.out(
+              [
+                '## <span class="ok">main</span>',
+                ' <span class="bd">M</span> src/wind.js',
+                ' <span class="bd">M</span> test/wind.test.js',
+              ],
+              90,
+            );
+            term.prompt(PS);
+            await KL.sleep(1300);
+            focus(1);
+            await KL.sleep(500);
+            await term.type(PS, "npm test --silent", 85);
+            await term.out(
+              [
+                '<span class="ok">✔ beaufort maps calm air to force 0</span>',
+                '<span class="ok">✔ beaufort maps a fresh breeze to force 5</span>',
+                '<span class="ok">✔ line tension grows with wind speed</span>',
+                '<span class="ok">✔ gusty air grounds the kite</span>',
+                '<span class="in">ℹ pass 6</span>',
+                '<span class="in">ℹ fail 0</span>',
+              ],
+              140,
+            );
+            term.prompt(PS);
+            await KL.sleep(1300);
+            focus(2);
+            await KL.sleep(500);
+            await term.type(PS, "git commit -am 'feat(wind): ground kites in gusts'", 50);
+            await term.out(
+              [
+                "[main 3f2c9aa] feat(wind): ground kites in gusts",
+                " 2 files changed, 3 insertions(+), 1 deletion(-)",
+              ],
+              120,
+            );
+            term.prompt(PS);
+            await KL.sleep(3200);
+          }
+        })();
+
+        /* ---------- scene 3: remote CLI ---------- */
+        function cheat() {
+          var c = function (zh, en) {
+            return '  <span class="m"># ' + KL.t(zh, en) + "</span>";
+          };
+          document.getElementById("cheat").innerHTML = [
+            '<span class="p">$</span> kiteline targets',
+            c("列出设备与工作区", "list devices and workspaces"),
+            '<span class="p">$</span> kiteline terminal send --text <span class="in">\'npm test\'</span> --enter',
+            c("发送输入", "send input"),
+            '<span class="p">$</span> kiteline terminal wait',
+            c("等输出安静后返回画面", "return the screen once output settles"),
+            '<span class="p">$</span> kiteline terminal snapshot --tail 40',
+            c("取回最近 40 行", "read the last 40 lines"),
+          ].join("\n");
+        }
+        cheat();
+        document.addEventListener("kl:lang", cheat);
+        (async function cli() {
+          var term = KL.term(document.getElementById("cliTerm"));
+          var tip = document.getElementById("tip");
+          var LOCAL = '<span class="ok">laptop</span> <span class="m">~</span> % ';
+          await KL.visible(document.getElementById("cliTerm"));
+          for (;;) {
+            term.clear();
+            tip.classList.remove("show");
+            term.prompt(LOCAL);
+            await KL.sleep(800);
+            await term.type(LOCAL, "kiteline terminal attach", 55);
+            await KL.sleep(600);
+            term.clear();
+            await term.out(
+              [
+                PS + "npm test --silent",
+                '<span class="ok">✔ beaufort maps calm air to force 0</span>',
+                '<span class="ok">✔ kites fly between force 2 and 5</span>',
+                '<span class="ok">✔ gusty air grounds the kite</span>',
+                '<span class="in">ℹ pass 6</span>',
+              ],
+              30,
+            );
+            term.prompt(PS);
+            await KL.sleep(1100);
+            await term.type(PS, "git log --oneline -2", 60);
+            await term.out(
+              [
+                '<span class="wa">e47aa49</span> feat(wind): add gust factor',
+                '<span class="wa">e1e01df</span> feat: log wind samples and serve a dashboard',
+              ],
+              100,
+            );
+            term.prompt(PS);
+            await KL.sleep(1200);
+            tip.classList.add("show");
+            await KL.sleep(2600);
+            term.clear();
+            term.prompt(LOCAL);
+            await KL.sleep(2600);
+          }
+        })();
+
+        /* ---------- scene 5: notifications arrive ---------- */
+        (async function notes() {
+          var notes = [].slice.call(document.querySelectorAll("[data-note]"));
+          var count = document.getElementById("noteCount");
+          await KL.visible(document.querySelector(".duo"));
+          for (;;) {
+            for (var i = 0; i < notes.length; i++) notes[i].classList.remove("show", "fresh");
+            count.textContent = "0";
+            await KL.sleep(700);
+            for (var k = 0; k < notes.length; k++) {
+              for (var j = 0; j < notes.length; j++) notes[j].classList.remove("fresh");
+              notes[k].classList.add("show", "fresh");
+              count.textContent = String(k + 1);
+              await KL.sleep(1700);
+            }
+            await KL.sleep(4200);
+          }
+        })();
+      })();
+    </script>
+  </body>
+</html>

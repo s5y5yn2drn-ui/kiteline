@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Kiteline 主页原型</title>
+    <meta name="claude:viewport-fit-sides" content="cover" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600&family=Fragment+Mono&family=Noto+Sans+SC:wght@400;500&display=swap"
+    />
+    <style>
+      /* Layout: a quiet chooser. Three directions listed as wide rows, each with two frames and a short brief. */
+      :root {
+        --bg: #f3f7fb;
+        --surface: #ffffff;
+        --ink: #14213a;
+        --ink-2: #48586f;
+        --ink-3: #77859a;
+        --hair: #dbe4ee;
+        --accent: #2875c1;
+        --accent-soft: #e4eefa;
+        --sans:
+          "Schibsted Grotesk", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui,
+          sans-serif;
+        --mono: "Fragment Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --bg: #0b121d;
+          --surface: #121c2b;
+          --ink: #e9eff7;
+          --ink-2: #b1bfd2;
+          --ink-3: #7f8ea5;
+          --hair: #24324a;
+          --accent: #8ec5ff;
+          --accent-soft: #1a2b45;
+          color-scheme: dark;
+        }
+      }
+      :root[data-theme="dark"] {
+        --bg: #0b121d;
+        --surface: #121c2b;
+        --ink: #e9eff7;
+        --ink-2: #b1bfd2;
+        --ink-3: #7f8ea5;
+        --hair: #24324a;
+        --accent: #8ec5ff;
+        --accent-soft: #1a2b45;
+        color-scheme: dark;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: var(--sans);
+        font-size: 16px;
+        line-height: 1.6;
+      }
+      .page {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding-block: clamp(36px, 6vw, 72px);
+        padding-left: max(16px, env(safe-area-inset-left, 0px));
+        padding-right: max(16px, env(safe-area-inset-right, 0px));
+      }
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+        text-wrap: balance;
+      }
+      h1 {
+        font-size: clamp(30px, 4.4vw, 46px);
+        line-height: 1.2;
+      }
+      .lead {
+        max-width: 40em;
+        margin: 14px 0 0;
+        color: var(--ink-2);
+      }
+      .rows {
+        display: grid;
+        gap: 20px;
+        margin-top: clamp(28px, 4vw, 48px);
+      }
+      .row {
+        display: grid;
+        grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+        gap: clamp(18px, 3vw, 36px);
+        padding: clamp(14px, 2vw, 22px);
+        border: 1px solid var(--hair);
+        border-radius: 18px;
+        background: var(--surface);
+      }
+      .frames {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        align-content: start;
+      }
+      .frames img {
+        display: block;
+        width: 100%;
+        height: auto;
+        border: 1px solid var(--hair);
+        border-radius: 10px;
+      }
+      .brief {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+      .kicker {
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        color: var(--ink-3);
+      }
+      h2 {
+        margin-top: 6px;
+        font-size: 26px;
+      }
+      .brief p {
+        margin: 10px 0 0;
+        color: var(--ink-2);
+        font-size: 15px;
+      }
+      dl {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 6px 14px;
+        margin: 16px 0 0;
+        font-size: 14px;
+      }
+      dt {
+        color: var(--ink-3);
+        white-space: nowrap;
+      }
+      dd {
+        margin: 0;
+        color: var(--ink-2);
+      }
+      .open {
+        display: inline-flex;
+        align-items: center;
+        align-self: flex-start;
+        gap: 8px;
+        height: 42px;
+        margin-top: auto;
+        padding: 0 20px;
+        border-radius: 999px;
+        background: var(--accent);
+        color: var(--surface);
+        font-weight: 500;
+        text-decoration: none;
+      }
+      .open:hover {
+        filter: brightness(1.08);
+      }
+      .open:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
+      }
+      .brief .open {
+        margin-top: 20px;
+      }
+      .notes {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: clamp(20px, 4vw, 48px);
+        margin-top: clamp(36px, 5vw, 64px);
+        padding-top: 28px;
+        border-top: 1px solid var(--hair);
+      }
+      h3 {
+        font-size: 17px;
+      }
+      .notes p,
+      .notes li {
+        color: var(--ink-2);
+        font-size: 14.5px;
+      }
+      .notes ul {
+        margin: 10px 0 0;
+        padding-left: 1.2em;
+      }
+      .notes p {
+        margin: 10px 0 0;
+      }
+      .swatches {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+        gap: 10px;
+        margin-top: 14px;
+      }
+      .sw {
+        font-family: var(--mono);
+        font-size: 11.5px;
+        color: var(--ink-3);
+      }
+      .sw i {
+        display: block;
+        height: 46px;
+        margin-bottom: 6px;
+        border: 1px solid var(--hair);
+        border-radius: 10px;
+      }
+      .sw b {
+        display: block;
+        font-family: var(--sans);
+        font-size: 12.5px;
+        font-weight: 500;
+        color: var(--ink-2);
+      }
+      code {
+        font-family: var(--mono);
+        font-size: 0.9em;
+      }
+      @media (max-width: 800px) {
+        .row,
+        .notes {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <h1>Kiteline 主页原型</h1>
+      <p class="lead">
+        三个方向，内容和配色来源相同，版式与动效不同。每一版都是可以完整滚动、交互的页面；页面底部的切换条可以在三版之间跳转，也可以切换中英文。
+      </p>
+
+      <div class="rows">
+        <article class="row">
+          <div class="frames">
+            <img
+              src="assets/thumb-a.webp"
+              width="1120"
+              height="700"
+              alt="A 版首屏：深色背景上的大标题，下方露出工作台窗口"
+            />
+            <img
+              src="assets/thumb-a2.webp"
+              width="1120"
+              height="700"
+              alt="A 版第二幕：浏览器、手机和命令行三个窗口显示同一个终端会话"
+            />
+          </div>
+          <div class="brief">
+            <div class="kicker">A · NIGHT FLIGHT</div>
+            <h2>夜航</h2>
+            <p>贴近 Tern 的做法：深色，一屏一幕，滚轮把六个分镜依次推上来。</p>
+            <dl>
+              <dt>背景</dt>
+              <dd>像素抖动的夜空地平线，随滚动转动，最后一幕升起</dd>
+              <dt>演示</dt>
+              <dd>页面内画出的工作台和终端，回放真实命令；三端同步输入</dd>
+              <dt>气质</dt>
+              <dd>硬朗、技术感强，等宽小字和编号导航</dd>
+            </dl>
+            <a class="open" href="a-night.html">打开 A 版 →</a>
+          </div>
+        </article>
+
+        <article class="row">
+          <div class="frames">
+            <img
+              src="assets/thumb-b.webp"
+              width="1120"
+              height="700"
+              alt="B 版首屏：蓝色天空里一只白色风筝，线一直延伸到左下角的文案旁"
+            />
+            <img
+              src="assets/thumb-b2.webp"
+              width="1120"
+              height="700"
+              alt="B 版工作台区块：浅色面板里放着产品截图，下面是四个功能标签"
+            />
+          </div>
+          <div class="brief">
+            <div class="kicker">B · CLEAR SKY</div>
+            <h2>晴空</h2>
+            <p>贴近 Trajectory 的做法：浅色，一片画出来的天空，白色内容页从上面滑过。</p>
+            <dl>
+              <dt>背景</dt>
+              <dd>实时绘制的云和星点，风筝随风摆动，跟随指针</dd>
+              <dt>演示</dt>
+              <dd>真实截图配自动轮播的功能标签，连接示意图，页脚大字标</dd>
+              <dt>气质</dt>
+              <dd>明亮、从容，和雨凝博客的头图最接近</dd>
+            </dl>
+            <a class="open" href="b-sky.html">打开 B 版 →</a>
+          </div>
+        </article>
+
+        <article class="row">
+          <div class="frames">
+            <img
+              src="assets/thumb-c.webp"
+              width="1120"
+              height="700"
+              alt="C 版首屏：浅蓝天空，左侧大标题，右侧一只风筝，顶部有时钟"
+            />
+            <img
+              src="assets/thumb-c2.webp"
+              width="1120"
+              height="700"
+              alt="C 版夜间章节：深蓝星空和月牙，一条线穿过时间节点"
+            />
+          </div>
+          <div class="brief">
+            <div class="kicker">C · DAY INTO NIGHT</div>
+            <h2>昼夜</h2>
+            <p>一个不照搬参考站的方向：把用它的一天从早讲到晚，滚动就是拨动时钟。</p>
+            <dl>
+              <dt>背景</dt>
+              <dd>天空随时间从清晨变到黄昏再到深夜，太阳落下、月亮升起</dd>
+              <dt>演示</dt>
+              <dd>一根风筝线从首屏贯穿每个时间节点，最后落到部署命令</dd>
+              <dt>气质</dt>
+              <dd>有叙事，白天用浅色截图、夜里用深色截图</dd>
+            </dl>
+            <a class="open" href="c-day.html">打开 C 版 →</a>
+          </div>
+        </article>
+      </div>
+
+      <div class="notes">
+        <section>
+          <h3>配色来源</h3>
+          <p>
+            从 rainng.com
+            取色：导航栏、链接、头图天空和页面背景的蓝。三版都只在这组蓝上加了少量暖色做高光。
+          </p>
+          <div class="swatches">
+            <div class="sw"><i style="background: #2875c1"></i><b>导航蓝</b>#2875c1</div>
+            <div class="sw"><i style="background: #3b8dbd"></i><b>链接蓝</b>#3b8dbd</div>
+            <div class="sw"><i style="background: #3a83c2"></i><b>头图天空</b>#3a83c2</div>
+            <div class="sw"><i style="background: #97c3dd"></i><b>页面背景</b>#97c3dd</div>
+            <div class="sw"><i style="background: #b9d9eb"></i><b>云</b>#b9d9eb</div>
+            <div class="sw"><i style="background: #ffe6cc"></i><b>暖色高光</b>#ffe6cc</div>
+          </div>
+        </section>
+        <section>
+          <h3>素材与内容</h3>
+          <ul>
+            <li>
+              深浅两套桌面截图和手机截图，来自这次从源码真实跑起来的实例（server、agent
+              和一个演示工作区）。
+            </li>
+            <li>带 Codex 的截图是仓库 README 现有的那几张。</li>
+            <li>终端回放里的命令和输出取自真实运行结果；文案只写了 README 和文档里有的功能。</li>
+            <li>风筝图标是为原型临时画的，不是现有的产品图标。</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </body>
+</html>

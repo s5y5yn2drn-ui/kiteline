@@ -1,0 +1,1527 @@
+<!doctype html>
+<html lang="zh-CN" data-lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Kiteline · 昼夜</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Hanken+Grotesk:wght@400;500;600&family=Martian+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap"
+    />
+    <link rel="stylesheet" href="assets/proto.css" />
+    <style>
+      /* Layout: one day told top to bottom. Scrolling moves the clock, the sky follows it, and a single
+         kite line runs from the kite at the top through every chapter to your hand at the end. */
+      :root {
+        color-scheme: light;
+        --s1: rgb(143, 192, 228); /* sky top; JS drives these three from the clock */
+        --s2: rgb(188, 217, 236);
+        --s3: rgb(233, 241, 246);
+        --ink: #12203a;
+        --ink-2: #3f5068;
+        --ink-3: #6c7c93;
+        --thread: #1c4f8f;
+        --card: rgba(255, 255, 255, 0.78);
+        --card-line: rgba(18, 32, 58, 0.1);
+        --chip: rgba(255, 255, 255, 0.7);
+        --accent: #2875c1; /* rainng.com navigation */
+        --accent-ink: #fff;
+        --term: #0d1626;
+        --display:
+          "Bricolage Grotesque", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+        --sans:
+          "Hanken Grotesk", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+        --mono: "Martian Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+        --wrap: 1180px;
+      }
+      body[data-phase="night"] {
+        --ink: #f1f5fb;
+        --ink-2: #b9c6da;
+        --ink-3: #8192ab;
+        --thread: #cfe6ff;
+        --card: rgba(13, 22, 38, 0.72);
+        --card-line: rgba(180, 210, 255, 0.16);
+        --chip: rgba(13, 22, 38, 0.6);
+        --accent: #8ec5ff;
+        --accent-ink: #0b1626;
+      }
+      html {
+        background: #8fc0e4;
+      }
+      body {
+        background: var(--s1);
+        color: var(--ink);
+        font-family: var(--sans);
+        font-size: 17px;
+        line-height: 1.6;
+        overflow-x: hidden;
+        transition: color 0.6s;
+      }
+
+      /* ---------- the sky ---------- */
+      .sky {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+        background: linear-gradient(180deg, var(--s1) 0%, var(--s2) 52%, var(--s3) 100%);
+      }
+      .sky canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+      .orb {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: clamp(90px, 11vw, 150px);
+        aspect-ratio: 1;
+        margin: calc(clamp(90px, 11vw, 150px) / -2);
+        border-radius: 50%;
+        will-change: transform, opacity;
+      }
+      .sun {
+        background: radial-gradient(
+          circle,
+          #fffdf2 0 34%,
+          rgba(255, 244, 214, 0.75) 46%,
+          rgba(255, 226, 170, 0) 70%
+        );
+        box-shadow: 0 0 120px 60px rgba(255, 240, 200, 0.45);
+      }
+      .moon {
+        width: clamp(70px, 8vw, 110px);
+        margin: calc(clamp(70px, 8vw, 110px) / -2);
+        filter: drop-shadow(0 0 26px rgba(170, 205, 255, 0.55));
+      }
+      .moon::before {
+        /* a crescent: the lit disc with a bite masked out */
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: radial-gradient(circle at 34% 40%, #fdfefe 0 45%, #d3e2f5 100%);
+        -webkit-mask-image: radial-gradient(circle at 70% 36%, transparent 0 49%, #000 50.5%);
+        mask-image: radial-gradient(circle at 70% 36%, transparent 0 49%, #000 50.5%);
+      }
+      .puff {
+        position: absolute;
+        width: 44vw;
+        height: 15vw;
+        background:
+          radial-gradient(
+            38% 60% at 30% 58%,
+            rgba(255, 255, 255, 0.9),
+            rgba(255, 255, 255, 0) 100%
+          ),
+          radial-gradient(
+            30% 70% at 52% 42%,
+            rgba(255, 255, 255, 0.95),
+            rgba(255, 255, 255, 0) 100%
+          ),
+          radial-gradient(40% 52% at 72% 62%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0) 100%);
+        filter: blur(10px);
+        opacity: calc(var(--cloud, 1) * 0.8);
+        animation: drift 90s ease-in-out infinite;
+      }
+      .puff:nth-of-type(1) {
+        top: 54%;
+        left: 50%;
+      }
+      .puff:nth-of-type(2) {
+        top: 24%;
+        left: 56%;
+        width: 30vw;
+        height: 10vw;
+        animation-duration: 130s;
+        animation-delay: -40s;
+      }
+      .puff:nth-of-type(3) {
+        top: 74%;
+        left: -14%;
+        width: 64vw;
+        height: 20vw;
+        animation-duration: 160s;
+        animation-delay: -90s;
+      }
+      @keyframes drift {
+        50% {
+          transform: translateX(12vw);
+        }
+      }
+
+      /* ---------- top bar ---------- */
+      .top {
+        position: fixed;
+        inset: 0 0 auto;
+        z-index: 40;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: calc(16px + env(safe-area-inset-top, 0px)) max(20px, 3vw) 0;
+      }
+      .top::before {
+        /* keeps the bar legible while chapters scroll beneath it */
+        content: "";
+        position: absolute;
+        inset: 0 0 -26px;
+        z-index: -1;
+        background: linear-gradient(180deg, var(--s1) 30%, transparent);
+        pointer-events: none;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-family: var(--display);
+        font-size: 21px;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+      }
+      .brand svg {
+        width: 22px;
+        height: 22px;
+      }
+      .clock {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        height: 38px;
+        padding: 0 16px;
+        border: 1px solid var(--card-line);
+        border-radius: 999px;
+        background: var(--chip);
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
+        font-family: var(--mono);
+        font-size: 13px;
+        font-variant-numeric: tabular-nums;
+        transition:
+          background 0.6s,
+          border-color 0.6s;
+      }
+      .clock b {
+        font-weight: 500;
+        font-size: 15px;
+      }
+      .clock span {
+        color: var(--ink-3);
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .top nav {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        font-size: 14.5px;
+        font-weight: 500;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        height: 42px;
+        padding: 0 20px;
+        border: 1px solid var(--card-line);
+        border-radius: 12px;
+        background: var(--chip);
+        font-size: 15px;
+        font-weight: 600;
+        white-space: nowrap;
+        cursor: pointer;
+        transition:
+          transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
+          background 0.6s,
+          color 0.6s,
+          border-color 0.6s;
+      }
+      .btn:hover {
+        transform: translateY(-2px);
+      }
+      .btn.solid {
+        border-color: transparent;
+        background: var(--accent);
+        color: var(--accent-ink);
+      }
+      .btn.small {
+        height: 38px;
+        padding: 0 16px;
+        font-size: 14px;
+      }
+
+      /* ---------- page ---------- */
+      main {
+        position: relative;
+        z-index: 1;
+      }
+      .wrap {
+        width: 100%;
+        max-width: var(--wrap);
+        margin: 0 auto;
+        padding-left: max(20px, env(safe-area-inset-left, 0px));
+        padding-right: max(20px, env(safe-area-inset-right, 0px));
+      }
+      .thread {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+        pointer-events: none;
+      }
+      .thread path {
+        fill: none;
+        stroke: var(--thread);
+        stroke-linecap: round;
+        transition: stroke 0.6s;
+      }
+      .thread .ghost {
+        stroke-width: 1;
+        stroke-dasharray: 2 9;
+        opacity: 0.35;
+      }
+      .thread .live {
+        stroke-width: 1.6;
+      }
+      .thread circle {
+        fill: var(--thread);
+        transition: fill 0.6s;
+      }
+      h1,
+      h2 {
+        margin: 0;
+        font-family: var(--display);
+        font-weight: 600;
+        letter-spacing: -0.04em;
+        text-wrap: balance;
+      }
+      :lang(zh-CN) h1,
+      :lang(zh-CN) h2 {
+        font-weight: 700;
+        letter-spacing: -0.015em;
+      }
+      p {
+        margin: 0;
+        text-wrap: pretty;
+      }
+
+      /* hero */
+      .hero {
+        position: relative;
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+        align-items: center;
+        min-height: min(100svh, 880px);
+        padding-block: 130px 80px;
+      }
+      .hero h1 {
+        font-size: clamp(44px, 6.6vw, 92px);
+        line-height: 0.98;
+      }
+      :lang(zh-CN) .hero h1 {
+        font-size: clamp(40px, 5.8vw, 82px);
+        line-height: 1.14;
+      }
+      .hero h1 i {
+        font-style: normal;
+        color: var(--accent);
+      }
+      .hero p {
+        max-width: 32em;
+        margin-top: 24px;
+        font-size: clamp(16px, 1.3vw, 19px);
+        color: var(--ink-2);
+      }
+      .cta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 30px;
+      }
+      .hint {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 44px;
+        font-family: var(--mono);
+        font-size: 11.5px;
+        letter-spacing: 0.06em;
+        color: var(--ink-3);
+      }
+      .hint::before {
+        content: "";
+        width: 1px;
+        height: 34px;
+        background: linear-gradient(var(--thread), transparent);
+        animation: fall 2.2s ease-in-out infinite;
+        transform-origin: top;
+      }
+      @keyframes fall {
+        0% {
+          transform: scaleY(0);
+        }
+        60% {
+          transform: scaleY(1);
+          opacity: 1;
+        }
+        100% {
+          transform: scaleY(1);
+          opacity: 0;
+        }
+      }
+      .kite-box {
+        position: relative;
+        justify-self: center;
+        width: clamp(120px, 17vw, 230px);
+        margin-top: -12vh;
+      }
+      .kite {
+        display: block;
+        width: 100%;
+        height: auto;
+        overflow: visible;
+        transform-origin: 50% 71%;
+        animation: sway 6.5s ease-in-out infinite;
+        filter: drop-shadow(0 22px 26px rgba(20, 60, 120, 0.28));
+      }
+      @keyframes sway {
+        0%,
+        100% {
+          transform: rotate(13deg);
+        }
+        50% {
+          transform: rotate(23deg);
+        }
+      }
+      #knot {
+        position: absolute;
+        left: 50%;
+        top: 71%;
+        width: 1px;
+        height: 1px;
+      }
+
+      /* chapters */
+      .ch {
+        position: relative;
+        display: grid;
+        grid-template-columns: minmax(0, 0.86fr) 110px minmax(0, 1.14fr);
+        align-items: center;
+        padding-block: clamp(56px, 9vw, 120px);
+      }
+      .ch-copy {
+        grid-column: 1;
+        grid-row: 1;
+      }
+      .ch-vis {
+        grid-column: 3;
+        grid-row: 1;
+        min-width: 0;
+      }
+      .ch.alt {
+        grid-template-columns: minmax(0, 1.14fr) 110px minmax(0, 0.86fr);
+      }
+      .ch.alt .ch-copy {
+        grid-column: 3;
+      }
+      .ch.alt .ch-vis {
+        grid-column: 1;
+      }
+      .dot {
+        grid-column: 2;
+        grid-row: 1;
+        justify-self: center;
+        width: 13px;
+        height: 13px;
+        border: 2px solid var(--thread);
+        border-radius: 50%;
+        background: var(--s2);
+        transition:
+          border-color 0.6s,
+          box-shadow 0.4s,
+          transform 0.4s;
+      }
+      .ch.lit .dot {
+        box-shadow: 0 0 0 7px color-mix(in srgb, var(--thread) 18%, transparent);
+        transform: scale(1.15);
+      }
+      .when {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.06em;
+        color: var(--ink-3);
+      }
+      .when b {
+        font-size: 22px;
+        font-weight: 500;
+        letter-spacing: -0.02em;
+        color: var(--accent);
+        font-variant-numeric: tabular-nums;
+        transition: color 0.6s;
+      }
+      .ch h2 {
+        margin-top: 14px;
+        font-size: clamp(30px, 3.5vw, 48px);
+        line-height: 1.05;
+      }
+      :lang(zh-CN) .ch h2 {
+        line-height: 1.22;
+      }
+      .ch-copy p {
+        max-width: 27em;
+        margin-top: 16px;
+        color: var(--ink-2);
+        transition: color 0.6s;
+      }
+      .ch-copy code,
+      .end code {
+        padding: 2px 6px;
+        border: 1px solid var(--card-line);
+        border-radius: 6px;
+        background: var(--chip);
+        font-family: var(--mono);
+        font-size: 0.8em;
+      }
+      .tag {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 5px 12px;
+        border: 1px solid var(--card-line);
+        border-radius: 999px;
+        background: var(--chip);
+        font-size: 13px;
+        font-weight: 500;
+        transition:
+          background 0.6s,
+          border-color 0.6s;
+      }
+      /* each visual drifts in from its own side */
+      .ch-vis,
+      .ch-copy {
+        opacity: 0;
+        transition:
+          opacity 0.9s cubic-bezier(0.2, 0.7, 0.2, 1),
+          transform 1.1s cubic-bezier(0.2, 0.7, 0.2, 1);
+      }
+      .ch-copy {
+        transform: translateY(24px);
+      }
+      .ch-vis {
+        transform: translateX(46px) rotate(1.2deg);
+      }
+      .ch.alt .ch-vis {
+        transform: translateX(-46px) rotate(-1.2deg);
+      }
+      .ch.in .ch-vis,
+      .ch.in .ch-copy {
+        opacity: 1;
+        transform: none;
+      }
+
+      .card {
+        overflow: hidden;
+        border: 1px solid var(--card-line);
+        border-radius: 16px;
+        background: var(--card);
+        -webkit-backdrop-filter: blur(16px) saturate(140%);
+        backdrop-filter: blur(16px) saturate(140%);
+        box-shadow: 0 30px 80px -30px rgba(10, 30, 70, 0.5);
+        transition:
+          background 0.6s,
+          border-color 0.6s;
+      }
+      .card img {
+        width: 100%;
+        height: auto;
+      }
+      .pad {
+        padding: 18px;
+      }
+      .label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        font-family: var(--mono);
+        font-size: 10.5px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+      }
+      .duo-phones {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+        max-width: 470px;
+        margin: 0 auto;
+      }
+      .ph {
+        overflow: hidden;
+        border: 6px solid #12203a;
+        border-radius: 30px;
+        background: #12203a;
+        box-shadow: 0 30px 70px -28px rgba(10, 30, 70, 0.7);
+      }
+      .ph img {
+        width: 100%;
+        height: auto;
+      }
+      .ph:last-child {
+        margin-top: 44px;
+      }
+      .note {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        gap: 2px 12px;
+        padding: 13px 14px;
+        border: 1px solid var(--card-line);
+        border-radius: 12px;
+        background: var(--chip);
+        font-size: 14.5px;
+        opacity: 0;
+        transform: translateY(-10px) scale(0.98);
+        transition:
+          opacity 0.6s,
+          transform 0.6s cubic-bezier(0.2, 1.2, 0.3, 1),
+          background 0.6s;
+        transition-delay: calc(var(--n) * 0.45s + 0.4s);
+      }
+      .note + .note {
+        margin-top: 8px;
+      }
+      .ch.in .note {
+        opacity: 1;
+        transform: none;
+      }
+      .note i {
+        grid-row: span 2;
+        width: 9px;
+        height: 9px;
+        margin-top: 7px;
+        border-radius: 50%;
+        background: var(--accent);
+      }
+      .note i.w {
+        background: #e9a23b;
+      }
+      .note b {
+        font-weight: 600;
+      }
+      .note time {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--ink-3);
+      }
+      .note p {
+        grid-column: 2 / -1;
+        font-size: 14px;
+        color: var(--ink-2);
+        line-height: 1.5;
+      }
+      .term {
+        background: var(--term);
+        border-color: rgba(180, 210, 255, 0.16);
+      }
+      .term-bar {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        height: 34px;
+        padding: 0 14px;
+        border-bottom: 1px solid rgba(180, 210, 255, 0.12);
+        font-family: var(--mono);
+        font-size: 11px;
+        color: #8192ab;
+      }
+      .term-bar i {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: #26344c;
+      }
+      .term-bar span {
+        margin-left: 8px;
+      }
+      pre.t {
+        height: 286px;
+        margin: 0;
+        padding: 14px 16px;
+        overflow: hidden;
+        font-family: var(--mono);
+        font-size: 12px;
+        line-height: 1.75;
+        color: #cbd6e4;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+      .t .p {
+        color: #7fd3ff;
+      }
+      .t .m {
+        color: #6c7c93;
+      }
+      .t .ok {
+        color: #7fd9a2;
+      }
+      .t .wa {
+        color: #f2b84b;
+      }
+      .t .in {
+        color: #b9d9eb;
+      }
+      .runlog {
+        font-family: var(--mono);
+        font-size: 12px;
+      }
+      .runlog div {
+        display: grid;
+        grid-template-columns: 52px minmax(0, 1fr) auto;
+        gap: 12px;
+        padding: 9px 2px;
+        border-top: 1px solid var(--card-line);
+        opacity: 0;
+        transform: translateX(-10px);
+        transition:
+          opacity 0.5s,
+          transform 0.5s;
+        transition-delay: calc(var(--n) * 0.5s + 0.5s);
+      }
+      .ch.in .runlog div {
+        opacity: 1;
+        transform: none;
+      }
+      .runlog time {
+        color: var(--ink-3);
+      }
+      .runlog em {
+        font-style: normal;
+        color: #7fd9a2;
+      }
+      .runlog em.skip {
+        color: var(--ink-3);
+      }
+      .task-h {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+      .task-h b {
+        font-size: 18px;
+        font-weight: 600;
+      }
+      .task-h code {
+        font-family: var(--mono);
+        font-size: 13px;
+        color: var(--accent);
+      }
+
+      /* the end of the line */
+      .end {
+        position: relative;
+        padding-block: clamp(70px, 10vw, 140px) 150px;
+        text-align: center;
+      }
+      .hand {
+        width: 16px;
+        height: 16px;
+        margin: 0 auto 34px;
+        border-radius: 50%;
+        background: var(--thread);
+        box-shadow: 0 0 0 8px color-mix(in srgb, var(--thread) 20%, transparent);
+      }
+      .end h2 {
+        font-size: clamp(34px, 5vw, 68px);
+        line-height: 1.04;
+      }
+      :lang(zh-CN) .end h2 {
+        line-height: 1.2;
+      }
+      .end > .wrap > p {
+        max-width: 34em;
+        margin: 18px auto 0;
+        color: var(--ink-2);
+      }
+      .quick {
+        position: relative;
+        max-width: 760px;
+        margin: 34px auto 0;
+        text-align: left;
+      }
+      .quick pre.t {
+        height: auto;
+        padding: 18px 20px;
+        overflow-x: auto;
+        font-size: 13px;
+        line-height: 1.9;
+        white-space: pre;
+        word-break: normal;
+      }
+      .quick button {
+        position: absolute;
+        top: 42px;
+        right: 10px;
+        height: 28px;
+        padding: 0 12px;
+        border: 1px solid rgba(180, 210, 255, 0.25);
+        border-radius: 8px;
+        background: #16233a;
+        color: #d7e1ee;
+        font-size: 12px;
+        cursor: pointer;
+      }
+      .end .cta {
+        justify-content: center;
+      }
+      .fine {
+        margin-top: 40px;
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        color: var(--ink-3);
+      }
+      .fine a {
+        border-bottom: 1px solid currentColor;
+      }
+
+      @media (max-width: 880px) {
+        .top nav a:not(.btn) {
+          display: none;
+        }
+        .clock span {
+          display: none;
+        }
+        .hero {
+          grid-template-columns: minmax(0, 1fr);
+          padding-block: 120px 60px;
+        }
+        .kite-box {
+          position: absolute;
+          right: 4%;
+          top: 96px;
+          width: 96px;
+          margin: 0;
+        }
+        .hero h1 {
+          margin-top: 120px;
+        }
+        .ch,
+        .ch.alt {
+          grid-template-columns: 26px minmax(0, 1fr);
+          gap: 26px 0;
+          align-items: start;
+        }
+        .ch .dot {
+          grid-column: 1;
+          grid-row: 1;
+          justify-self: start;
+          margin-top: 8px;
+        }
+        .ch .ch-copy,
+        .ch.alt .ch-copy {
+          grid-column: 2;
+          grid-row: 1;
+        }
+        .ch .ch-vis,
+        .ch.alt .ch-vis {
+          grid-column: 2;
+          grid-row: 2;
+          transform: translateY(30px);
+        }
+        .ch.in .ch-vis {
+          transform: none;
+        }
+        pre.t {
+          height: 240px;
+          font-size: 10.5px;
+        }
+        .quick pre.t {
+          font-size: 11px;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .kite,
+        .puff,
+        .hint::before {
+          animation: none;
+        }
+        .ch-vis,
+        .ch-copy,
+        .note,
+        .runlog div {
+          opacity: 1;
+          transform: none;
+          transition: none;
+        }
+      }
+    </style>
+  </head>
+  <body data-proto="c" data-phase="day">
+    <div class="sky" aria-hidden="true">
+      <canvas id="stars"></canvas>
+      <div class="orb sun" id="sun"></div>
+      <div class="orb moon" id="moon"></div>
+      <div class="puff"></div>
+      <div class="puff"></div>
+      <div class="puff"></div>
+    </div>
+
+    <header class="top">
+      <a class="brand" href="#top" aria-label="Kiteline">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M14.5 2 21 8.5 11.5 15 6 7.5Z" fill="currentColor" />
+          <path
+            d="M11.5 15c-1.6 1.7-.4 3.300-2.700 4.200S6 21.300 3 21.800"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linecap="round"
+          />
+        </svg>
+        Kiteline
+      </a>
+      <div class="clock" aria-hidden="true">
+        <b id="clock">08:00</b><span id="clockLabel" data-en="morning">早晨</span>
+      </div>
+      <nav>
+        <a href="https://github.com/Azure99/kiteline/blob/main/docs/guide/usage.md" data-en="Docs"
+          >文档</a
+        >
+        <a href="https://github.com/Azure99/kiteline">GitHub ↗</a>
+        <a class="btn solid small" href="#start" data-en="Deploy">开始部署</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <svg class="thread" id="thread" aria-hidden="true">
+        <path class="ghost" id="ghost" />
+        <path class="live" id="live" />
+        <circle id="bead" r="4.5" />
+      </svg>
+
+      <div class="wrap">
+        <section class="hero">
+          <div>
+            <h1 data-en="One line, <i>from morning to midnight.</i>">
+              从早到晚，<i>线一直在你手里。</i>
+            </h1>
+            <p
+              data-en="Kiteline is a self-hosted workbench for coding agents. Claude Code and Codex run as native TUIs on your own machines, and one terminal session follows you across your computer, your phone and a remote CLI."
+            >
+              Kiteline 是自托管的 coding agent 工作台。Claude Code、Codex 以原生 TUI
+              跑在你自己的设备上，同一个终端会话跟着你在电脑、手机和远程 CLI 之间接续。
+            </p>
+            <div class="cta">
+              <a class="btn solid" href="#start" data-en="Deploy in four commands →"
+                >四行命令部署 →</a
+              >
+              <a class="btn" href="https://github.com/Azure99/kiteline">GitHub ↗</a>
+            </div>
+            <div class="hint" data-en="SCROLL THROUGH A DAY WITH IT">往下滚，和它过一天</div>
+          </div>
+          <div class="kite-box" aria-hidden="true">
+            <svg class="kite" viewBox="0 0 200 300" fill="none">
+              <path d="M100 6 178 96 100 212 22 96Z" fill="#fff" />
+              <path d="M100 6 178 96H100Z" fill="#ffe6cc" />
+              <path d="M100 96v116L22 96Z" fill="#cfe3f6" />
+              <path
+                d="M100 6v206M22 96h156"
+                stroke="#2875c1"
+                stroke-opacity=".5"
+                stroke-width="2"
+              />
+              <path
+                d="M100 212c-14 16 10 26-4 44s8 22-6 38"
+                stroke="#fff"
+                stroke-width="4"
+                stroke-linecap="round"
+              />
+            </svg>
+            <span id="knot"></span>
+          </div>
+        </section>
+
+        <section class="ch" data-min="540">
+          <div class="ch-copy">
+            <div class="when"><b>09:00</b><span data-en="AT YOUR DESK">书桌前</span></div>
+            <h2 data-en="Open the terminal it was built for.">打开它原本的终端。</h2>
+            <p
+              data-en="Agents run in a real terminal on your device, with their own interface and keystrokes and the toolchain already installed there. The browser is just where you watch."
+            >
+              agent
+              运行在设备的真实终端里，保留原有的界面与交互，沿用已有的工具链与环境。浏览器只是你看着它的地方。
+            </p>
+            <span class="tag" data-en="Native TUI">原生 TUI</span>
+          </div>
+          <div class="dot"></div>
+          <div class="ch-vis">
+            <div class="card">
+              <img
+                src="assets/readme-desktop.webp"
+                width="1600"
+                height="900"
+                alt="Kiteline 工作台：Codex 原生 TUI、Git diff 与文件树"
+              />
+            </div>
+          </div>
+        </section>
+
+        <section class="ch alt" data-min="750">
+          <div class="ch-copy">
+            <div class="when">
+              <b>12:30</b><span data-en="ON THE WAY TO LUNCH">去吃午饭的路上</span>
+            </div>
+            <h2 data-en="Pick up your phone. It is still running.">拿起手机，它还在跑。</h2>
+            <p
+              data-en="Switch from computer to phone and the session carries on. The mobile layout keeps the terminal, file previews and the Git panel."
+            >
+              从电脑换到手机，会话继续运行。手机布局保留了终端、文件预览和 Git 面板。
+            </p>
+            <span class="tag" data-en="Devices and workspaces">多设备与工作区</span>
+          </div>
+          <div class="dot"></div>
+          <div class="ch-vis">
+            <div class="duo-phones">
+              <div class="ph">
+                <img
+                  src="assets/readme-mobile-terminal.webp"
+                  width="828"
+                  height="1792"
+                  loading="lazy"
+                  alt="手机端接续同一个 Codex 会话"
+                />
+              </div>
+              <div class="ph">
+                <img
+                  src="assets/readme-mobile-git.webp"
+                  width="828"
+                  height="1792"
+                  loading="lazy"
+                  alt="手机端 Git 面板"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="ch" data-min="910">
+          <div class="ch-copy">
+            <div class="when"><b>15:10</b><span data-en="BETWEEN MEETINGS">两个会之间</span></div>
+            <h2 data-en="It stopped to ask. You know.">它停下来等你，你会知道。</h2>
+            <p
+              data-en="Notifications and waiting reports from every terminal collect in the workspace list. One click takes you back to the terminal that sent them."
+            >
+              各个终端主动发出的通知和等待报告，汇总在工作区列表里。点一下来源，回到对应的终端。
+            </p>
+            <span class="tag" data-en="Terminal notifications">终端通知</span>
+          </div>
+          <div class="dot"></div>
+          <div class="ch-vis">
+            <div class="card pad" style="max-width: 520px">
+              <div class="label">
+                <span data-en="Devices and workspaces">设备与工作区</span><span>3</span>
+              </div>
+              <div class="note" style="--n: 0">
+                <i class="w"></i><b>Claude Code · ios-app</b><time>15:02</time>
+                <p data-en="Waiting for you: approve running the migration?">
+                  等待确认：是否运行数据库迁移？
+                </p>
+              </div>
+              <div class="note" style="--n: 1">
+                <i></i><b>Codex · skylog</b><time>15:07</time>
+                <p data-en="Gust handling is in. All 6 tests pass, nothing committed.">
+                  阵风判断已加入，6 项测试全部通过，尚未提交。
+                </p>
+              </div>
+              <div class="note" style="--n: 2">
+                <i></i><b>Shell · media-kit</b><time>15:09</time>
+                <p data-en="Build finished in 3m 12s.">构建完成，用时 3 分 12 秒。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="ch alt" data-min="1125">
+          <div class="ch-copy">
+            <div class="when">
+              <b>18:45</b><span data-en="ON ANOTHER LAPTOP">另一台电脑上</span>
+            </div>
+            <h2 data-en="Attach from the terminal you are already in.">在手边的终端里，接住它。</h2>
+            <p
+              data-en="<code>kiteline terminal attach</code> joins the same session from your own terminal. Short commands send input, read output and move files."
+            >
+              <code>kiteline terminal attach</code>
+              在本机终端接续同一个会话；短命令可以发送输入、查看输出、上传下载文件。
+            </p>
+            <span class="tag" data-en="Remote CLI">远程 CLI</span>
+          </div>
+          <div class="dot"></div>
+          <div class="ch-vis">
+            <div class="card term" aria-hidden="true">
+              <div class="term-bar"><i></i><i></i><i></i><span>laptop — zsh</span></div>
+              <pre class="t" id="cliTerm" data-rows="13"></pre>
+            </div>
+          </div>
+        </section>
+
+        <section class="ch" data-min="1290">
+          <div class="ch-copy">
+            <div class="when"><b>21:30</b><span data-en="BEFORE BED">睡前</span></div>
+            <h2 data-en="See exactly what it changed today.">看一眼它今天改了什么。</h2>
+            <p
+              data-en="Split terminals, edit files, preview images and Markdown or HTML drafts, review the diff. A web service running on the device opens right in your browser, WebSocket and hot reload included."
+            >
+              终端分屏，编辑文件，预览图片和 Markdown/HTML 草稿，查看 Git 改动。设备上跑着的 Web
+              服务也能直接在浏览器里打开，支持 WebSocket 与热更新。
+            </p>
+            <span class="tag" data-en="Terminal, files, Git, dev preview"
+              >终端、文件、Git 与开发预览</span
+            >
+          </div>
+          <div class="dot"></div>
+          <div class="ch-vis">
+            <div class="card">
+              <img
+                src="assets/desk-dark.webp"
+                width="2200"
+                height="1375"
+                loading="lazy"
+                alt="Kiteline 深色界面：wind.js 的 diff、终端里通过的测试和 Git 面板"
+              />
+            </div>
+          </div>
+        </section>
+
+        <section class="ch alt" data-min="1560">
+          <div class="ch-copy">
+            <div class="when"><b>02:00</b><span data-en="WHILE YOU SLEEP">你睡着了</span></div>
+            <h2 data-en="cron is still awake.">cron 还醒着。</h2>
+            <p
+              data-en="Scheduled tasks run scripts or agents on a cron plan, on the device, and keep the run history. Agents can create tasks themselves."
+            >
+              定时任务按 cron 计划在设备上运行脚本或 agent，并保留运行记录；agent
+              也可以自行创建任务。
+            </p>
+            <span class="tag" data-en="Scheduled tasks">定时任务</span>
+          </div>
+          <div class="dot"></div>
+          <div class="ch-vis">
+            <div class="card pad" style="max-width: 520px; margin-left: auto">
+              <div class="task-h"><b>Nightly tests</b><code>0 2 * * *</code></div>
+              <div class="label">
+                <span>npm test · devbox / skylog</span><span>Asia/Shanghai</span>
+              </div>
+              <div class="runlog">
+                <div style="--n: 0">
+                  <time>02:00</time><span data-en="today">今天</span><em>✔ exit 0</em>
+                </div>
+                <div style="--n: 1">
+                  <time>02:00</time><span data-en="yesterday">昨天</span><em>✔ exit 0</em>
+                </div>
+                <div style="--n: 2">
+                  <time>02:00</time><span data-en="2 days ago">前天</span
+                  ><em class="skip" data-en="skipped">已跳过</em>
+                </div>
+                <div style="--n: 3">
+                  <time>02:00</time><span data-en="3 days ago">3 天前</span><em>✔ exit 0</em>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <section class="end" id="start" data-min="1800">
+        <div class="wrap">
+          <div class="hand" id="hand"></div>
+          <h2 data-en="Tomorrow morning, the line is still in your hand.">
+            明天早上，线还在你手里。
+          </h2>
+          <p
+            data-en="One Linux host with Docker runs the server. Agents on your devices connect outward to it, so nothing on them listens for inbound traffic. Built for personal use."
+          >
+            一台装了 Docker 的 Linux 主机运行 server；设备上的 agent
+            主动向外连接，不需要开放入站端口。面向个人使用。
+          </p>
+          <div class="card term quick">
+            <div class="term-bar"><i></i><i></i><i></i><span>sh</span></div>
+            <pre class="t"><span class="p">$</span> mkdir kiteline && cd kiteline
+<span class="p">$</span> curl -fsSLO https://github.com/Azure99/kiteline/releases/latest/download/compose.yaml
+<span class="p">$</span> docker compose up -d
+<span class="p">$</span> docker compose logs server</pre>
+            <button type="button" data-copy="#quickRaw">
+              <span data-copy-label data-en="Copy">复制</span>
+            </button>
+            <pre id="quickRaw" hidden>
+mkdir kiteline && cd kiteline
+curl -fsSLO https://github.com/Azure99/kiteline/releases/latest/download/compose.yaml
+docker compose up -d
+docker compose logs server</pre
+            >
+          </div>
+          <div class="cta">
+            <a
+              class="btn solid"
+              href="https://github.com/Azure99/kiteline#开始使用"
+              data-en="Read the quick start →"
+              >阅读快速开始 →</a
+            >
+            <a class="btn" href="https://github.com/Azure99/kiteline">GitHub ↗</a>
+          </div>
+          <div class="fine">APACHE-2.0 · <a href="https://www.rainng.com/">Azure99</a></div>
+        </div>
+      </section>
+    </main>
+
+    <script src="assets/proto.js"></script>
+    <script>
+      (function () {
+        "use strict";
+        var KL = window.KL;
+        var rootStyle = document.documentElement.style;
+        var main = document.querySelector("main");
+        var chapters = [].slice.call(document.querySelectorAll(".ch"));
+
+        /* ---------- sky colours keyed to minutes since midnight ---------- */
+        var KEYS = [
+          [480, [143, 192, 228], [188, 217, 236], [233, 241, 246]],
+          [750, [104, 172, 228], [166, 207, 238], [227, 238, 246]],
+          [960, [118, 164, 220], [190, 196, 226], [246, 222, 200]],
+          [1110, [58, 72, 140], [150, 96, 146], [214, 112, 104]],
+          [1200, [20, 30, 78], [52, 50, 112], [120, 70, 110]],
+          [1320, [6, 12, 30], [12, 24, 56], [22, 48, 96]],
+          [1620, [3, 6, 16], [7, 14, 36], [14, 32, 72]],
+          [1800, [12, 26, 60], [40, 78, 140], [128, 136, 190]],
+        ];
+        var LABELS = [
+          [690, "早晨", "morning"],
+          [840, "中午", "midday"],
+          [1050, "下午", "afternoon"],
+          [1200, "傍晚", "evening"],
+          [1410, "夜里", "night"],
+          [1710, "深夜", "small hours"],
+          [9999, "天快亮了", "before dawn"],
+        ];
+        function mix(a, b, k) {
+          return (
+            "rgb(" +
+            Math.round(a[0] + (b[0] - a[0]) * k) +
+            "," +
+            Math.round(a[1] + (b[1] - a[1]) * k) +
+            "," +
+            Math.round(a[2] + (b[2] - a[2]) * k) +
+            ")"
+          );
+        }
+        var sun = document.getElementById("sun");
+        var moon = document.getElementById("moon");
+        var clock = document.getElementById("clock");
+        var clockLabel = document.getElementById("clockLabel");
+        var night = 0;
+        function setTime(minutes) {
+          var i = 1;
+          while (i < KEYS.length - 1 && minutes > KEYS[i][0]) i++;
+          var a = KEYS[i - 1],
+            b = KEYS[i];
+          var k = KL.clamp((minutes - a[0]) / (b[0] - a[0]), 0, 1);
+          rootStyle.setProperty("--s1", mix(a[1], b[1], k));
+          rootStyle.setProperty("--s2", mix(a[2], b[2], k));
+          rootStyle.setProperty("--s3", mix(a[3], b[3], k));
+          document.body.setAttribute("data-phase", minutes >= 1085 ? "night" : "day");
+          night =
+            KL.smooth((minutes - 1090) / 170) * (1 - 0.45 * KL.smooth((minutes - 1680) / 120));
+          rootStyle.setProperty(
+            "--cloud",
+            (1 - KL.smooth((minutes - 1000) / 200) * 0.92).toFixed(3),
+          );
+
+          var w = window.innerWidth,
+            h = window.innerHeight;
+          /* the sun rises at 06:00 and sets at 19:00; the moon follows */
+          var su = (minutes - 360) / 780;
+          sun.style.opacity = su > 1.02 ? 0 : 1;
+          sun.style.transform =
+            "translate3d(" +
+            (w * (0.06 + 0.88 * su)).toFixed(1) +
+            "px," +
+            (h * (0.92 - Math.sin(Math.PI * su) * 0.8)).toFixed(1) +
+            "px,0)";
+          var mu = (minutes - 1120) / 650;
+          moon.style.opacity = mu < 0 ? 0 : KL.smooth(mu * 6) * (1 - KL.smooth((mu - 0.92) * 10));
+          moon.style.transform =
+            "translate3d(" +
+            (w * (0.1 + 0.8 * mu)).toFixed(1) +
+            "px," +
+            (h * (0.9 - Math.sin(Math.PI * KL.clamp(mu, 0, 1)) * 0.72)).toFixed(1) +
+            "px,0)";
+
+          var m = Math.round(minutes) % 1440;
+          clock.textContent =
+            ("0" + Math.floor(m / 60)).slice(-2) + ":" + ("0" + (m % 60)).slice(-2);
+          for (var l = 0; l < LABELS.length; l++) {
+            if (minutes < LABELS[l][0]) {
+              var text = KL.t(LABELS[l][1], LABELS[l][2]);
+              if (clockLabel.textContent !== text) clockLabel.textContent = text;
+              break;
+            }
+          }
+        }
+
+        /* ---------- stars ---------- */
+        (function () {
+          var canvas = document.getElementById("stars");
+          var ctx = canvas.getContext("2d");
+          var stars = [];
+          var w, h, dpr;
+          function resize() {
+            dpr = Math.min(window.devicePixelRatio || 1, 2);
+            w = window.innerWidth;
+            h = window.innerHeight;
+            canvas.width = w * dpr;
+            canvas.height = h * dpr;
+            stars = [];
+            for (var i = 0; i < Math.round((w * h) / 5200); i++) {
+              stars.push([
+                Math.random() * w,
+                Math.random() * h,
+                0.4 + Math.random() * 1.1,
+                Math.random() * 6.28,
+                0.5 + Math.random(),
+              ]);
+            }
+          }
+          function draw(time) {
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.clearRect(0, 0, w, h);
+            if (night > 0.01) {
+              ctx.fillStyle = "#eaf4ff";
+              for (var i = 0; i < stars.length; i++) {
+                var s = stars[i];
+                ctx.globalAlpha =
+                  night * (0.35 + 0.65 * Math.abs(Math.sin((time / 1400) * s[4] + s[3])));
+                ctx.beginPath();
+                ctx.arc(s[0], s[1], s[2], 0, 6.28);
+                ctx.fill();
+              }
+            }
+            if (!KL.reduced) requestAnimationFrame(draw);
+          }
+          window.addEventListener("resize", resize);
+          resize();
+          requestAnimationFrame(draw);
+        })();
+
+        /* ---------- the kite line ---------- */
+        var ghost = document.getElementById("ghost");
+        var live = document.getElementById("live");
+        var bead = document.getElementById("bead");
+        var total = 0;
+        var table = []; /* [y, length] samples for scroll → length lookup */
+        var marks = []; /* [y, minutes] for the clock */
+        function centre(el) {
+          var r = el.getBoundingClientRect();
+          var m = main.getBoundingClientRect();
+          return [r.left + r.width / 2 - m.left, r.top + r.height / 2 - m.top];
+        }
+        function build() {
+          var pts = [centre(document.getElementById("knot"))];
+          marks = [[pts[0][1], 480]];
+          for (var i = 0; i < chapters.length; i++) {
+            var c = centre(chapters[i].querySelector(".dot"));
+            pts.push(c);
+            marks.push([c[1], +chapters[i].getAttribute("data-min")]);
+          }
+          var end = centre(document.getElementById("hand"));
+          pts.push(end);
+          marks.push([end[1], 1800]);
+          var narrow = window.innerWidth <= 880;
+          var d = "M" + pts[0][0].toFixed(1) + " " + pts[0][1].toFixed(1);
+          for (var k = 1; k < pts.length; k++) {
+            var a = pts[k - 1],
+              b = pts[k];
+            var dy = b[1] - a[1];
+            /* the line slackens sideways between chapters, alternating like wind */
+            var swing = narrow ? 0 : (k % 2 ? 1 : -1) * Math.min(110, dy * 0.16);
+            d +=
+              "C" +
+              (a[0] + swing).toFixed(1) +
+              " " +
+              (a[1] + dy * 0.38).toFixed(1) +
+              "," +
+              (b[0] + swing).toFixed(1) +
+              " " +
+              (b[1] - dy * 0.38).toFixed(1) +
+              "," +
+              b[0].toFixed(1) +
+              " " +
+              b[1].toFixed(1);
+          }
+          ghost.setAttribute("d", d);
+          live.setAttribute("d", d);
+          total = live.getTotalLength();
+          live.style.strokeDasharray = total;
+          table = [];
+          var steps = Math.ceil(total / 10);
+          var maxY = -1;
+          for (var s = 0; s <= steps; s++) {
+            var len = (s / steps) * total;
+            var y = live.getPointAtLength(len).y;
+            if (y > maxY) {
+              maxY = y;
+              table.push([y, len]);
+            }
+          }
+        }
+        function lengthAt(y) {
+          if (!table.length || y <= table[0][0]) return 0;
+          var lo = 0,
+            hi = table.length - 1;
+          if (y >= table[hi][0]) return total;
+          while (hi - lo > 1) {
+            var mid = (lo + hi) >> 1;
+            if (table[mid][0] <= y) lo = mid;
+            else hi = mid;
+          }
+          var a = table[lo],
+            b = table[hi];
+          return a[1] + ((y - a[0]) / (b[0] - a[0] || 1)) * (b[1] - a[1]);
+        }
+        function minutesAt(y) {
+          if (y <= marks[0][0]) return marks[0][1];
+          for (var i = 1; i < marks.length; i++) {
+            if (y <= marks[i][0]) {
+              var a = marks[i - 1],
+                b = marks[i];
+              return a[1] + ((y - a[0]) / (b[0] - a[0])) * (b[1] - a[1]);
+            }
+          }
+          return marks[marks.length - 1][1];
+        }
+        function update() {
+          var top = main.getBoundingClientRect().top;
+          var doc = document.documentElement;
+          var atEnd = window.scrollY + window.innerHeight >= doc.scrollHeight - 4;
+          /* the tip of the line sits a little below the middle of the screen */
+          var tipY = atEnd ? 1e9 : -top + window.innerHeight * 0.58;
+          var len = lengthAt(tipY);
+          live.style.strokeDashoffset = total - len;
+          var point = live.getPointAtLength(len);
+          bead.setAttribute("cx", point.x);
+          bead.setAttribute("cy", point.y);
+          setTime(minutesAt(Math.min(tipY, marks[marks.length - 1][0])));
+          for (var i = 0; i < chapters.length; i++)
+            chapters[i].classList.toggle("lit", marks[i + 1][0] <= tipY + 2);
+        }
+        var ticking = false;
+        function onScroll() {
+          if (ticking) return;
+          ticking = true;
+          requestAnimationFrame(function () {
+            ticking = false;
+            update();
+          });
+        }
+        function rebuild() {
+          build();
+          update();
+        }
+        window.addEventListener("scroll", onScroll, { passive: true });
+        window.addEventListener("resize", rebuild);
+        window.addEventListener("load", rebuild);
+        document.addEventListener("kl:lang", function () {
+          requestAnimationFrame(rebuild);
+        });
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(rebuild);
+        [].forEach.call(document.images, function (img) {
+          if (!img.complete) img.addEventListener("load", rebuild);
+        });
+        rebuild();
+
+        /* ---------- chapters come in as the line reaches them ---------- */
+        if ("IntersectionObserver" in window && !KL.reduced) {
+          var io = new IntersectionObserver(
+            function (entries) {
+              for (var i = 0; i < entries.length; i++) {
+                if (entries[i].isIntersecting) {
+                  entries[i].target.classList.add("in");
+                  io.unobserve(entries[i].target);
+                }
+              }
+            },
+            { rootMargin: "0px 0px -18% 0px" },
+          );
+          chapters.forEach(function (c) {
+            io.observe(c);
+          });
+        } else {
+          chapters.forEach(function (c) {
+            c.classList.add("in");
+          });
+        }
+
+        /* ---------- 18:45: attach from another laptop ---------- */
+        (async function cli() {
+          var el = document.getElementById("cliTerm");
+          var term = KL.term(el);
+          var LOCAL = '<span class="ok">laptop</span> <span class="m">~</span> % ';
+          var PS = '<span class="p">skylog</span> <span class="m">main</span> $ ';
+          await KL.visible(el);
+          for (;;) {
+            term.clear();
+            term.prompt(LOCAL);
+            await KL.sleep(900);
+            await term.type(LOCAL, "kiteline terminal attach", 55);
+            await KL.sleep(650);
+            term.clear();
+            await term.out(
+              [
+                PS + "npm test --silent",
+                '<span class="ok">✔ beaufort maps calm air to force 0</span>',
+                '<span class="ok">✔ kites fly between force 2 and 5</span>',
+                '<span class="ok">✔ gusty air grounds the kite</span>',
+                '<span class="in">ℹ pass 6</span>',
+              ],
+              30,
+            );
+            term.prompt(PS);
+            await KL.sleep(1200);
+            await term.type(PS, "git commit -am 'feat(wind): ground kites in gusts'", 48);
+            await term.out(
+              [
+                "[main 3f2c9aa] feat(wind): ground kites in gusts",
+                " 2 files changed, 3 insertions(+), 1 deletion(-)",
+              ],
+              120,
+            );
+            term.prompt(PS);
+            await KL.sleep(1400);
+            await term.out(
+              [
+                '<span class="m">' +
+                  KL.t(
+                    "Ctrl+B d  脱离，会话继续运行",
+                    "Ctrl+B d  detach — the session keeps running",
+                  ) +
+                  "</span>",
+              ],
+              0,
+            );
+            await KL.sleep(2600);
+            term.clear();
+            term.prompt(LOCAL);
+            await KL.sleep(2400);
+          }
+        })();
+      })();
+    </script>
+  </body>
+</html>
