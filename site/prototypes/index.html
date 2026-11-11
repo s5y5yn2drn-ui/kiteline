@@ -194,7 +194,7 @@
       }
       .notes {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: clamp(20px, 3vw, 40px);
         margin-top: clamp(36px, 5vw, 64px);
         padding-top: 28px;
@@ -284,7 +284,7 @@
             </p>
             <dl>
               <dt>本轮</dt>
-              <dd>首屏精简；功能标签调序；自托管说明压缩；页脚字标完整居中</dd>
+              <dd>两张对话框与三张卡片按真实界面重绘；许可证并入按钮行；自托管说明移至标题右侧</dd>
             </dl>
             <a class="open" href="b-sky.html#b1s">查看主线 →</a>
           </div>
@@ -343,15 +343,15 @@
         <section>
           <h3>本轮调整</h3>
           <ul>
+            <li>远程 CLI 的说明改为“人与 Agent 共用同一终端”。</li>
+            <li>首屏：“Apache-2.0 许可”并入按钮行；主标题字号未动。</li>
+            <li>自托管：四条说明改为单行条目，置于标题右侧；拓扑图下方不再留一排。</li>
+            <li>滚动条：名称颜色由 <code>#8d99ab</code> 加深为 <code>#6b798f</code>。</li>
             <li>
-              首屏：小标题改为“Kiteline · 自托管的 Coding Agent
-              工作台”；正文移除并拆分到滚动条标题与“会话接续”区块；版本号移除，保留许可证。
+              “访问端口”“在 CLI
+              中接续”两张对话框，以及设备列表、通知、定时任务三张卡片，改为按工作台真实界面以 HTML
+              重绘，中英文由文字切换。
             </li>
-            <li>
-              功能标签：顺序改为原生 TUI、文件与 Git、远程 CLI、开发预览；远程 CLI 的说明改写。
-            </li>
-            <li>自托管：四条说明压缩为“标题 + 一句短语”，移除连接方式的说明段。</li>
-            <li>页脚：天空区域加高，字标完整显示并居中，视差幅度减半。</li>
           </ul>
         </section>
         <section>
@@ -366,6 +366,30 @@
           </ul>
         </section>
         <section>
+          <h3>重绘与真实界面的差异</h3>
+          <ul>
+            <li>
+              配色、圆角、字号、间距取自 <code>packages/web/src/styles.css</code>
+              与各组件的样式类；界面文案取自
+              <code>packages/web/src/i18n</code>；图标为工作台所用的 Lucide。
+            </li>
+            <li>
+              设备、工作区、会话、任务的名称与程序消息为示例数据；地址与 ID
+              采用文档中的占位写法（<code>https://desk.example</code>、<code>DEVICE_ID</code> 等）。
+            </li>
+            <li>
+              整体等比缩小显示；不可交互，未绘制悬停与焦点状态；对话框未绘制遮罩与其后的工作台。
+            </li>
+            <li>
+              侧栏只取“设备与工作区”一段，任务只取列表中一台设备的分组；二者的外框圆角与投影为本页的卡片样式。
+            </li>
+            <li>
+              手机宽度下沿用桌面端的控件尺寸重新排版；真实界面在 960 px
+              以下会加高按钮与输入框，对话框贴底全宽显示。
+            </li>
+          </ul>
+        </section>
+        <section>
           <h3>说明</h3>
           <ul>
             <li>
@@ -376,7 +400,10 @@
               字体子集已按新文案重新生成；再次修改文案后需重新运行
               <code>tools/build-fonts.py</code>。
             </li>
-            <li>页面内的设备列表、通知与定时任务卡片仍为演示数据。</li>
+            <li>
+              <code>assets/cli-*.webp</code> 与 <code>assets/port-*.webp</code>
+              主线已不再使用，因归档的 B2 页面仍在引用而保留。
+            </li>
           </ul>
         </section>
       </div>

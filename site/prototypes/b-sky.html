@@ -387,23 +387,19 @@
       .cta {
         display: flex;
         flex-wrap: wrap;
+        align-items: center;
         gap: 12px;
         margin-top: 28px;
       }
-      .trust {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px 18px;
-        margin-top: 18px;
+      .cta .lic {
+        margin-left: 8px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.4);
         font-family: var(--mono);
         font-size: 12.5px;
         color: rgba(255, 255, 255, 0.86);
-      }
-      .trust a {
-        border-bottom: 1px solid rgba(255, 255, 255, 0.4);
         transition: border-color 0.3s;
       }
-      .trust a:hover {
+      .cta .lic:hover {
         border-color: #fff;
       }
       /* load sequence: eyebrow, headline (split), paragraph, buttons */
@@ -467,7 +463,7 @@
         margin: 0;
         padding: 6px clamp(18px, 2.5vw, 36px);
         list-style: none;
-        color: #8d99ab;
+        color: #6b798f;
         font-size: clamp(20px, 2.3vw, 28px);
         letter-spacing: -0.02em;
         white-space: nowrap;
@@ -588,11 +584,6 @@
       .frame img {
         width: 100%;
         height: auto;
-      }
-      .frame.dialog {
-        /* a single dialog cropped from the workbench, shown close to its real size */
-        width: min(47%, 520px);
-        border-radius: 14px;
       }
       .float {
         position: absolute;
@@ -744,12 +735,6 @@
           radial-gradient(70% 60% at 10% 0%, #fff 0%, rgba(255, 255, 255, 0) 70%),
           linear-gradient(200deg, #dfeaf8, #fdf0e2);
       }
-      .vig .mini {
-        transition: transform 0.7s var(--ease);
-      }
-      .vig:hover .mini {
-        transform: translateY(-6px) scale(1.015);
-      }
       .vig h3 {
         margin-top: 20px;
         font-size: 19px;
@@ -761,176 +746,419 @@
         font-size: 15.5px;
         color: var(--ink-2);
       }
-      .mini {
-        width: 76%;
-        padding: 10px;
-        border-radius: 12px;
-        background: #fff;
-        font-size: 13px;
-        box-shadow: 0 18px 44px -18px rgba(31, 78, 140, 0.45);
+      /* ---------- workbench replicas ----------
+         Redrawn from the workbench itself: colours, radii and type sizes come from
+         packages/web/src/styles.css and the components' utility classes, and every label is a string
+         from packages/web/src/i18n. Each length is the real pixel value times --px, so a replica
+         scales as a whole; borders stay 1px. Icons are Lucide (ISC License, © Lucide Icons and
+         Contributors), the set the workbench uses. */
+      .ui {
+        --px: 1px;
+        --ui-fg: #323946;
+        --ui-primary: #426aad;
+        --ui-primary-soft: #edf2fb;
+        --ui-border: #e2e6ed;
+        --ui-muted: #f6f7f9;
+        --ui-muted-fg: #596574;
+        --ui-destructive: #bb3a43;
+        --ui-warning: #805800;
+        --ui-attention: #b45f06;
+        --ui-success: #276749;
+        --ui-success-soft: #eaf3ed;
+        font-family:
+          Inter,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        font-size: calc(14 * var(--px));
+        line-height: calc(20 * var(--px));
+        letter-spacing: 0;
+        text-align: left;
+        color: var(--ui-fg);
+        -webkit-user-select: none;
+        user-select: none;
       }
-      .row {
+      .ui input,
+      .ui select {
+        pointer-events: none;
+      }
+      .ui .ic {
+        flex: none;
+        width: calc(16 * var(--px));
+        height: calc(16 * var(--px));
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .ui-xs {
+        font-size: calc(12 * var(--px));
+        line-height: calc(16 * var(--px));
+      }
+      .ui-muted {
+        color: var(--ui-muted-fg);
+      }
+      .ui-mono {
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      }
+      .ui-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: calc(8 * var(--px));
+        min-height: calc(32 * var(--px));
+        padding: calc(6 * var(--px)) calc(12 * var(--px));
+        border: 1px solid var(--ui-border);
+        border-radius: calc(4 * var(--px));
+        background: #fff;
+        font-weight: 500;
+        white-space: nowrap;
+      }
+      .ui-btn.pri {
+        border-color: var(--ui-primary);
+        background: var(--ui-primary);
+        color: #fff;
+      }
+      .ui-btn.sel {
+        background: var(--ui-primary-soft);
+        color: var(--ui-primary);
+      }
+      .ui-ibtn {
+        display: inline-flex;
+        flex: none;
+        align-items: center;
+        justify-content: center;
+        width: calc(32 * var(--px));
+        height: calc(32 * var(--px));
+      }
+
+      /* dialogs: components/ui/dialog.tsx, devices/port-dialog.tsx, cli/cli-dialog.tsx */
+      .frame.dialog.ui {
+        --px: clamp(0.6px, calc((100vw - 40px) * 0.43 / 560), 0.9px);
+        position: relative;
+        width: calc(560 * var(--px));
+        border: 1px solid var(--ui-border);
+        border-radius: calc(6 * var(--px));
+        background: #fff;
+        box-shadow:
+          0 20px 25px -5px rgba(0, 0, 0, 0.1),
+          0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      }
+      .ui-x {
+        position: absolute;
+        top: calc(8 * var(--px));
+        right: calc(8 * var(--px));
+      }
+      .ui-dhead {
+        padding: calc(16 * var(--px)) calc(56 * var(--px)) calc(16 * var(--px)) calc(20 * var(--px));
+        border-bottom: 1px solid var(--ui-border);
+        line-height: calc(21 * var(--px));
+      }
+      .ui-dbody {
+        padding: calc(20 * var(--px));
+      }
+      .ui-dbody > * + * {
+        margin-top: calc(16 * var(--px));
+      }
+      .ui-dfoot {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-end;
+        gap: calc(8 * var(--px));
+        padding: calc(12 * var(--px)) calc(20 * var(--px));
+        border-top: 1px solid var(--ui-border);
+      }
+      .ui-name {
+        font-weight: 500;
+        word-break: break-all;
+      }
+      .ui-field > span:first-child {
+        display: block;
+      }
+      .ui-input {
+        display: block;
+        min-height: calc(36 * var(--px));
+        margin-top: calc(8 * var(--px));
+        padding: calc(6 * var(--px)) calc(10 * var(--px));
+        border: 1px solid var(--ui-border);
+        border-radius: calc(4 * var(--px));
+        background: #fff;
+      }
+      .ui-radios {
+        display: flex;
+        flex-wrap: wrap;
+        gap: calc(8 * var(--px)) calc(20 * var(--px));
+      }
+      .ui-radio {
         display: flex;
         align-items: center;
-        gap: 9px;
-        padding: 7px 9px;
-        border-radius: 8px;
+        gap: calc(8 * var(--px));
+        min-height: calc(32 * var(--px));
       }
-      .row.dev {
-        font-family: var(--mono);
-        font-size: 12px;
-        color: var(--ink-2);
+      .ui-radio input {
+        flex: none;
+        width: calc(13 * var(--px));
+        height: calc(13 * var(--px));
+        margin: 0;
       }
-      .row.dev::after {
-        content: "";
-        width: 7px;
-        height: 7px;
-        margin-left: auto;
-        border-radius: 50%;
-        background: #2fb573;
+      .ui-radio span span {
+        display: block;
       }
-      .row.ws {
-        margin-left: 12px;
+      .ui-url p + p {
+        margin-top: calc(4 * var(--px));
+        word-break: break-all;
+      }
+      .ui-ports {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: calc(4 * var(--px));
+      }
+      .ui-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: calc(8 * var(--px));
+      }
+      .ui-who p + p {
+        margin-top: calc(4 * var(--px));
+      }
+      .ui-select {
+        display: block;
+        width: 100%;
+        min-height: calc(44 * var(--px));
+        margin: calc(4 * var(--px)) 0 0;
+        padding: 0 calc(12 * var(--px));
+        border: 1px solid var(--ui-border);
+        border-radius: calc(4 * var(--px));
+        background-color: #fff;
+        font: inherit;
+        color: inherit;
+      }
+      .ui-cmd {
+        margin: 0 0 calc(8 * var(--px));
+        padding: calc(12 * var(--px));
+        /* the workbench leaves this border on the text colour */
+        border: 1px solid var(--ui-fg);
+        border-radius: calc(4 * var(--px));
+        background: #fff;
+        font-size: calc(12 * var(--px));
+        line-height: calc(16 * var(--px));
+        white-space: pre-wrap;
+      }
+
+      /* sidebar: devices/device-navigation.tsx and the workspace badge in styles.css */
+      .ui-side {
+        width: calc(228 * var(--px));
+        padding: calc(8 * var(--px));
+        border-radius: 10px;
+        background: var(--ui-muted);
+        box-shadow: 0 18px 44px -18px rgba(31, 78, 140, 0.45);
+      }
+      .ui-side > * + * {
+        margin-top: calc(4 * var(--px));
+      }
+      .ui-side-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: calc(4 * var(--px));
+        padding: 0 calc(4 * var(--px));
+      }
+      .ui-side-head > span:first-child {
+        flex: 1;
+        font-size: calc(12 * var(--px));
+        line-height: calc(16 * var(--px));
+        font-weight: 500;
+        color: var(--ui-muted-fg);
+      }
+      .ui-dev,
+      .ui-ws {
+        display: flex;
+        align-items: center;
+      }
+      .ui-dev > .ic {
+        margin: calc(4 * var(--px));
+      }
+      .ui-dev > span {
+        display: flex;
+        flex: 1;
+        align-items: center;
+        gap: calc(6 * var(--px));
+        min-height: calc(36 * var(--px));
+        font-size: calc(12 * var(--px));
+        line-height: calc(16 * var(--px));
+        font-weight: 500;
+      }
+      .ui-dev > span .ic {
+        width: calc(15 * var(--px));
+        height: calc(15 * var(--px));
+        opacity: 0.7;
+      }
+      .ui-ws > span:first-child {
+        display: flex;
+        flex: 1;
+        align-items: center;
+        min-height: calc(36 * var(--px));
+        padding: 0 calc(4 * var(--px)) 0 calc(12 * var(--px));
+        border-left: 2px solid transparent;
+        border-radius: calc(4 * var(--px));
         transition:
           background 0.5s,
           color 0.5s,
-          box-shadow 0.5s;
+          border-color 0.5s;
       }
-      .row.ws.on {
-        background: var(--blue-soft);
-        color: var(--blue);
-        box-shadow: inset 2px 0 0 var(--blue);
+      .ui-ws.on > span:first-child {
+        border-color: var(--ui-primary);
+        background: var(--ui-primary-soft);
+        color: var(--ui-primary);
       }
-      .os {
-        padding: 1px 7px;
-        border-radius: 999px;
-        background: var(--mist);
-        font-family: var(--sans);
-        font-size: 11px;
-        color: var(--muted);
+      .ui-dev.off > span,
+      .ui-ws.off > span:first-child {
+        color: rgba(89, 101, 116, 0.7);
       }
-      .badge {
-        display: grid;
-        place-items: center;
-        min-width: 18px;
-        height: 18px;
-        margin-left: auto;
-        border-radius: 999px;
-        background: var(--blue);
-        font-size: 11px;
+      .ui-badge {
+        display: inline-flex;
+        flex: none;
+        align-items: center;
+        gap: calc(4 * var(--px));
+        min-height: calc(20 * var(--px));
+        padding: 0 calc(4 * var(--px));
+        font-size: calc(11 * var(--px));
+        line-height: calc(16 * var(--px));
+        font-variant-numeric: tabular-nums;
+      }
+      .ui-badge b {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: calc(16 * var(--px));
+        height: calc(16 * var(--px));
+        padding: 0 calc(4 * var(--px));
+        border-radius: calc(8 * var(--px));
         font-weight: 600;
+      }
+      .ui-badge .blocked {
+        background: var(--ui-attention);
         color: #fff;
       }
-      .toast {
-        padding: 12px 14px;
+      .ui-badge .done {
+        background: var(--ui-primary-soft);
+        color: var(--ui-primary);
       }
-      .toast + .toast {
-        margin-top: 8px;
+      .ui-badge .working {
+        background: var(--ui-success-soft);
+        color: var(--ui-success);
       }
-      .mini.stack {
-        padding: 0;
-        background: none;
-        box-shadow: none;
-      }
-      .mini.stack .toast {
-        border-radius: 12px;
+
+      /* status popup: .status-popup and .status-row in styles.css */
+      .ui-pop {
+        width: calc(300 * var(--px));
+        padding: calc(4 * var(--px));
+        border: 1px solid var(--ui-border);
+        border-radius: calc(6 * var(--px));
         background: #fff;
-        box-shadow: 0 14px 34px -16px rgba(31, 78, 140, 0.45);
-        animation: drop 7s var(--ease) infinite;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
       }
-      .mini.stack .toast:nth-child(2) {
-        animation-delay: 1.4s;
-      }
-      @keyframes drop {
-        0%,
-        6% {
-          opacity: 0;
-          transform: translateY(-14px) scale(0.97);
-        }
-        14%,
-        88% {
-          opacity: 1;
-          transform: none;
-        }
-        96%,
-        100% {
-          opacity: 0;
-          transform: translateY(6px);
-        }
-      }
-      .toast b {
+      .ui-row {
         display: flex;
-        justify-content: space-between;
+        align-items: stretch;
+        min-height: calc(46 * var(--px));
+        font-size: calc(13 * var(--px));
+        line-height: calc(18 * var(--px));
+      }
+      .ui-row-main {
+        display: grid;
+        flex: 1;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-content: start;
+        column-gap: calc(8 * var(--px));
+        min-width: 0;
+        padding: calc(5 * var(--px)) calc(4 * var(--px)) calc(5 * var(--px)) calc(8 * var(--px));
+      }
+      .ui-row-main span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .ui-row-main span + span {
+        font-size: calc(12 * var(--px));
+      }
+      .ui-row-main span:last-child {
+        grid-column: 1 / -1;
+        color: var(--ui-muted-fg);
+      }
+      .ui-row .blocked {
+        color: var(--ui-warning);
+      }
+      .ui-row .notice {
+        color: var(--ui-primary);
+      }
+      .ui-row-more {
+        display: flex;
+        flex: none;
+        flex-direction: column;
+        align-items: flex-end;
+        width: calc(36 * var(--px));
+        padding: calc(5 * var(--px)) calc(8 * var(--px)) calc(5 * var(--px)) 0;
+        color: var(--ui-muted-fg);
+      }
+      .ui-row-more .ic {
+        margin: calc(1 * var(--px)) 0;
+      }
+
+      /* scheduled tasks: the list column of tasks/tasks.tsx */
+      .ui-tasks {
+        width: calc(320 * var(--px));
+        overflow: hidden;
+        border-radius: 10px;
+        background: #fff;
+        box-shadow: 0 18px 44px -18px rgba(31, 78, 140, 0.45);
+      }
+      .ui-tasks-dev {
+        padding: calc(8 * var(--px)) calc(12 * var(--px));
+        background: var(--ui-muted);
+        font-size: calc(12 * var(--px));
+        line-height: calc(16 * var(--px));
         font-weight: 500;
       }
-      .toast b time {
-        font-family: var(--mono);
-        font-size: 11px;
-        font-weight: 400;
-        color: var(--muted);
+      .ui-task {
+        min-height: calc(64 * var(--px));
+        padding: calc(8 * var(--px)) calc(12 * var(--px));
+        border-top: 1px solid var(--ui-border);
       }
-      .toast small {
+      .ui-task span {
         display: block;
-        font-size: 11px;
-        color: var(--muted);
       }
-      .toast p {
-        margin-top: 4px;
-        font-size: 12.5px;
-        line-height: 1.45;
-        color: var(--ink-2);
+      .ui-task > span + span {
+        margin-top: calc(4 * var(--px));
+        font-size: calc(12 * var(--px));
+        line-height: calc(16 * var(--px));
+        color: var(--ui-muted-fg);
       }
-      .cron {
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        padding: 4px 4px 10px;
+      .ui-task > span:first-child {
+        overflow: hidden;
+        font-weight: 500;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
-      .cron code {
-        font-family: var(--mono);
-        font-size: 12px;
-        color: var(--blue);
+      .ui-task span span {
+        display: inline;
       }
-      .week {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 5px;
+      .ui-task .failed {
+        color: var(--ui-destructive);
       }
-      .week i {
-        display: grid;
-        place-items: center;
-        aspect-ratio: 1;
-        border-radius: 7px;
-        background: var(--mist);
-        font-family: var(--mono);
-        font-size: 10px;
-        font-style: normal;
-        color: var(--muted);
+      .vig .ui {
+        --px: clamp(0.66px, calc((100vw - 80px) / 1200), 0.95px);
+        transition: transform 0.7s var(--ease);
       }
-      .week i.run {
-        background: var(--blue-soft);
-        color: var(--blue);
-        animation: tick 5.6s ease-in-out infinite;
-        animation-delay: calc(var(--i) * 0.5s);
+      .vig .ui-tasks {
+        --px: clamp(0.62px, calc((100vw - 80px) / 1290), 0.885px);
       }
-      @keyframes tick {
-        0%,
-        8%,
-        30%,
-        100% {
-          background: var(--blue-soft);
-          color: var(--blue);
-        }
-        14% {
-          background: var(--blue);
-          color: #fff;
-        }
-      }
-      .mini .foot {
-        margin-top: 10px;
-        padding: 0 4px 2px;
-        font-size: 11.5px;
-        color: var(--muted);
+      .vig:hover .ui {
+        transform: translateY(-6px) scale(1.015);
       }
 
       /* ---------- phones ---------- */
@@ -1152,21 +1380,27 @@
         text-align: right;
       }
       .facts {
+        margin: 0;
+        font-size: 15px;
+      }
+      .facts div {
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 28px;
-        margin-top: 44px;
-        padding-top: 28px;
+        grid-template-columns: 6.4em minmax(0, 1fr);
+        gap: 16px;
+        padding: 9px 0;
         border-top: 1px solid rgba(160, 195, 240, 0.16);
       }
-      .facts b {
-        display: block;
-        font-size: 17px;
+      .facts div:last-child {
+        border-bottom: 1px solid rgba(160, 195, 240, 0.16);
+      }
+      :lang(en) .facts div {
+        grid-template-columns: 10.5em minmax(0, 1fr);
+      }
+      .facts dt {
         font-weight: 500;
       }
-      .facts p {
-        margin-top: 6px;
-        font-size: 15px;
+      .facts dd {
+        margin: 0;
         color: #b7c4d8;
       }
 
@@ -1490,23 +1724,37 @@
         .start .wrap {
           grid-template-columns: minmax(0, 1fr);
         }
-        .panel {
-          aspect-ratio: 4 / 3.3;
-        }
-        .pane {
-          padding: 7% 5% 0;
-        }
         .frame:not(.dialog) {
           /* on a phone the capture is shown at twice the frame width, anchored on the part that matters */
-          aspect-ratio: 4 / 3.4;
+          aspect-ratio: 4 / 5;
         }
         .frame:not(.dialog) img {
           width: 200%;
           max-width: none;
           transform: translateX(var(--shift, 0%));
         }
-        .frame.dialog {
-          width: 84%;
+        .panel {
+          /* panes stack in one cell, so the panel is as tall as the tallest of them */
+          display: grid;
+          aspect-ratio: auto;
+        }
+        .pane {
+          position: relative;
+          inset: auto;
+          grid-area: 1 / 1;
+          padding: 6% 4%;
+        }
+        .lift {
+          align-self: center;
+        }
+        .frame.dialog.ui {
+          /* laid out again at the width of a phone, as the workbench does, rather than scaled down */
+          --px: min(0.92px, calc((100vw - 40px) * 0.92 / 350));
+          width: 100%;
+        }
+        .vig .ui,
+        .vig .ui-tasks {
+          --px: min(0.95px, calc((100vw - 40px) / 372));
         }
         .float {
           /* on a phone the overlay would cover most of the capture */
@@ -1521,14 +1769,9 @@
         .trio {
           grid-template-columns: minmax(0, 1fr);
         }
-        .facts {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
         .vig-art {
-          aspect-ratio: 16 / 10;
-        }
-        .mini {
-          width: 68%;
+          aspect-ratio: auto;
+          padding: 30px 0;
         }
         .topo {
           grid-template-columns: minmax(0, 1fr) 22px minmax(0, 0.9fr) 22px minmax(0, 1fr);
@@ -1578,6 +1821,14 @@
         .nav-cta .line {
           display: none;
         }
+        .cta .lic {
+          margin-left: 2px;
+        }
+        .facts div,
+        :lang(en) .facts div {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 2px;
+        }
         .pill {
           height: 38px;
           padding: 0 15px;
@@ -1593,8 +1844,6 @@
           transition: none;
         }
         .rise,
-        .week i.run,
-        .mini.stack .toast,
         .wire::after,
         .node.server::after,
         .panel::before,
@@ -1628,6 +1877,44 @@
     </style>
   </head>
   <body data-proto="b" data-variants="b1s b1 b">
+    <!-- Lucide icons (ISC License, © Lucide Icons and Contributors), referenced by the workbench replicas. -->
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+      <symbol id="i-x" viewBox="0 0 24 24">
+        <path d="M18 6 6 18" />
+        <path d="m6 6 12 12" />
+      </symbol>
+      <symbol id="i-copy" viewBox="0 0 24 24">
+        <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+        <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+      </symbol>
+      <symbol id="i-open" viewBox="0 0 24 24">
+        <path d="M15 3h6v6" />
+        <path d="M10 14 21 3" />
+        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+      </symbol>
+      <symbol id="i-refresh" viewBox="0 0 24 24">
+        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+        <path d="M21 3v5h-5" />
+        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+        <path d="M8 16H3v5" />
+      </symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24">
+        <path d="M5 12h14" />
+        <path d="M12 5v14" />
+      </symbol>
+      <symbol id="i-search" viewBox="0 0 24 24">
+        <path d="m21 21-4.34-4.34" />
+        <circle cx="11" cy="11" r="8" />
+      </symbol>
+      <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></symbol>
+      <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></symbol>
+      <symbol id="i-server" viewBox="0 0 24 24">
+        <rect width="20" height="8" x="2" y="2" rx="2" ry="2" />
+        <rect width="20" height="8" x="2" y="14" rx="2" ry="2" />
+        <line x1="6" x2="6.01" y1="6" y2="6" />
+        <line x1="6" x2="6.01" y1="18" y2="18" />
+      </symbol>
+    </svg>
     <header class="nav" id="nav">
       <div class="nav-in">
         <a class="brand" href="#top" aria-label="Kiteline">
@@ -1693,9 +1980,8 @@
               ><span data-en="Source on GitHub">在 GitHub 查看源码</span>
               <span class="arr">↗</span></a
             >
-          </div>
-          <div class="trust rise" id="heroTrust" style="--dl: 1.05s">
             <a
+              class="lic"
               href="https://github.com/Azure99/kiteline/blob/main/LICENSE"
               data-en="Apache-2.0 licensed"
               >Apache-2.0 许可</a
@@ -1806,16 +2092,47 @@
             </div>
             <div class="pane">
               <div class="lift">
-                <div class="frame dialog">
-                  <img
-                    src="assets/cli-zh.webp"
-                    data-src-en="assets/cli-en.webp"
-                    width="1120"
-                    height="956"
-                    loading="lazy"
-                    alt="“在 CLI 中接续”对话框：给出带完整目标 ID 的 kiteline terminal attach 命令"
-                    data-alt-en="The Continue in CLI dialog: a kiteline terminal attach command with the full target IDs"
-                  />
+                <div
+                  class="frame dialog ui"
+                  role="img"
+                  aria-label="“在 CLI 中接续”对话框：给出接续该会话的 kiteline terminal attach 命令"
+                  data-label-en="The Continue in CLI dialog: the kiteline terminal attach command that continues this session"
+                >
+                  <span class="ui-ibtn ui-x"
+                    ><svg class="ic"><use href="#i-x" /></svg
+                  ></span>
+                  <div class="ui-dhead" data-en="Continue in CLI">在 CLI 中接续</div>
+                  <div class="ui-dbody">
+                    <div class="ui-who">
+                      <p>devbox · <span data-en="Online">在线</span></p>
+                      <p>skylog / Claude Code</p>
+                    </div>
+                    <p data-en="Run after logging in to https://desk.example.">
+                      请先登录 https://desk.example，再执行此命令。
+                    </p>
+                    <div class="ui-field">
+                      <span data-en="Local terminal">本机终端</span>
+                      <select class="ui-select" tabindex="-1">
+                        <option>Linux / macOS</option>
+                      </select>
+                    </div>
+                    <div>
+                      <pre class="ui-cmd ui-mono">
+kiteline terminal attach --device 'DEVICE_ID' --workspace 'WORKSPACE_ID' --session 'SESSION_ID'</pre
+                      >
+                      <span class="ui-btn"
+                        ><svg class="ic"><use href="#i-copy" /></svg
+                        ><span data-en="Copy command">复制命令</span></span
+                      >
+                    </div>
+                    <p
+                      class="ui-muted"
+                      data-en="Ctrl+B d detaches; the session keeps running. Ctrl+B Ctrl+B sends Ctrl+B."
+                    >
+                      Ctrl+B d 脱离，会话继续运行；Ctrl+B Ctrl+B 发送 Ctrl+B。
+                    </p>
+                    <span class="ui-btn" data-en="Install and log in">安装与登录</span>
+                  </div>
                 </div>
               </div>
               <pre
@@ -1827,20 +2144,83 @@
             </div>
             <div class="pane">
               <div class="lift">
-                <div class="frame dialog">
-                  <img
-                    src="assets/port-zh.webp"
-                    data-src-en="assets/port-en.webp"
-                    width="1120"
-                    height="1042"
-                    loading="lazy"
-                    alt="“访问端口”对话框：填写端口 4173，列出设备上正在监听的端口与代理地址"
-                    data-alt-en="The Open port dialog: port 4173 entered, with the device's listening ports and the proxy URL"
-                  />
+                <div
+                  class="frame dialog ui"
+                  role="img"
+                  aria-label="“访问端口”对话框：填写端口 4173，列出设备上正在监听的端口与将打开的地址"
+                  data-label-en="The Open port dialog: port 4173 entered, with the device's listening ports and the URL to open"
+                >
+                  <span class="ui-ibtn ui-x"
+                    ><svg class="ic"><use href="#i-x" /></svg
+                  ></span>
+                  <div class="ui-dhead" data-en="Open port">访问端口</div>
+                  <div class="ui-dbody">
+                    <p class="ui-name">devbox</p>
+                    <div class="ui-field">
+                      <span data-en="Port">端口</span>
+                      <span class="ui-input">4173</span>
+                    </div>
+                    <div class="ui-radios">
+                      <div class="ui-radio">
+                        <input type="radio" name="ui-proxy-path" tabindex="-1" checked />
+                        <span
+                          ><span data-en="Strip prefix">普通路径</span
+                          ><span
+                            class="ui-xs ui-muted"
+                            data-en="The service receives the path after the proxy prefix is removed; use this for pages served from the root path."
+                            >去掉代理前缀后交给服务；适合服务按根路径接收请求的页面。</span
+                          ></span
+                        >
+                      </div>
+                      <div class="ui-radio">
+                        <input type="radio" name="ui-proxy-path" tabindex="-1" />
+                        <span
+                          ><span data-en="Keep prefix">保留路径</span
+                          ><span
+                            class="ui-xs ui-muted"
+                            data-en="The service receives the full prefix; configure the project to serve pages and resources under the base below."
+                            >把完整前缀交给服务；项目需要按下方 base 提供页面和资源。</span
+                          ></span
+                        >
+                      </div>
+                    </div>
+                    <p
+                      class="ui-xs ui-muted"
+                      data-en="If the page loads resources from /, check both the project base and WebSocket path."
+                    >
+                      如果页面从 / 开头加载资源，请同时检查项目 base 和 WebSocket 路径。
+                    </p>
+                    <div class="ui-url ui-xs">
+                      <p class="ui-muted" data-en="URL to open">将打开的 URL</p>
+                      <p class="ui-mono">https://desk.example/proxy/DEVICE_ID/4173/</p>
+                    </div>
+                    <div>
+                      <div class="ui-ports ui-xs ui-muted">
+                        <span data-en="Listening ports">监听端口</span>
+                        <span class="ui-ibtn"
+                          ><svg class="ic"><use href="#i-refresh" /></svg
+                        ></span>
+                      </div>
+                      <div class="ui-chips">
+                        <span class="ui-btn">3000</span><span class="ui-btn sel">4173</span
+                        ><span class="ui-btn">5173</span><span class="ui-btn">8080</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ui-dfoot">
+                    <span class="ui-btn"
+                      ><svg class="ic"><use href="#i-copy" /></svg
+                      ><span data-en="Copy link">复制链接</span></span
+                    >
+                    <span class="ui-btn pri"
+                      ><svg class="ic"><use href="#i-open" /></svg
+                      ><span data-en="Open">打开</span></span
+                    >
+                  </div>
                 </div>
               </div>
               <pre class="float" aria-hidden="true"><span class="c">$</span> npm start
-skylog on http://127.0.0.1:4173</pre>
+skylog listening on port 4173</pre>
             </div>
           </div>
 
@@ -1859,10 +2239,7 @@ skylog on http://127.0.0.1:4173</pre>
             </button>
             <button class="tab" type="button" role="tab">
               <b data-en="Remote CLI">远程 CLI</b>
-              <span
-                data-en="People and agents share one terminal; agents can operate devices with short commands."
-                >人与 Agent 共用同一终端；Agent 可用短命令操作设备</span
-              >
+              <span data-en="People and agents share one terminal.">人与 Agent 共用同一终端</span>
             </button>
             <button class="tab" type="button" role="tab">
               <b data-en="Development preview">开发预览</b>
@@ -1893,14 +2270,48 @@ skylog on http://127.0.0.1:4173</pre>
           </div>
           <div class="trio">
             <article class="vig rv">
-              <div class="vig-art" aria-hidden="true">
-                <div class="mini" id="workspaces">
-                  <div class="row dev">devbox <span class="os">Linux</span></div>
-                  <div class="row ws on">skylog <span class="badge">1</span></div>
-                  <div class="row ws">media-kit</div>
-                  <div class="row dev">mac-mini <span class="os">macOS</span></div>
-                  <div class="row ws">ios-app</div>
-                  <div class="row dev">win-desk <span class="os">Windows</span></div>
+              <div class="vig-art">
+                <div
+                  class="ui ui-side"
+                  id="workspaces"
+                  role="img"
+                  aria-label="工作台侧栏的“设备与工作区”列表：devbox 在线，其下有 skylog 与 media-kit；mac-mini 离线，其下有 ios-app"
+                  data-label-en="The Devices and workspaces list in the workbench sidebar: devbox is online with skylog and media-kit; mac-mini is offline with ios-app"
+                >
+                  <div class="ui-side-head">
+                    <span data-en="Devices and workspaces">设备与工作区</span>
+                    <span class="ui-ibtn"
+                      ><svg class="ic"><use href="#i-plus" /></svg
+                    ></span>
+                    <span class="ui-ibtn"
+                      ><svg class="ic"><use href="#i-search" /></svg
+                    ></span>
+                  </div>
+                  <div>
+                    <div class="ui-dev">
+                      <svg class="ic"><use href="#i-down" /></svg>
+                      <span
+                        ><svg class="ic"><use href="#i-server" /></svg>devbox</span
+                      >
+                    </div>
+                    <div class="ui-ws on">
+                      <span>skylog</span>
+                      <span class="ui-badge"><b class="blocked">1</b><b class="done">2</b></span>
+                    </div>
+                    <div class="ui-ws">
+                      <span>media-kit</span>
+                      <span class="ui-badge"><b class="working">1</b></span>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="ui-dev off">
+                      <svg class="ic"><use href="#i-down" /></svg>
+                      <span
+                        ><svg class="ic"><use href="#i-server" /></svg>mac-mini</span
+                      >
+                    </div>
+                    <div class="ui-ws off"><span>ios-app</span></div>
+                  </div>
                 </div>
               </div>
               <h3 data-en="Devices and workspaces">多设备与工作区</h3>
@@ -1911,21 +2322,39 @@ skylog on http://127.0.0.1:4173</pre>
               </p>
             </article>
             <article class="vig rv" style="--dl: 0.1s">
-              <div class="vig-art" aria-hidden="true">
-                <div class="mini stack">
-                  <div class="toast">
-                    <b>Codex <time>10:45</time></b>
-                    <small data-en="Terminal notification · skylog">终端通知 · skylog</small>
-                    <p data-en="Gust handling added. All 6 tests pass; nothing committed yet.">
-                      已加入阵风判断；6 项测试全部通过，尚未提交。
-                    </p>
+              <div class="vig-art">
+                <div
+                  class="ui ui-pop"
+                  role="img"
+                  aria-label="工作区角标的来源列表：Claude Code 待批准，Shell 有通知，Codex 已完成"
+                  data-label-en="The sources behind a workspace badge: Claude Code awaits approval, Shell has a notification, Codex is done"
+                >
+                  <div class="ui-row">
+                    <div class="ui-row-main">
+                      <span>Claude Code</span><span class="blocked" data-en="Approval">待批准</span
+                      ><span>Allow npm run db:migrate?</span>
+                    </div>
+                    <div class="ui-row-more">
+                      <svg class="ic"><use href="#i-right" /></svg>
+                    </div>
                   </div>
-                  <div class="toast">
-                    <b>Claude Code <time>10:42</time></b>
-                    <small data-en="Waiting · ios-app">等待处理 · ios-app</small>
-                    <p data-en="Awaiting confirmation to run the database migration.">
-                      等待确认：是否执行数据库迁移。
-                    </p>
+                  <div class="ui-row">
+                    <div class="ui-row-main">
+                      <span>Shell</span><span class="notice" data-en="Notification">通知</span
+                      ><span>Build finished in 3m 12s</span>
+                    </div>
+                    <div class="ui-row-more">
+                      <svg class="ic"><use href="#i-right" /></svg>
+                    </div>
+                  </div>
+                  <div class="ui-row">
+                    <div class="ui-row-main">
+                      <span>Codex</span><span class="notice" data-en="Done">完成</span
+                      ><span>Gust handling added. All 6 tests pass.</span>
+                    </div>
+                    <div class="ui-row-more">
+                      <svg class="ic"><use href="#i-right" /></svg>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1937,15 +2366,37 @@ skylog on http://127.0.0.1:4173</pre>
               </p>
             </article>
             <article class="vig rv" style="--dl: 0.2s">
-              <div class="vig-art" aria-hidden="true">
-                <div class="mini">
-                  <div class="cron"><b>Daily review</b><code>0 9 * * 1-5</code></div>
-                  <div class="week">
-                    <i>S</i><i class="run" style="--i: 1">M</i><i class="run" style="--i: 2">T</i
-                    ><i class="run" style="--i: 3">W</i><i class="run" style="--i: 4">T</i
-                    ><i class="run" style="--i: 5">F</i><i>S</i>
+              <div class="vig-art">
+                <div
+                  class="ui ui-tasks"
+                  role="img"
+                  aria-label="定时任务列表：devbox 上的 Daily review 已启用，Nightly tests 已启用且上次成功，Weekly backup 已暂停且上次失败"
+                  data-label-en="The scheduled task list on devbox: Daily review is active, Nightly tests is active and last succeeded, Weekly backup is paused and last failed"
+                >
+                  <div class="ui-tasks-dev">devbox</div>
+                  <div class="ui-task">
+                    <span>Daily review</span>
+                    <span data-en="Active">已启用</span>
+                    <span data-en="Next: 11/12/2026, 9:00:00 AM GMT+8"
+                      >下次：2026/11/12 9:00:00 GMT+8</span
+                    >
                   </div>
-                  <div class="foot">./daily-review.sh · 09:00 Asia/Shanghai</div>
+                  <div class="ui-task">
+                    <span>Nightly tests</span>
+                    <span data-en="Active · <span>Succeeded</span>"
+                      >已启用 · <span>成功</span></span
+                    >
+                    <span data-en="Next: 11/12/2026, 2:00:00 AM GMT+8"
+                      >下次：2026/11/12 2:00:00 GMT+8</span
+                    >
+                  </div>
+                  <div class="ui-task">
+                    <span>Weekly backup</span>
+                    <span data-en='Paused · <span class="failed">Failed</span>'
+                      >已暂停 · <span class="failed">失败</span></span
+                    >
+                    <span data-en="No next scheduled run">没有下一次定时执行</span>
+                  </div>
                 </div>
               </div>
               <h3 data-en="Scheduled tasks">定时任务</h3>
@@ -2037,6 +2488,28 @@ skylog on http://127.0.0.1:4173</pre>
                   设备与数据，<em>均由你掌控</em>
                 </h2>
               </div>
+              <dl class="facts">
+                <div>
+                  <dt data-en="Simple to deploy">部署简便</dt>
+                  <dd data-en="One Docker host is enough">一台 Docker 主机即可</dd>
+                </div>
+                <div>
+                  <dt data-en="Your data stays yours">数据自持</dt>
+                  <dd data-en="Credentials and tasks are kept on your own devices">
+                    凭据与任务均存于自有设备
+                  </dd>
+                </div>
+                <div>
+                  <dt data-en="Open source">开源</dt>
+                  <dd data-en="Apache-2.0 licensed">Apache-2.0 许可</dd>
+                </div>
+                <div>
+                  <dt data-en="For personal use">面向个人</dt>
+                  <dd data-en="A signed-in user has the device account's full permissions">
+                    登录者拥有设备账户的全部权限
+                  </dd>
+                </div>
+              </dl>
             </div>
             <div class="topo" aria-hidden="true">
               <div class="node" data-en="Browser<small>desktop</small>">
@@ -2063,28 +2536,6 @@ skylog on http://127.0.0.1:4173</pre>
             <div class="topo-cap" aria-hidden="true">
               <span data-en="clients → server">客户端 → server</span>
               <span data-en="server ← agents (outbound)">server ← agent（主动连接）</span>
-            </div>
-            <div class="facts">
-              <div>
-                <b data-en="Simple to deploy">部署简便</b>
-                <p data-en="One Docker host is enough">一台 Docker 主机即可</p>
-              </div>
-              <div>
-                <b data-en="Your data stays yours">数据自持</b>
-                <p data-en="Credentials and tasks are kept on your own devices">
-                  凭据与任务均存于自有设备
-                </p>
-              </div>
-              <div>
-                <b data-en="Open source">开源</b>
-                <p data-en="Apache-2.0 licensed">Apache-2.0 许可</p>
-              </div>
-              <div>
-                <b data-en="For personal use">面向个人</b>
-                <p data-en="A signed-in user has the device account's full permissions">
-                  登录者拥有设备账户的全部权限
-                </p>
-              </div>
             </div>
           </div>
         </div>
@@ -2699,7 +3150,7 @@ docker compose logs server</pre
               add(el.getBoundingClientRect());
             });
             /* block elements span the full column, so measure their text line by line instead */
-            [].forEach.call(heroCopy.querySelectorAll(".eyebrow, .trust a"), function (el) {
+            [].forEach.call(heroCopy.querySelectorAll(".eyebrow, .cta .lic"), function (el) {
               var range = document.createRange();
               range.selectNodeContents(el);
               [].forEach.call(range.getClientRects(), add);
@@ -2718,7 +3169,7 @@ docker compose logs server</pre
               return;
             }
             /* prefer a route that turns before the kite; go a little past it only if the copy is that wide */
-            var limit = Math.min(w - 40, home[0] + w * 0.12);
+            var limit = Math.min(w - 40, home[0] + w * 0.2);
             for (var xr = ax + (home[0] - ax) * 0.3; ; xr += 16) {
               xr = Math.min(xr, limit);
               route.xr = xr;
@@ -3081,7 +3532,7 @@ docker compose logs server</pre
         var menuRows = [].slice.call(document.querySelectorAll("#menu div"));
         var menuIndex = 3;
         /* workspaces: the selection moves between projects */
-        var wsRows = [].slice.call(document.querySelectorAll("#workspaces .ws"));
+        var wsRows = [].slice.call(document.querySelectorAll("#workspaces .ui-ws:not(.off)"));
         var wsIndex = 0;
         if (!KL.reduced) {
           setInterval(function () {

@@ -60,6 +60,17 @@
       var alt = img.getAttribute(lang === "zh" ? "data-alt-zh" : "data-alt-en");
       if (alt !== null) img.setAttribute("alt", alt);
     }
+    /* drawn interfaces carry their description as a label: aria-label="…" data-label-en="…" */
+    var labelled = document.querySelectorAll("[data-label-en]");
+    for (var k = 0; k < labelled.length; k++) {
+      var node = labelled[k];
+      if (node.getAttribute("data-label-zh") === null)
+        node.setAttribute("data-label-zh", node.getAttribute("aria-label") || "");
+      node.setAttribute(
+        "aria-label",
+        node.getAttribute(lang === "zh" ? "data-label-zh" : "data-label-en"),
+      );
+    }
     KL.splitAll();
     try {
       localStorage.setItem("kiteline.proto.lang", lang);
