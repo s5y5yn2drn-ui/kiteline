@@ -284,7 +284,7 @@
             </p>
             <dl>
               <dt>本轮</dt>
-              <dd>首屏文案重写；Agent 名称改为滚动展示；功能说明压缩；补充版本号与许可证</dd>
+              <dd>首屏精简；功能标签调序；自托管说明压缩；页脚字标完整居中</dd>
             </dl>
             <a class="open" href="b-sky.html#b1s">查看主线 →</a>
           </div>
@@ -344,13 +344,14 @@
           <h3>本轮调整</h3>
           <ul>
             <li>
-              首屏：小标题、主标题与正文按给定文案重写，英文同步；次按钮改为“在 GitHub
-              查看源码”，其下增加版本号与许可证。
+              首屏：小标题改为“Kiteline · 自托管的 Coding Agent
+              工作台”；正文移除并拆分到滚动条标题与“会话接续”区块；版本号移除，保留许可证。
             </li>
-            <li>大小写：泛指时写 Agent；指 Kiteline 设备端组件时保留 agent。英文仍为小写。</li>
-            <li>功能标签：四条说明各压缩为一句。</li>
-            <li>会话接续：删去与三张卡片重复的引导段。</li>
-            <li>自托管：以“数据存放于自有设备”与“开源许可”替换“沿用现有环境”。</li>
+            <li>
+              功能标签：顺序改为原生 TUI、文件与 Git、远程 CLI、开发预览；远程 CLI 的说明改写。
+            </li>
+            <li>自托管：四条说明压缩为“标题 + 一句短语”，移除连接方式的说明段。</li>
+            <li>页脚：天空区域加高，字标完整显示并居中，视差幅度减半。</li>
           </ul>
         </section>
         <section>
@@ -361,24 +362,12 @@
               CLI、OpenCode、Gemini CLI、GitHub Copilot CLI、Cursor CLI、Qwen
               Code、Amp、Aider、goose、Pi、Grok Build、Command Code。
             </li>
-            <li>
-              与候选写法不同的三处：goose 官方为小写；Pi 官方为首字母大写；Copilot CLI 的官方全称为
-              GitHub Copilot CLI。
-            </li>
-            <li>
-              未列入：DeepSeek Harness。其官方 README 仅说明 Web
-              界面，且标注为开发者预览，未见可在终端中交互使用的形态。
-            </li>
+            <li>未列入：DeepSeek Harness。其官方 README 仅说明 Web 界面，且标注为开发者预览。</li>
           </ul>
         </section>
         <section>
           <h3>说明</h3>
           <ul>
-            <li>
-              版本号 v0.4.1 取自仓库的
-              <code>packages/shared/src/version.json</code
-              >，目前写在页面中；整理为正式主页时应改为构建时注入。
-            </li>
             <li>
               “原生 TUI”截图仍为 OpenCode，替换时覆盖 <code>assets/tui-zh.webp</code> 与
               <code>assets/tui-en.webp</code>。
@@ -387,6 +376,7 @@
               字体子集已按新文案重新生成；再次修改文案后需重新运行
               <code>tools/build-fonts.py</code>。
             </li>
+            <li>页面内的设备列表、通知与定时任务卡片仍为演示数据。</li>
           </ul>
         </section>
       </div>

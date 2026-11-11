@@ -359,6 +359,13 @@
       .hero-copy .eyebrow {
         color: rgba(255, 255, 255, 0.92);
       }
+      .eyebrow .name {
+        font-family: var(--serif);
+        font-size: 1.22em;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+        color: #fff;
+      }
       h1 {
         max-width: 17em;
         margin-top: 10px;
@@ -485,11 +492,6 @@
         font-size: 0.78em;
         letter-spacing: 0;
       }
-      .runs .runs-note {
-        margin-top: 14px;
-        font-size: 13px;
-        color: var(--muted);
-      }
 
       /* section heads */
       .head {
@@ -505,6 +507,9 @@
       .head p {
         max-width: 30em;
         color: var(--ink-2);
+      }
+      .head .lead {
+        margin-top: 14px;
       }
 
       /* ---------- workbench panel with tabs ---------- */
@@ -1329,7 +1334,7 @@
       }
       .foot-sky {
         position: relative;
-        height: clamp(220px, 34vw, 430px);
+        height: clamp(240px, 36vw, 520px);
         overflow: hidden;
         border-radius: 26px 26px 0 0;
         background: linear-gradient(
@@ -1349,9 +1354,13 @@
       .wordmark {
         --stagger: 60ms;
         position: absolute;
-        inset: auto 0 -0.16em;
+        inset: 0;
+        /* a row of letters, centred in the sky both ways */
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-family: var(--serif);
-        font-size: clamp(90px, 23.5vw, 340px);
+        font-size: clamp(84px, 22.5vw, 330px);
         font-weight: 500;
         line-height: 1;
         letter-spacing: -0.045em;
@@ -1665,9 +1674,9 @@
           <div
             class="eyebrow rise"
             style="--dl: 0.2s"
-            data-en="A self-hosted workbench for coding agents"
+            data-en='<b class="name">Kiteline</b> · A self-hosted workbench for coding agents'
           >
-            自托管的 Coding Agent 工作台
+            <b class="name">Kiteline</b> · 自托管的 Coding Agent 工作台
           </div>
           <h1
             class="sp"
@@ -1676,15 +1685,7 @@
           >
             <span class="nb">在任何地方，</span><span class="nb">掌控每台设备上的 Agent</span>
           </h1>
-          <p
-            class="rise"
-            id="heroText"
-            style="--dl: 0.9s"
-            data-en="Run any command-line agent in its native TUI, and continue the same session across a browser, a phone and a remote CLI."
-          >
-            以原生 TUI 运行任意命令行 Agent，在浏览器、手机与远程 CLI 之间接续同一会话。
-          </p>
-          <div class="cta rise" id="heroCta" style="--dl: 1.1s">
+          <div class="cta rise" id="heroCta" style="--dl: 0.9s">
             <a class="pill dark" href="#start"
               ><span data-en="Get started">开始部署</span> <span class="arr">↗</span></a
             >
@@ -1693,9 +1694,7 @@
               <span class="arr">↗</span></a
             >
           </div>
-          <!-- The version is copied from packages/shared/src/version.json; wire it to the build when this becomes the real site. -->
-          <div class="trust rise" id="heroTrust" style="--dl: 1.25s">
-            <a href="https://github.com/Azure99/kiteline/releases/latest">v0.4.1</a>
+          <div class="trust rise" id="heroTrust" style="--dl: 1.05s">
             <a
               href="https://github.com/Azure99/kiteline/blob/main/LICENSE"
               data-en="Apache-2.0 licensed"
@@ -1717,7 +1716,9 @@
 
       <section class="runs">
         <div class="wrap rv">
-          <p data-en="Runs any command-line agent">可运行任意命令行 Agent</p>
+          <p data-en="Run any command-line agent in its native TUI">
+            以原生 TUI 运行任意命令行 Agent
+          </p>
         </div>
         <!-- Names as their publishers write them, checked against each official site. Text only: a list
              of examples, not of integrations. The script below clones the track for the loop. -->
@@ -1738,14 +1739,6 @@
             <li>Command Code</li>
             <li class="etc" data-en="and more">等</li>
           </ul>
-        </div>
-        <div class="wrap rv">
-          <p
-            class="runs-note"
-            data-en="Listed as common examples, not as official integrations. Names belong to their respective owners."
-          >
-            以上为常见示例，并非官方集成；各名称归其所有者所有。
-          </p>
         </div>
       </section>
 
@@ -1815,23 +1808,6 @@
               <div class="lift">
                 <div class="frame dialog">
                   <img
-                    src="assets/port-zh.webp"
-                    data-src-en="assets/port-en.webp"
-                    width="1120"
-                    height="1042"
-                    loading="lazy"
-                    alt="“访问端口”对话框：填写端口 4173，列出设备上正在监听的端口与代理地址"
-                    data-alt-en="The Open port dialog: port 4173 entered, with the device's listening ports and the proxy URL"
-                  />
-                </div>
-              </div>
-              <pre class="float" aria-hidden="true"><span class="c">$</span> npm start
-skylog on http://127.0.0.1:4173</pre>
-            </div>
-            <div class="pane">
-              <div class="lift">
-                <div class="frame dialog">
-                  <img
                     src="assets/cli-zh.webp"
                     data-src-en="assets/cli-en.webp"
                     width="1120"
@@ -1849,6 +1825,23 @@ skylog on http://127.0.0.1:4173</pre>
 <span class="c">$</span> kiteline terminal wait
 <span class="c">$</span> kiteline terminal snapshot --tail 40</pre>
             </div>
+            <div class="pane">
+              <div class="lift">
+                <div class="frame dialog">
+                  <img
+                    src="assets/port-zh.webp"
+                    data-src-en="assets/port-en.webp"
+                    width="1120"
+                    height="1042"
+                    loading="lazy"
+                    alt="“访问端口”对话框：填写端口 4173，列出设备上正在监听的端口与代理地址"
+                    data-alt-en="The Open port dialog: port 4173 entered, with the device's listening ports and the proxy URL"
+                  />
+                </div>
+              </div>
+              <pre class="float" aria-hidden="true"><span class="c">$</span> npm start
+skylog on http://127.0.0.1:4173</pre>
+            </div>
           </div>
 
           <div class="tabs rv idle" id="tabs" role="tablist">
@@ -1865,15 +1858,16 @@ skylog on http://127.0.0.1:4173</pre>
               >
             </button>
             <button class="tab" type="button" role="tab">
-              <b data-en="Development preview">开发预览</b>
-              <span data-en="Open a device’s web services in your browser."
-                >在浏览器中访问设备上的服务</span
+              <b data-en="Remote CLI">远程 CLI</b>
+              <span
+                data-en="People and agents share one terminal; agents can operate devices with short commands."
+                >人与 Agent 共用同一终端；Agent 可用短命令操作设备</span
               >
             </button>
             <button class="tab" type="button" role="tab">
-              <b data-en="Remote CLI">远程 CLI</b>
-              <span data-en="Continue the same session from a local terminal."
-                >在本机终端接续同一会话</span
+              <b data-en="Development preview">开发预览</b>
+              <span data-en="Open a device’s web services in your browser."
+                >在浏览器中访问设备上的服务</span
               >
             </button>
           </div>
@@ -1888,6 +1882,13 @@ skylog on http://127.0.0.1:4173</pre>
               <h2 class="sp" data-en="Leave the device. <em>The session continues.</em>">
                 离开设备，<em>会话持续运行</em>
               </h2>
+              <p
+                class="lead rv"
+                style="--dl: 0.15s"
+                data-en="Continue the same session across a browser, a phone and a remote CLI."
+              >
+                在浏览器、手机与远程 CLI 之间接续同一会话。
+              </p>
             </div>
           </div>
           <div class="trio">
@@ -2036,14 +2037,6 @@ skylog on http://127.0.0.1:4173</pre>
                   设备与数据，<em>均由你掌控</em>
                 </h2>
               </div>
-              <div>
-                <p
-                  data-en="The browser communicates only with the server you deploy. Agents on your devices open outbound connections to that server, so the devices need no inbound ports."
-                >
-                  浏览器仅与你部署的 server 通信；设备上的 agent 主动向 server
-                  发起连接，设备无需开放入站端口。
-                </p>
-              </div>
             </div>
             <div class="topo" aria-hidden="true">
               <div class="node" data-en="Browser<small>desktop</small>">
@@ -2073,32 +2066,23 @@ skylog on http://127.0.0.1:4173</pre>
             </div>
             <div class="facts">
               <div>
-                <b data-en="Straightforward to deploy">部署简便</b>
-                <p data-en="A single Linux host with Docker runs the server.">
-                  一台安装了 Docker 的 Linux 主机即可运行 server。
+                <b data-en="Simple to deploy">部署简便</b>
+                <p data-en="One Docker host is enough">一台 Docker 主机即可</p>
+              </div>
+              <div>
+                <b data-en="Your data stays yours">数据自持</b>
+                <p data-en="Credentials and tasks are kept on your own devices">
+                  凭据与任务均存于自有设备
                 </p>
               </div>
               <div>
-                <b data-en="Data stays on your machines">数据存放于自有设备</b>
-                <p
-                  data-en="The owner password, sign-in sessions, CLI credentials and device registry are kept in the server's data directory; workspace registrations and scheduled tasks stay on each device."
-                >
-                  密码、登录会话、CLI 凭据与设备登记保存在 server
-                  数据目录；工作区登记与定时任务保存在各设备上。
-                </p>
+                <b data-en="Open source">开源</b>
+                <p data-en="Apache-2.0 licensed">Apache-2.0 许可</p>
               </div>
               <div>
-                <b data-en="Open source">开源许可</b>
-                <p data-en="The source is released under the Apache-2.0 licence.">
-                  源码以 Apache-2.0 许可发布。
-                </p>
-              </div>
-              <div>
-                <b data-en="Designed for personal use">面向个人使用</b>
-                <p
-                  data-en="A signed-in user holds the file and command permissions of the account that runs the agent."
-                >
-                  登录者拥有 agent 运行账户的文件与命令权限。
+                <b data-en="For personal use">面向个人</b>
+                <p data-en="A signed-in user has the device account's full permissions">
+                  登录者拥有设备账户的全部权限
                 </p>
               </div>
             </div>
@@ -2182,9 +2166,9 @@ docker compose logs server</pre
             </a>
             <p
               style="margin-top: 10px"
-              data-en="A self-hosted workbench for coding agents, released under Apache-2.0. Current version v0.4.1."
+              data-en="A self-hosted workbench for coding agents, released under Apache-2.0."
             >
-              自托管的 Coding Agent 工作台，以 Apache-2.0 许可发布。当前版本 v0.4.1。
+              自托管的 Coding Agent 工作台，以 Apache-2.0 许可发布。
             </p>
           </div>
           <div>
@@ -2227,7 +2211,7 @@ docker compose logs server</pre
             <h4 data-en="Project">项目</h4>
             <a href="https://github.com/Azure99/kiteline">GitHub ↗</a>
             <a href="https://github.com/Azure99/kiteline/releases">Releases ↗</a>
-            <a href="https://www.rainng.com/" data-en="Azure99's blog ↗">雨凝 · Azure99 ↗</a>
+            <a href="https://www.rainng.com/">Blog ↗</a>
           </div>
         </div>
         <div class="foot-sky" id="footSky">
@@ -2715,14 +2699,11 @@ docker compose logs server</pre
               add(el.getBoundingClientRect());
             });
             /* block elements span the full column, so measure their text line by line instead */
-            [].forEach.call(
-              heroCopy.querySelectorAll(".eyebrow, #heroText, .trust a"),
-              function (el) {
-                var range = document.createRange();
-                range.selectNodeContents(el);
-                [].forEach.call(range.getClientRects(), add);
-              },
-            );
+            [].forEach.call(heroCopy.querySelectorAll(".eyebrow, .trust a"), function (el) {
+              var range = document.createRange();
+              range.selectNodeContents(el);
+              [].forEach.call(range.getClientRects(), add);
+            });
             var ax = line.x,
               ay = h - 25;
             var home = kiteHome(narrow);
@@ -2977,7 +2958,7 @@ docker compose logs server</pre
           for (var j = 0; j < lifts.length; j++)
             lifts[j].style.transform = "translate3d(0," + (-q * 44).toFixed(1) + "px,0)";
           var f = centred(footSky, vh);
-          wordmark.style.transform = "translate3d(0," + ((0.12 - f) * 60).toFixed(1) + "px,0)";
+          wordmark.style.transform = "translate3d(0," + (-f * 30).toFixed(1) + "px,0)";
         }
         var ticking = false;
         window.addEventListener(
