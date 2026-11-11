@@ -3,21 +3,17 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Kiteline · 晴空</title>
+    <title>Kiteline · 贯线</title>
     <meta name="theme-color" content="#1b5cb2" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Fragment+Mono&family=Noto+Sans+SC:wght@400;500&family=Noto+Serif+SC:wght@500&display=swap"
-    />
+    <!-- Self-hosted subsets; regenerate with tools/build-fonts.py after changing copy. -->
+    <link rel="stylesheet" href="assets/fonts/fonts.css" />
     <link rel="stylesheet" href="assets/proto.css" />
     <style>
-      /* Layout: a painted daytime sky with a kite on a line; a sheet slides over it and carries the product.
+      /* Layout: a painted daytime sky with a kite on a line; a white sheet slides over it and carries the product.
          One page, three modes chosen by body[data-variant]:
-           b   the baseline
-           b1  the kite line continues down the sheet and every section heading hangs on it
-           b2  the sheet moves from daylight through dusk into a night sky as you scroll */
+           b    the baseline, kept for comparison: the line ends with the hero
+           b1   the kite line continues down the sheet and every section heading hangs on it
+           b1s  b1 with serif headlines */
       :root {
         color-scheme: light;
         --blue: #2875c1; /* rainng.com navigation */
@@ -29,10 +25,6 @@
         --paper: #ffffff;
         --mist: #f4f7fb;
         --hair: #dfe6ef;
-        --art1: #d3e5f7;
-        --art2: #eaf2fb;
-        --art3: #fdf0e2;
-        --art-hi: 1;
         --night: #101b2e;
         --sans:
           "Schibsted Grotesk", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui,
@@ -42,22 +34,11 @@
         --wrap: 1224px;
         --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
       }
-      /* light surfaces keep daytime ink whatever the sheet is doing around them */
-      .day {
-        --ink: #14213a;
-        --ink-2: #44546c;
-        --muted: #76849a;
-        --hair: #dfe6ef;
-        --mist: #f4f7fb;
-        --blue: #2875c1;
-        --blue-soft: #e4eefa;
-        color: var(--ink);
-      }
       html {
-        background: #fff;
+        background: var(--paper);
       }
       body {
-        background: #fff;
+        background: var(--paper);
         color: var(--ink);
         font-family: var(--sans);
         font-size: 17px;
@@ -104,6 +85,35 @@
         /* the second clause takes its own line, so the break never falls inside a word */
         display: block;
       }
+      /* b1s: the whole headline is set in the serif; in Chinese the second clause is marked by colour */
+      body[data-variant="b1s"] h1,
+      body[data-variant="b1s"] h2 {
+        font-family: var(--serif);
+        letter-spacing: -0.022em;
+      }
+      body[data-variant="b1s"] h1 {
+        font-size: clamp(36px, 4.6vw, 62px);
+      }
+      body[data-variant="b1s"] h2 {
+        font-size: clamp(32px, 3.75vw, 47px);
+      }
+      html:lang(zh-CN) body[data-variant="b1s"] h1,
+      html:lang(zh-CN) body[data-variant="b1s"] h2 {
+        font-weight: 500;
+        letter-spacing: 0;
+      }
+      html:lang(zh-CN) body[data-variant="b1s"] h1 {
+        font-size: clamp(34px, 4.3vw, 58px);
+      }
+      html:lang(zh-CN) body[data-variant="b1s"] h2 {
+        font-size: clamp(30px, 3.5vw, 44px);
+      }
+      html:lang(zh-CN) body[data-variant="b1s"] .sheet em {
+        color: var(--blue);
+      }
+      html:lang(zh-CN) body[data-variant="b1s"] .night em {
+        color: #9fd0ff;
+      }
       .eyebrow {
         font-size: 14px;
         color: var(--ink-2);
@@ -144,7 +154,7 @@
       }
       .pill.dark {
         background: var(--ink);
-        color: var(--paper);
+        color: #fff;
       }
       .pill.dark:hover {
         box-shadow: 0 12px 26px -10px rgba(20, 33, 58, 0.65);
@@ -171,6 +181,8 @@
 
       /* ---------- navigation ---------- */
       .nav {
+        --mark-bg: #fff;
+        --mark-fg: #1f63b8;
         position: fixed;
         inset: 0 0 auto;
         z-index: 60;
@@ -180,6 +192,8 @@
         transition: color 0.35s;
       }
       .nav.float {
+        --mark-bg: #426aad;
+        --mark-fg: #fff;
         color: var(--ink);
       }
       .nav-in {
@@ -213,20 +227,24 @@
       .brand {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
         font-family: var(--serif);
         font-size: 25px;
         font-weight: 500;
         letter-spacing: -0.02em;
       }
-      .brand svg {
-        width: 22px;
-        height: 22px;
-        transition: transform 0.6s var(--ease);
-        transform-origin: 20% 90%;
+      .mark {
+        width: 24px;
+        height: 24px;
+        flex: none;
       }
-      .brand:hover svg {
-        transform: rotate(-10deg) translateY(-2px);
+      .mark rect {
+        fill: var(--mark-bg);
+        transition: fill 0.35s;
+      }
+      .mark g {
+        stroke: var(--mark-fg);
+        transition: stroke 0.35s;
       }
       .links {
         display: flex;
@@ -284,8 +302,20 @@
         width: 100%;
         height: 100%;
       }
+      /* three cloud layers: a hazy far field, the main bank, and a few wisps that pass in front of the kite */
+      #skyFar,
       #sky {
         transform-origin: 50% 100%;
+        will-change: transform;
+      }
+      #skyFront {
+        z-index: 3;
+        inset: 5% 0 auto auto;
+        width: 64%;
+        height: 56%;
+        -webkit-mask-image: radial-gradient(ellipse at 56% 46%, #000 28%, transparent 70%);
+        mask-image: radial-gradient(ellipse at 56% 46%, #000 28%, transparent 70%);
+        pointer-events: none;
         will-change: transform;
       }
       .hero::before {
@@ -372,12 +402,9 @@
         margin-top: -26px;
         border-radius: 26px 26px 0 0;
         background: var(--paper);
-        color: var(--ink);
         box-shadow: 0 -20px 60px -30px rgba(20, 33, 58, 0.35);
       }
       section {
-        position: relative;
-        z-index: 1;
         padding-block: clamp(64px, 9vw, 120px);
       }
       .rv {
@@ -410,7 +437,7 @@
         margin: 28px 0 0;
         padding: 0;
         list-style: none;
-        color: var(--muted);
+        color: #8d99ab;
       }
       .runs li {
         font-size: clamp(22px, 2.6vw, 32px);
@@ -557,6 +584,7 @@
         min-width: 190px;
         padding: 6px;
         background: #fff;
+        color: var(--ink);
         font-family: var(--sans);
         font-size: 14px;
         white-space: normal;
@@ -668,21 +696,13 @@
         overflow: hidden;
         border-radius: 20px;
         background:
-          radial-gradient(
-            70% 60% at 80% 0%,
-            rgba(255, 255, 255, var(--art-hi)) 0%,
-            rgba(255, 255, 255, 0) 70%
-          ),
-          linear-gradient(160deg, var(--art1), var(--art2));
+          radial-gradient(70% 60% at 80% 0%, #fff 0%, rgba(255, 255, 255, 0) 70%),
+          linear-gradient(160deg, #d3e5f7, #eaf2fb);
       }
       .vig:nth-child(2) .vig-art {
         background:
-          radial-gradient(
-            70% 60% at 10% 0%,
-            rgba(255, 255, 255, var(--art-hi)) 0%,
-            rgba(255, 255, 255, 0) 70%
-          ),
-          linear-gradient(200deg, var(--art2), var(--art3));
+          radial-gradient(70% 60% at 10% 0%, #fff 0%, rgba(255, 255, 255, 0) 70%),
+          linear-gradient(200deg, #dfeaf8, #fdf0e2);
       }
       .vig .mini {
         transition: transform 0.7s var(--ease);
@@ -900,9 +920,9 @@
       .phone {
         margin: 0;
         overflow: hidden;
-        border: 6px solid #14213a;
+        border: 6px solid var(--ink);
         border-radius: clamp(18px, 2.6vw, 32px);
-        background: #14213a;
+        background: var(--ink);
         box-shadow: 0 30px 60px -28px rgba(20, 33, 58, 0.6);
         opacity: 0;
         transform: translateY(60px) rotate(var(--r, 0deg));
@@ -937,7 +957,6 @@
         position: relative;
         overflow: hidden;
         padding: clamp(28px, 5vw, 64px);
-        border: 1px solid transparent;
         border-radius: 24px;
         background:
           radial-gradient(60% 80% at 100% 0%, rgba(59, 138, 196, 0.35), transparent 60%),
@@ -1175,11 +1194,26 @@
       }
       .code {
         position: relative;
-        border: 1px solid transparent;
         border-radius: 18px;
         background: var(--night);
         color: #d7e1ee;
         box-shadow: 0 30px 70px -30px rgba(16, 27, 46, 0.7);
+      }
+      .code.arrived {
+        /* the line has reached the commands */
+        animation: arrive 1.5s var(--ease);
+      }
+      @keyframes arrive {
+        0% {
+          box-shadow:
+            0 30px 70px -30px rgba(16, 27, 46, 0.7),
+            0 0 0 0 rgba(40, 117, 193, 0.55);
+        }
+        100% {
+          box-shadow:
+            0 30px 70px -30px rgba(16, 27, 46, 0.7),
+            0 0 0 18px rgba(40, 117, 193, 0);
+        }
       }
       .code pre {
         min-height: 9.6em;
@@ -1222,8 +1256,9 @@
 
       /* ---------- footer ---------- */
       footer {
+        --mark-bg: #426aad;
+        --mark-fg: #fff;
         position: relative;
-        z-index: 1;
         margin-top: clamp(64px, 9vw, 120px);
         background: var(--night);
         color: #c9d5e6;
@@ -1241,7 +1276,7 @@
         font-weight: 400;
         color: #8ea3c0;
       }
-      .foot-links div > a {
+      .foot-links div > a:not(.brand) {
         display: block;
         width: fit-content;
         padding: 4px 0;
@@ -1249,7 +1284,7 @@
           color 0.3s,
           transform 0.4s var(--ease);
       }
-      .foot-links div > a:hover {
+      .foot-links div > a:not(.brand):hover {
         color: #fff;
         transform: translateX(4px);
       }
@@ -1285,7 +1320,7 @@
         font-weight: 500;
         line-height: 1;
         letter-spacing: -0.045em;
-        color: #14213a;
+        color: var(--ink);
         text-align: center;
         mix-blend-mode: multiply;
         opacity: 0.92;
@@ -1296,7 +1331,7 @@
         margin: -0.2em -0.02em -0.3em;
       }
 
-      /* ---------- B1: the line continues down the sheet ---------- */
+      /* ---------- b1: the line continues down the sheet ---------- */
       .thread {
         position: absolute;
         inset: 0;
@@ -1307,7 +1342,7 @@
         overflow: visible;
         pointer-events: none;
       }
-      body[data-variant="b1"] .thread {
+      body[data-variant^="b1"] .thread {
         display: block;
       }
       .thread path {
@@ -1322,6 +1357,8 @@
       }
       .thread .live {
         stroke-width: 1.5;
+        stroke-dasharray: 1000;
+        stroke-dashoffset: 1000;
       }
       .thread .tick {
         stroke: var(--blue);
@@ -1336,6 +1373,25 @@
       }
       .thread .ring.lit {
         fill: var(--blue);
+      }
+      .thread .ripple {
+        /* one ring spreading out as the line reaches a hook */
+        fill: none;
+        stroke: var(--blue);
+        stroke-width: 1;
+        transform-box: fill-box;
+        transform-origin: center;
+        animation: spread 1s ease-out forwards;
+      }
+      @keyframes spread {
+        from {
+          opacity: 0.7;
+          transform: scale(1);
+        }
+        to {
+          opacity: 0;
+          transform: scale(4.5);
+        }
       }
       .thread .bead {
         fill: var(--blue);
@@ -1354,7 +1410,7 @@
         }
       }
       /* a heading settles on its hook when the line reaches it */
-      body[data-variant="b1"] .hung h2 {
+      body[data-variant^="b1"] .hung h2 {
         transform-origin: 0 0;
         animation: settle 1.2s var(--ease);
       }
@@ -1369,92 +1425,15 @@
           transform: none;
         }
       }
+      body[data-variant^="b1"] h1 {
+        /* leave the right of the hero to the line and the kite */
+        max-width: min(17em, 58vw);
+      }
       @media (max-width: 1330px) {
-        /* make room for the line in the left gutter */
-        body[data-variant="b1"] .sheet .wrap {
-          padding-left: max(52px, env(safe-area-inset-left, 0px));
+        /* below this width there is no free margin, so the copy gives the line 16px of its gutter */
+        body[data-variant^="b1"] .sheet .wrap {
+          padding-left: max(36px, env(safe-area-inset-left, 0px));
         }
-      }
-
-      /* ---------- B2: daylight to dusk to night ---------- */
-      body[data-variant="b2"] .sheet {
-        box-shadow: none;
-      }
-      body[data-variant="b2"] .sheet :where(h2, h3, p, li, b, span, a, button, div) {
-        transition:
-          color 0.5s,
-          border-color 0.5s;
-      }
-      #nightStars {
-        position: absolute;
-        left: 0;
-        z-index: 0;
-        display: none;
-        width: 100%;
-        pointer-events: none;
-      }
-      body[data-variant="b2"] #nightStars {
-        display: block;
-      }
-      .pocket::before {
-        /* the last warm light on the horizon */
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: radial-gradient(
-          70% 80% at 72% 118%,
-          rgba(255, 150, 110, 0.6),
-          rgba(255, 150, 110, 0) 70%
-        );
-        opacity: 0;
-        transition: opacity 0.8s;
-        pointer-events: none;
-      }
-      body[data-variant="b2"] .pocket::before {
-        opacity: 1;
-      }
-      .pocket .wrap {
-        position: relative;
-      }
-      body[data-variant="b2"] .night,
-      body[data-variant="b2"] .code {
-        border-color: rgba(160, 195, 240, 0.18);
-      }
-      body[data-variant="b2"] footer {
-        background: none;
-      }
-      body[data-variant="b2"] .foot-sky {
-        background: linear-gradient(180deg, #050a18 0%, #0b1836 45%, #1d3f78 100%);
-      }
-      body[data-variant="b2"] .wordmark {
-        color: #dfeaff;
-        mix-blend-mode: normal;
-        opacity: 0.92;
-      }
-      #footStars,
-      .foot-moon {
-        display: none;
-      }
-      body[data-variant="b2"] #footStars,
-      body[data-variant="b2"] .foot-moon {
-        display: block;
-      }
-      .foot-moon {
-        position: absolute;
-        right: 12%;
-        top: 14%;
-        width: clamp(44px, 6vw, 84px);
-        aspect-ratio: 1;
-        filter: drop-shadow(0 0 22px rgba(170, 205, 255, 0.55));
-      }
-      .foot-moon::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        border-radius: 50%;
-        background: radial-gradient(circle at 34% 40%, #fdfefe 0 45%, #d3e2f5 100%);
-        -webkit-mask-image: radial-gradient(circle at 70% 36%, transparent 0 49%, #000 50.5%);
-        mask-image: radial-gradient(circle at 70% 36%, transparent 0 49%, #000 50.5%);
       }
 
       /* ---------- small screens ---------- */
@@ -1532,6 +1511,17 @@
             ),
             linear-gradient(180deg, rgba(20, 60, 130, 0.28), transparent 22%);
         }
+        #skyFront {
+          /* keep the foreground wisps above the copy */
+          height: 30%;
+        }
+        body[data-variant^="b1"] .hero-copy .wrap {
+          /* the line climbs the right margin here; keep the copy clear of it */
+          padding-right: max(34px, env(safe-area-inset-right, 0px));
+        }
+        body[data-variant^="b1"] h1 {
+          max-width: none;
+        }
       }
       @media (max-width: 520px) {
         .nav-cta .line {
@@ -1558,27 +1548,34 @@
         .node.server::after,
         .panel::before,
         .thread .halo,
-        body[data-variant="b1"] .hung h2 {
+        .thread .ripple,
+        .code.arrived,
+        body[data-variant^="b1"] .hung h2 {
           animation: none;
         }
-        body[data-variant="b2"] .sheet :where(h2, h3, p, li, b, span, a, button, div) {
-          transition: none;
+        .thread .ripple {
+          display: none;
         }
       }
     </style>
   </head>
-  <body data-proto="b" data-variants="b b1 b2">
+  <body data-proto="b" data-variants="b1 b1s b">
     <header class="nav" id="nav">
       <div class="nav-in">
         <a class="brand" href="#top" aria-label="Kiteline">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M14.5 2 21 8.5 11.5 15 6 7.5Z" fill="currentColor" />
-            <path
-              d="M11.5 15c-1.6 1.7-.4 3.300-2.700 4.200S6 21.300 3 21.800"
-              stroke="currentColor"
-              stroke-width="1.4"
+          <!-- The product icon from packages/web/public/icons/icon.svg; terminal glyph: Lucide / Feather. -->
+          <svg class="mark" viewBox="0 0 512 512" aria-hidden="true">
+            <rect width="512" height="512" rx="112" />
+            <g
+              transform="translate(96 96) scale(13.333333)"
+              fill="none"
+              stroke-width="1.9"
               stroke-linecap="round"
-            />
+              stroke-linejoin="round"
+            >
+              <path d="M12 19h8" />
+              <path d="m4 17 6-6-6-6" />
+            </g>
           </svg>
           Kiteline
         </a>
@@ -1600,8 +1597,10 @@
     </header>
 
     <div class="hero" id="top">
+      <canvas id="skyFar" aria-hidden="true"></canvas>
       <canvas id="sky" aria-hidden="true"></canvas>
       <canvas id="kite" aria-hidden="true"></canvas>
+      <canvas id="skyFront" aria-hidden="true"></canvas>
       <div class="hero-copy" id="heroCopy">
         <div class="wrap">
           <div
@@ -1621,6 +1620,7 @@
           </h1>
           <p
             class="rise"
+            id="heroText"
             style="--dl: 0.9s"
             data-en="Claude Code, Codex and other command-line tools run as native TUIs on devices you own. Manage multiple devices and projects from a browser, and continue the same terminal session across a computer, a phone and a remote CLI."
           >
@@ -1628,7 +1628,7 @@
             运行在你自己的设备上。通过浏览器统一管理多台设备与项目，同一终端会话可在电脑、手机与远程
             CLI 之间接续。
           </p>
-          <div class="cta rise" style="--dl: 1.1s">
+          <div class="cta rise" id="heroCta" style="--dl: 1.1s">
             <a class="pill dark" href="#start"
               ><span data-en="Get started">开始部署</span> <span class="arr">↗</span></a
             >
@@ -1639,10 +1639,9 @@
     </div>
 
     <main class="sheet" id="sheet">
-      <canvas id="nightStars" aria-hidden="true"></canvas>
       <svg class="thread" id="thread" aria-hidden="true">
         <path class="ghost" id="ghost" />
-        <path class="live" id="live" />
+        <path class="live" id="live" pathLength="1000" />
         <g id="marks"></g>
         <circle class="halo" id="halo" r="8" />
         <circle class="bead" id="bead" r="4" />
@@ -1686,7 +1685,9 @@
           <div class="panel rv" id="panel">
             <div class="pane on">
               <div class="lift">
-                <div class="frame day" style="--shift: -38%">
+                <div class="frame" style="--shift: -38%">
+                  <!-- To replace with a Codex or Claude Code capture: overwrite assets/tui-zh.webp and
+                       assets/tui-en.webp (2000 × 1250, workbench at a 1080 × 675 viewport). -->
                   <img
                     src="assets/tui-zh.webp"
                     data-src-en="assets/tui-en.webp"
@@ -1697,7 +1698,7 @@
                   />
                 </div>
               </div>
-              <div class="float menu day" id="menu" aria-hidden="true">
+              <div class="float menu" id="menu" aria-hidden="true">
                 <div><i></i>Shell</div>
                 <div><i></i>Claude Code</div>
                 <div><i></i>Codex</div>
@@ -1706,7 +1707,7 @@
             </div>
             <div class="pane">
               <div class="lift">
-                <div class="frame day">
+                <div class="frame">
                   <img
                     src="assets/git-zh.webp"
                     data-src-en="assets/git-en.webp"
@@ -1724,7 +1725,7 @@
             </div>
             <div class="pane">
               <div class="lift">
-                <div class="frame dialog day">
+                <div class="frame dialog">
                   <img
                     src="assets/port-zh.webp"
                     data-src-en="assets/port-en.webp"
@@ -1741,7 +1742,7 @@ skylog on http://127.0.0.1:4173</pre>
             </div>
             <div class="pane">
               <div class="lift">
-                <div class="frame dialog day">
+                <div class="frame dialog">
                   <img
                     src="assets/cli-zh.webp"
                     data-src-en="assets/cli-en.webp"
@@ -1816,7 +1817,7 @@ skylog on http://127.0.0.1:4173</pre>
           <div class="trio">
             <article class="vig rv">
               <div class="vig-art" aria-hidden="true">
-                <div class="mini day" id="workspaces">
+                <div class="mini" id="workspaces">
                   <div class="row dev">devbox <span class="os">Linux</span></div>
                   <div class="row ws on">skylog <span class="badge">1</span></div>
                   <div class="row ws">media-kit</div>
@@ -1834,7 +1835,7 @@ skylog on http://127.0.0.1:4173</pre>
             </article>
             <article class="vig rv" style="--dl: 0.1s">
               <div class="vig-art" aria-hidden="true">
-                <div class="mini stack day">
+                <div class="mini stack">
                   <div class="toast">
                     <b>Codex <time>10:45</time></b>
                     <small data-en="Terminal notification · skylog">终端通知 · skylog</small>
@@ -1860,7 +1861,7 @@ skylog on http://127.0.0.1:4173</pre>
             </article>
             <article class="vig rv" style="--dl: 0.2s">
               <div class="vig-art" aria-hidden="true">
-                <div class="mini day">
+                <div class="mini">
                   <div class="cron"><b>Daily review</b><code>0 9 * * 1-5</code></div>
                   <div class="week">
                     <i>S</i><i class="run" style="--i: 1">M</i><i class="run" style="--i: 2">T</i
@@ -2025,7 +2026,7 @@ skylog on http://127.0.0.1:4173</pre>
       <section class="start" id="start">
         <div class="wrap">
           <div class="rv">
-            <div class="eyebrow hook" id="startHook" data-en="Getting started">开始使用</div>
+            <div class="eyebrow hook" data-en="Getting started">开始使用</div>
             <h2 class="sp" style="margin-top: 12px" data-en="Deployed in <em>four commands</em>">
               <em>四条命令</em>完成部署
             </h2>
@@ -2080,7 +2081,22 @@ docker compose logs server</pre
       <footer id="footer">
         <div class="wrap foot-links">
           <div>
-            <a class="brand" href="#top" style="color: #fff">Kiteline</a>
+            <a class="brand" href="#top" style="color: #fff">
+              <svg class="mark" viewBox="0 0 512 512" aria-hidden="true">
+                <rect width="512" height="512" rx="112" />
+                <g
+                  transform="translate(96 96) scale(13.333333)"
+                  fill="none"
+                  stroke-width="1.9"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M12 19h8" />
+                  <path d="m4 17 6-6-6-6" />
+                </g>
+              </svg>
+              Kiteline
+            </a>
             <p
               style="margin-top: 10px"
               data-en="A self-hosted workbench for coding agents, released under Apache-2.0."
@@ -2132,8 +2148,6 @@ docker compose logs server</pre
           </div>
         </div>
         <div class="foot-sky" id="footSky">
-          <canvas id="footStars" aria-hidden="true"></canvas>
-          <div class="foot-moon" aria-hidden="true"></div>
           <canvas id="sky2" aria-hidden="true"></canvas>
           <div class="wordmark sp" id="wordmark" data-chars aria-hidden="true">Kiteline</div>
         </div>
@@ -2146,38 +2160,91 @@ docker compose logs server</pre
         "use strict";
         var KL = window.KL;
         var scrollY = 0;
+        var hero = document.getElementById("top");
         var sheet = document.getElementById("sheet");
-        var TITLES = { b: "Kiteline · 晴空", b1: "Kiteline · 贯线", b2: "Kiteline · 暮色" };
-        function is(name) {
-          return KL.variant === name;
+        var TITLES = {
+          b: "Kiteline · 晴空",
+          b1: "Kiteline · 贯线",
+          b1s: "Kiteline · 贯线（宋体标题）",
+        };
+        function lineMode() {
+          return KL.variant.indexOf("b1") === 0;
+        }
+        function covered() {
+          /* the hero is sticky and stays under the sheet; stop painting it once it cannot be seen */
+          return scrollY >= hero.clientHeight;
         }
 
-        /* ---------- painted clouds ---------- */
-        var skyCanvas = document.getElementById("sky");
-        KL.clouds(skyCanvas, function (t) {
+        /* ---------- painted clouds, in three layers ---------- */
+        var skyFar = document.getElementById("skyFar");
+        var skyNear = document.getElementById("sky");
+        var skyFront = document.getElementById("skyFront");
+        KL.clouds(
+          skyFar,
+          function (t) {
+            return {
+              pause: covered(),
+              lit: [238, 245, 252],
+              low: [252, 242, 228],
+              shade: [156, 184, 230],
+              cover: -0.02,
+              alpha: 0.62,
+              freq: 3.6,
+              drift: t * 0.006 + 9.1,
+            };
+          },
+          { resolution: 300, interval: 170 },
+        );
+        KL.clouds(
+          skyNear,
+          function (t) {
+            return {
+              pause: covered(),
+              lit: [255, 252, 250],
+              low: [255, 246, 228],
+              shade: [150, 176, 226],
+              /* fewer clouds behind the copy on a narrow screen */
+              cover: window.innerWidth < 760 ? -0.04 : 0.03,
+              alpha: 1,
+              freq: 2.2,
+              drift: t * 0.013 + 3.2,
+            };
+          },
+          { resolution: 440, interval: 84 },
+        );
+        KL.clouds(
+          skyFront,
+          function (t) {
+            return {
+              pause: covered(),
+              lit: [255, 255, 255],
+              low: [255, 251, 244],
+              shade: [178, 200, 238],
+              cover: -0.085,
+              base: 0.44,
+              gain: 0,
+              from: 0,
+              alpha: 0.82,
+              freq: 1.5,
+              drift: t * 0.03 + 21.5,
+            };
+          },
+          { resolution: 220, interval: 100 },
+        );
+        KL.clouds(document.getElementById("sky2"), function (t) {
           return {
             lit: [255, 252, 250],
-            low: [255, 246, 228],
-            shade: [150, 176, 226],
-            /* fewer clouds behind the copy on a narrow screen */
-            cover: window.innerWidth < 760 ? -0.03 : 0.05,
+            low: [255, 244, 226],
+            shade: [146, 172, 224],
+            cover: 0.1,
             alpha: 1,
-            drift: t * 0.012 + 3.2,
-          };
-        });
-        KL.clouds(document.getElementById("sky2"), function (t) {
-          var nightSky = is("b2");
-          return {
-            lit: nightSky ? [58, 76, 124] : [255, 252, 250],
-            low: nightSky ? [74, 96, 150] : [255, 244, 226],
-            shade: nightSky ? [14, 22, 48] : [146, 172, 224],
-            cover: nightSky ? 0.02 : 0.1,
-            alpha: nightSky ? 0.7 : 1,
             drift: t * 0.014 + 11.4,
           };
         });
 
-        /* ---------- B1: the kite line through the sheet ---------- */
+        /* ---------- b1: the kite line through the sheet ---------- */
+        /* Progress along the line is a fraction: the path carries pathLength="1000", so the dash does
+           not have to be recomputed while the line sways. */
         var ghost = document.getElementById("ghost");
         var live = document.getElementById("live");
         var marksGroup = document.getElementById("marks");
@@ -2185,15 +2252,56 @@ docker compose logs server</pre
         var halo = document.getElementById("halo");
         var hooks = [].slice.call(document.querySelectorAll(".hook"));
         var codeBlock = document.getElementById("codeBlock");
-        var line = { x: 0, total: 0, table: [], marks: [], shown: 0, target: 0, raf: 0 };
+        var line = {
+          x: 0,
+          geo: null,
+          table: [],
+          marks: [],
+          shown: 0,
+          target: 0,
+          raf: 0,
+          vel: 0,
+          sway: 0,
+          arrived: false,
+        };
         function svgEl(name, attrs) {
           var el = document.createElementNS("http://www.w3.org/2000/svg", name);
           for (var key in attrs) el.setAttribute(key, attrs[key]);
           marksGroup.appendChild(el);
           return el;
         }
+        function pathFor(sway) {
+          /* sway widens the slack between hooks; the hooks themselves do not move */
+          var geo = line.geo;
+          var g = geo.g;
+          var d = "M" + g + " 0";
+          var prev = 0;
+          for (var i = 0; i < geo.ys.length; i++) {
+            var y = geo.ys[i];
+            var dy = y - prev;
+            var s =
+              (i % 2 ? -1 : 1) *
+              Math.min(geo.slack, dy * 0.05) *
+              (1 + sway * (i % 2 ? 1 : -1) * 0.9);
+            d +=
+              "C" +
+              (g + s).toFixed(1) +
+              " " +
+              (prev + dy * 0.4).toFixed(1) +
+              "," +
+              (g + s).toFixed(1) +
+              " " +
+              (y - dy * 0.4).toFixed(1) +
+              "," +
+              g +
+              " " +
+              y.toFixed(1);
+            prev = y;
+          }
+          return d + geo.tail;
+        }
         function buildLine() {
-          if (!is("b1")) return;
+          if (!lineMode()) return;
           var sr = sheet.getBoundingClientRect();
           var narrow = window.innerWidth <= 900;
           var pts = hooks.map(function (hook) {
@@ -2205,35 +2313,24 @@ docker compose logs server</pre
               el: hook,
             };
           });
-          var g = Math.max(18, pts[0].x - 30);
+          /* in the free margin when there is one, otherwise 22px left of the copy */
+          var g = Math.max(12, pts[0].x - (pts[0].x > 60 ? 30 : 22));
           var code = codeBlock.getBoundingClientRect();
           var cx = code.left - sr.left,
             cy = code.top - sr.top;
           var last = pts[pts.length - 1];
           var regular = narrow ? pts : pts.slice(0, -1);
-          var d = "M" + g + " 0";
-          var prev = 0;
           marksGroup.textContent = "";
           line.marks = [];
-          regular.forEach(function (p, i) {
-            var dy = p.y - prev;
-            /* the line hangs slightly slack between hooks, alternating sides */
-            var s = (i % 2 ? -1 : 1) * Math.min(16, dy * 0.06);
-            d +=
-              "C" +
-              (g + s) +
-              " " +
-              (prev + dy * 0.4).toFixed(1) +
-              "," +
-              (g + s) +
-              " " +
-              (p.y - dy * 0.4).toFixed(1) +
-              "," +
-              g +
-              " " +
-              p.y.toFixed(1);
-            prev = p.y;
-            if (p.x - g > 22)
+          /* the knot where the hero's line is handed over to the sheet */
+          line.marks.push({
+            x: g,
+            y: 0,
+            el: svgEl("circle", { class: "ring", cx: g, cy: 0, r: 3.5 }),
+            head: null,
+          });
+          regular.forEach(function (p) {
+            if (p.x - g > 20)
               svgEl("line", { class: "tick", x1: g + 7, y1: p.y, x2: p.x - 8, y2: p.y });
             line.marks.push({
               x: g,
@@ -2242,21 +2339,21 @@ docker compose logs server</pre
               head: p.el.parentNode,
             });
           });
-          var end;
+          var tail, end;
           if (narrow) {
             /* single column: straight down, then a short turn into the commands */
             var ey = cy + 30;
-            d +=
+            tail =
               "L" +
               g +
               " " +
-              (ey - 16) +
+              (ey - 14) +
               "Q" +
               g +
               " " +
               ey +
               "," +
-              (g + 16) +
+              (g + 14) +
               " " +
               ey +
               "L" +
@@ -2264,13 +2361,14 @@ docker compose logs server</pre
               " " +
               ey;
             end = [cx, ey];
+            line.runY = ey - 14;
           } else {
             /* two columns: turn right above the last heading, which hangs below the line, then drop into the commands */
             var ys = last.top - 36;
             var r = 26;
             var xe = cx + 96;
             var hx = last.x + 8;
-            d +=
+            tail =
               "L" +
               g +
               " " +
@@ -2307,45 +2405,54 @@ docker compose logs server</pre
               head: last.el.parentNode,
             });
             end = [xe, cy];
+            line.runY = ys - r;
           }
           line.marks.push({
             x: end[0],
             y: end[1],
             el: svgEl("circle", { class: "ring", cx: end[0], cy: end[1], r: 6.5 }),
             head: null,
+            end: true,
           });
+          line.x = g;
+          line.geo = {
+            g: g,
+            ys: regular.map(function (p) {
+              return p.y;
+            }),
+            slack: narrow ? 5 : 14,
+            tail: tail,
+          };
+          var d = pathFor(0);
           ghost.setAttribute("d", d);
           live.setAttribute("d", d);
-          line.x = g;
-          line.total = live.getTotalLength();
-          live.style.strokeDasharray = line.total;
-          /* sample the path once: scroll position → length, and each hook → its length along the line */
+          /* sample the resting path once: scroll position → fraction, and each hook → its fraction */
+          var total = live.getTotalLength();
           line.table = [];
-          var steps = Math.ceil(line.total / 8);
+          var steps = Math.ceil(total / 8);
           var maxY = -1;
           for (var m = 0; m < line.marks.length; m++) line.marks[m].best = 1e9;
           for (var i = 0; i <= steps; i++) {
-            var len = (i / steps) * line.total;
-            var pt = live.getPointAtLength(len);
+            var fraction = i / steps;
+            var pt = live.getPointAtLength(fraction * total);
             if (pt.y > maxY) {
               maxY = pt.y;
-              line.table.push([pt.y, len]);
+              line.table.push([pt.y, fraction]);
             }
             for (var k = 0; k < line.marks.length; k++) {
               var mark = line.marks[k];
               var dist = Math.abs(pt.x - mark.x) + Math.abs(pt.y - mark.y);
               if (dist < mark.best) {
                 mark.best = dist;
-                mark.len = len;
+                mark.at = fraction;
               }
             }
           }
-          line.runY = narrow ? cy + 14 : last.top - 36 - 26;
         }
-        function lengthAt(y) {
+        function fractionAt(y) {
           var table = line.table;
           if (!table.length || y <= table[0][0]) return 0;
-          if (y >= line.runY) return line.total;
+          if (y >= line.runY) return 1;
           var lo = 0,
             hi = table.length - 1;
           while (hi - lo > 1) {
@@ -2359,170 +2466,66 @@ docker compose logs server</pre
         }
         function paintLine() {
           line.raf = 0;
-          if (!is("b1")) return;
+          if (!lineMode() || !line.geo) return;
           var gap = line.target - line.shown;
-          line.shown = KL.reduced || Math.abs(gap) < 0.6 ? line.target : line.shown + gap * 0.16;
-          live.style.strokeDashoffset = line.total - line.shown;
-          var pt = live.getPointAtLength(line.shown);
+          line.shown = KL.reduced || Math.abs(gap) < 0.0004 ? line.target : line.shown + gap * 0.16;
+          /* the slack follows how fast the page is moving, then settles */
+          line.vel *= 0.88;
+          line.sway += (KL.clamp(line.vel, -1.6, 1.6) - line.sway) * 0.14;
+          var swaying = !KL.reduced && (Math.abs(line.sway) > 0.004 || Math.abs(line.vel) > 0.004);
+          if (swaying) {
+            var d = pathFor(line.sway);
+            ghost.setAttribute("d", d);
+            live.setAttribute("d", d);
+          }
+          live.style.strokeDashoffset = 1000 * (1 - line.shown);
+          var pt = live.getPointAtLength(line.shown * live.getTotalLength());
           bead.setAttribute("cx", pt.x);
           bead.setAttribute("cy", pt.y);
           halo.setAttribute("cx", pt.x);
           halo.setAttribute("cy", pt.y);
           for (var i = 0; i < line.marks.length; i++) {
             var mark = line.marks[i];
-            var lit = line.shown >= mark.len - 2;
-            if (lit !== mark.lit) {
-              mark.lit = lit;
-              mark.el.classList.toggle("lit", lit);
-              if (lit && mark.head) mark.head.classList.add("hung");
+            var lit = line.shown >= mark.at - 0.0008;
+            if (lit === mark.lit) continue;
+            mark.lit = lit;
+            mark.el.classList.toggle("lit", lit);
+            if (!lit) continue;
+            if (mark.head) mark.head.classList.add("hung");
+            if (mark.end) {
+              line.arrived = true;
+              codeBlock.classList.add("arrived");
+            }
+            if (!KL.reduced && line.painted) {
+              var ripple = svgEl("circle", { class: "ripple", cx: mark.x, cy: mark.y, r: 5 });
+              ripple.addEventListener("animationend", function () {
+                this.remove();
+              });
             }
           }
-          if (line.shown !== line.target) line.raf = requestAnimationFrame(paintLine);
+          line.painted = true;
+          if (line.shown !== line.target || swaying) line.raf = requestAnimationFrame(paintLine);
         }
-        function updateLine() {
-          if (!is("b1")) return;
+        function updateLine(delta) {
+          if (!lineMode() || !line.geo) return;
           var top = sheet.getBoundingClientRect().top;
           var doc = document.documentElement;
           var atEnd = window.scrollY + window.innerHeight >= doc.scrollHeight - 4;
           /* with reduced motion the line is simply there, complete */
-          line.target =
-            KL.reduced || atEnd ? line.total : lengthAt(-top + window.innerHeight * 0.62);
+          line.target = KL.reduced || atEnd ? 1 : fractionAt(-top + window.innerHeight * 0.62);
+          line.vel += KL.clamp(delta || 0, -90, 90) * 0.012;
           if (!line.raf) line.raf = requestAnimationFrame(paintLine);
         }
 
-        /* ---------- B2: the sheet follows the hour ---------- */
-        /* paper, mist, hairline, three art tones, soft blue, highlight strength */
-        var TONES = [
-          [
-            [255, 255, 255],
-            [244, 247, 251],
-            [223, 230, 239],
-            [211, 229, 247],
-            [234, 242, 251],
-            [253, 240, 226],
-            [228, 238, 250],
-            1,
-          ],
-          [
-            [255, 246, 236],
-            [251, 233, 217],
-            [240, 222, 205],
-            [250, 221, 196],
-            [238, 226, 240],
-            [255, 214, 186],
-            [250, 230, 214],
-            0.9,
-          ],
-          [
-            [44, 44, 98],
-            [57, 46, 108],
-            [86, 80, 142],
-            [70, 62, 128],
-            [92, 70, 132],
-            [126, 80, 124],
-            [66, 62, 128],
-            0.16,
-          ],
-          [
-            [11, 19, 36],
-            [15, 26, 48],
-            [34, 48, 73],
-            [20, 34, 62],
-            [26, 44, 78],
-            [34, 48, 84],
-            [22, 41, 74],
-            0.06,
-          ],
-        ];
-        var TOKENS = ["--paper", "--mist", "--hair", "--art1", "--art2", "--art3", "--blue-soft"];
-        var INK_DARK = {
-          "--ink": "#14213a",
-          "--ink-2": "#44546c",
-          "--muted": "#76849a",
-          "--blue": "#2875c1",
-        };
-        var INK_LIGHT = {
-          "--ink": "#eef1fa",
-          "--ink-2": "#c6cce2",
-          "--muted": "#969ebe",
-          "--blue": "#8ec5ff",
-        };
-        var boundaries = [
-          document.getElementById("everywhere"),
-          document.getElementById("pocket"),
-          document.getElementById("own"),
-        ];
-        var nightStars = document.getElementById("nightStars");
-        var footer = document.getElementById("footer");
-        var nightAmount = 0;
-        function updateTone() {
-          var style = sheet.style;
-          if (!is("b2")) return;
-          var vh = window.innerHeight;
-          var index = 0,
-            k = 0;
-          /* each tone holds for its section and blends while the next section scrolls in */
-          for (var i = 0; i < boundaries.length; i++) {
-            var y = boundaries[i].getBoundingClientRect().top;
-            var blend = KL.smooth((vh * 0.95 - y) / (vh * 0.6));
-            if (blend >= 1) index = i + 1;
-            else {
-              if (blend > 0) {
-                index = i;
-                k = blend;
-              }
-              break;
-            }
-          }
-          var a = TONES[index],
-            b = TONES[Math.min(index + 1, TONES.length - 1)];
-          var paper;
-          for (var t = 0; t < TOKENS.length; t++) {
-            var c = [
-              a[t][0] + (b[t][0] - a[t][0]) * k,
-              a[t][1] + (b[t][1] - a[t][1]) * k,
-              a[t][2] + (b[t][2] - a[t][2]) * k,
-            ];
-            if (t === 0) paper = c;
-            style.setProperty(
-              TOKENS[t],
-              "rgb(" + Math.round(c[0]) + "," + Math.round(c[1]) + "," + Math.round(c[2]) + ")",
-            );
-          }
-          style.setProperty("--art-hi", (a[7] + (b[7] - a[7]) * k).toFixed(3));
-          /* ink flips once, when the paper passes mid-grey; CSS eases the change */
-          var ink =
-            (paper[0] * 0.299 + paper[1] * 0.587 + paper[2] * 0.114) / 255 < 0.56
-              ? INK_LIGHT
-              : INK_DARK;
-          for (var key in ink) style.setProperty(key, ink[key]);
-          nightAmount = index >= 3 ? 1 : index === 2 ? k : 0;
-        }
-        function clearTone() {
-          TOKENS.concat(["--art-hi", "--ink", "--ink-2", "--muted", "--blue"]).forEach(
-            function (token) {
-              sheet.style.removeProperty(token);
-            },
-          );
-          nightAmount = 0;
-        }
-        function placeStars() {
-          var own = document.getElementById("own");
-          nightStars.style.top = own.offsetTop + "px";
-          nightStars.style.height = footer.offsetTop - own.offsetTop + "px";
-        }
-        placeStars();
-        var starField = KL.stars(nightStars, function () {
-          return is("b2") ? nightAmount : 0;
-        });
-        var footStarField = KL.stars(document.getElementById("footStars"), function () {
-          return is("b2") ? 1 : 0;
-        });
-
         /* ---------- the kite, its line, stars and a passing contrail ---------- */
+        var heroCopy = document.getElementById("heroCopy");
+        var copyShift = 0;
+        var route = { xr: 0, ready: false };
+        /* exposed for checks: whether the planned route is clear of the copy */
+        KL.debug = { route: route, line: line };
+        var redrawKite = function () {};
         (function kite() {
           var canvas = document.getElementById("kite");
-          var hero = canvas.parentNode;
           var ctx = canvas.getContext("2d");
           var w, h, dpr;
           var px = 0.5,
@@ -2547,6 +2550,120 @@ docker compose logs server</pre
                 p: Math.random() * 6.28,
                 big: Math.random() < 0.22,
               });
+            }
+          }
+          function tight() {
+            /* too little room beside the copy for a diagonal: the line climbs the right margin instead */
+            return w < 900;
+          }
+          function kiteHome(narrow) {
+            /* when the line climbs the margin the kite sits further right, close to where it arrives */
+            if (lineMode() && tight()) return [w * 0.8, h * (narrow ? 0.2 : 0.24)];
+            return narrow ? [w * 0.72, h * 0.2] : [w * 0.735, h * 0.27];
+          }
+          /* The hero's line from the sheet's corner (ax, ay) to the kite, as cubic segments
+             [x0, y0, c1x, c1y, c2x, c2y, x1, y1]. It first runs in the band below the buttons, then climbs.
+             Wide: one curve that leaves the band at xr and leans toward the kite.
+             Narrow: along the band to the right margin at xr, round the corner, straight up, then in to
+             the kite. open (0..1) unfolds the shape while the kite is being launched. */
+          function routeSegments(ax, ay, kx, ky, xr, narrow, open) {
+            if (!narrow) {
+              return [
+                [
+                  ax,
+                  ay,
+                  KL.lerp(ax, xr, open),
+                  ay - 8,
+                  KL.lerp(kx, xr + (kx - xr) * 0.5, open),
+                  KL.lerp(ky, ky + (ay - ky) * 0.62, open),
+                  kx,
+                  ky,
+                ],
+              ];
+            }
+            var m = KL.lerp(kx, xr, open);
+            var turn = ay - 46 * open;
+            return [
+              [ax, ay, KL.lerp(ax, m, 0.55), ay - 9, m, ay - 6, m, turn],
+              [
+                m,
+                turn,
+                m,
+                ky + (turn - ky) * 0.45,
+                kx + (m - kx) * 0.7,
+                ky + (ay - ky) * 0.16,
+                kx,
+                ky,
+              ],
+            ];
+          }
+          function routeClear(segments, boxes) {
+            for (var s = 0; s < segments.length; s++) {
+              var c = segments[s];
+              for (var i = 1; i < 48; i++) {
+                var t = i / 48,
+                  u = 1 - t;
+                var x =
+                  u * u * u * c[0] + 3 * u * u * t * c[2] + 3 * u * t * t * c[4] + t * t * t * c[6];
+                var y =
+                  u * u * u * c[1] + 3 * u * u * t * c[3] + 3 * u * t * t * c[5] + t * t * t * c[7];
+                for (var b = 0; b < boxes.length; b++) {
+                  if (x > boxes[b][0] && x < boxes[b][2] && y > boxes[b][1] && y < boxes[b][3])
+                    return false;
+                }
+              }
+            }
+            return true;
+          }
+          /* b1: find the leftmost such route that stays clear of the copy. */
+          function planRoute() {
+            route.ready = false;
+            if (!lineMode() || !line.geo) return;
+            var narrow = w < 760;
+            var top = hero.getBoundingClientRect().top;
+            var pad = narrow ? 5 : 12;
+            var boxes = [];
+            function add(r) {
+              if (r.width > 2 && r.height > 2)
+                boxes.push([
+                  r.left - pad,
+                  r.top - top + copyShift - pad,
+                  r.right + pad,
+                  r.bottom - top + copyShift + pad,
+                ]);
+            }
+            [].forEach.call(heroCopy.querySelectorAll("#heroTitle .sw, .pill"), function (el) {
+              add(el.getBoundingClientRect());
+            });
+            /* block elements span the full column, so measure their text line by line instead */
+            [].forEach.call(heroCopy.querySelectorAll(".eyebrow, #heroText"), function (el) {
+              var range = document.createRange();
+              range.selectNodeContents(el);
+              [].forEach.call(range.getClientRects(), add);
+            });
+            var ax = line.x,
+              ay = h - 25;
+            var home = kiteHome(narrow);
+            route.ready = true;
+            if (tight()) {
+              /* the right margin is the only free column */
+              route.xr = w - 12;
+              route.clear = routeClear(
+                routeSegments(ax, ay, home[0], home[1], route.xr, true, 1),
+                boxes,
+              );
+              return;
+            }
+            /* prefer a route that turns before the kite; go a little past it only if the copy is that wide */
+            var limit = Math.min(w - 40, home[0] + w * 0.12);
+            for (var xr = ax + (home[0] - ax) * 0.3; ; xr += 16) {
+              xr = Math.min(xr, limit);
+              route.xr = xr;
+              route.clear = routeClear(
+                routeSegments(ax, ay, home[0], home[1], xr, false, 1),
+                boxes,
+              );
+              if (route.clear || xr >= limit) return;
             }
           }
           function star(x, y, r, alpha) {
@@ -2612,43 +2729,51 @@ docker compose logs server</pre
 
             /* kite position: wind sway, a lean toward the pointer, and a climb as you scroll */
             var narrow = w < 760;
+            var routed = lineMode() && route.ready;
             var size = (narrow ? 34 : KL.clamp(w / 26, 44, 62)) * KL.lerp(0.55, 1, launch);
-            /* the line is held below the hero; in B1 it is handed to the line on the sheet instead */
+            var home = kiteHome(narrow);
+            var gx = home[0] + Math.sin(t * 0.55) * 20 + Math.sin(t * 1.5) * 7 + (px - 0.5) * 70;
+            var gy = home[1] + Math.cos(t * 0.45) * 13 + (py - 0.5) * 40 - scrollK * h * 0.2;
+            /* the line is held below the hero; in line mode it is handed to the line on the sheet instead */
             var ax = w * (narrow ? 0.14 : 0.3);
             var ay = h + 30;
-            if (is("b1")) {
+            if (routed) {
               ax = line.x;
-              ay = Math.min(h + 30, sheet.getBoundingClientRect().top + 2);
+              ay = Math.min(h + 30, sheet.getBoundingClientRect().top + 1);
             }
-            var gx =
-              w * (narrow ? 0.72 : 0.735) +
-              Math.sin(t * 0.55) * 20 +
-              Math.sin(t * 1.5) * 7 +
-              (px - 0.5) * 70;
-            var gy =
-              h * (narrow ? 0.2 : 0.27) +
-              Math.cos(t * 0.45) * 13 +
-              (py - 0.5) * 40 -
-              scrollK * h * 0.2;
             var kx = KL.lerp(ax + w * 0.1, gx, launch);
             var ky = KL.lerp(h * 0.9, gy, launch);
-            var mx = (ax + kx) / 2 + 40 * launch;
-            var my = (ay + ky) / 2 + h * 0.2 * launch + Math.sin(t * 0.8) * 8;
-            if (is("b1")) {
-              /* handed over at the sheet's corner, the line first runs low, beneath the copy, then climbs */
-              mx = KL.lerp(ax, kx, 0.54);
-              my = ay + 18 + Math.sin(t * 0.8) * 5;
-            }
+            var c2x, c2y;
 
             ctx.strokeStyle = "rgba(255,255,255,.92)";
             ctx.lineWidth = 1.15;
             ctx.beginPath();
             ctx.moveTo(ax, ay);
-            ctx.quadraticCurveTo(mx, my, kx, ky);
+            if (routed) {
+              var segments = routeSegments(
+                ax,
+                ay,
+                kx,
+                ky,
+                route.xr + Math.sin(t * 0.8) * 3,
+                tight(),
+                launch,
+              );
+              for (var g = 0; g < segments.length; g++) {
+                var seg = segments[g];
+                ctx.bezierCurveTo(seg[2], seg[3], seg[4], seg[5], seg[6], seg[7]);
+                c2x = seg[4];
+                c2y = seg[5];
+              }
+            } else {
+              c2x = (ax + kx) / 2 + 40 * launch;
+              c2y = (ay + ky) / 2 + h * 0.2 * launch + Math.sin(t * 0.8) * 8;
+              ctx.quadraticCurveTo(c2x, c2y, kx, ky);
+            }
             ctx.stroke();
 
             /* orientation follows the end of the line */
-            var angle = Math.atan2(ky - my, kx - mx) + Math.PI / 2 + Math.sin(t * 1.1) * 0.05;
+            var angle = Math.atan2(ky - c2y, kx - c2x) + Math.PI / 2 + Math.sin(t * 1.1) * 0.05;
             ctx.save();
             ctx.translate(kx, ky);
             ctx.rotate(angle);
@@ -2708,16 +2833,17 @@ docker compose logs server</pre
             ctx.restore();
           }
           function loop(time) {
-            if (scrollY < h) draw(time);
+            if (!covered()) draw(time);
             requestAnimationFrame(loop);
           }
           function still() {
             draw(performance.now());
           }
-          window.addEventListener("resize", function () {
+          redrawKite = function () {
             resize();
+            planRoute();
             if (KL.reduced) still();
-          });
+          };
           window.addEventListener("pointermove", function (event) {
             tx = event.clientX / window.innerWidth;
             ty = event.clientY / window.innerHeight;
@@ -2727,37 +2853,39 @@ docker compose logs server</pre
             /* a still picture; redrawn only when the line's anchor moves */
             still();
             window.addEventListener("scroll", still, { passive: true });
-            document.addEventListener("kl:variant", function () {
-              requestAnimationFrame(still);
-            });
           } else requestAnimationFrame(loop);
         })();
 
         /* ---------- scroll-linked motion ---------- */
         var nav = document.getElementById("nav");
-        var heroCopy = document.getElementById("heroCopy");
         var pars = [].slice.call(document.querySelectorAll(".par"));
         var phoneBox = document.getElementById("phones");
         var lifts = [].slice.call(document.querySelectorAll(".lift"));
         var panel = document.getElementById("panel");
         var wordmark = document.getElementById("wordmark");
         var footSky = document.getElementById("footSky");
+        var frontX = 0;
         function centred(el, vh) {
           /* −0.5 when the element is about to enter from below, +0.5 when it leaves at the top */
           var r = el.getBoundingClientRect();
           return KL.clamp((vh - r.top) / (vh + r.height), 0, 1) - 0.5;
         }
         function onScroll() {
+          var delta = window.scrollY - scrollY;
           scrollY = window.scrollY;
           var vh = window.innerHeight;
           nav.classList.toggle("float", scrollY > vh * 0.62);
-          updateLine();
-          updateTone();
+          updateLine(delta);
           if (KL.reduced) return;
           var k = KL.clamp(scrollY / vh, 0, 1);
-          heroCopy.style.transform = "translate3d(0," + (-k * 70).toFixed(1) + "px,0)";
+          copyShift = k * 70;
+          heroCopy.style.transform = "translate3d(0," + (-copyShift).toFixed(1) + "px,0)";
           heroCopy.style.opacity = (1 - k * 1.3).toFixed(3);
-          skyCanvas.style.transform = "scale(" + (1 + k * 0.1).toFixed(4) + ")";
+          /* depth: the far layer barely moves, the main bank swells, the foreground wisps slide past */
+          skyFar.style.transform = "scale(" + (1 + k * 0.04).toFixed(4) + ")";
+          skyNear.style.transform = "scale(" + (1 + k * 0.1).toFixed(4) + ")";
+          skyFront.style.transform =
+            "translate3d(" + frontX.toFixed(1) + "px," + (-k * 90).toFixed(1) + "px,0)";
           var p = centred(phoneBox, vh);
           for (var i = 0; i < pars.length; i++) {
             pars[i].style.transform =
@@ -2782,21 +2910,33 @@ docker compose logs server</pre
           },
           { passive: true },
         );
+        if (!KL.reduced && !KL.touch) {
+          /* the foreground wisps drift a little against the pointer */
+          window.addEventListener("pointermove", function (event) {
+            frontX = (0.5 - event.clientX / window.innerWidth) * 26;
+            if (!covered())
+              skyFront.style.transform =
+                "translate3d(" +
+                frontX.toFixed(1) +
+                "px," +
+                (-KL.clamp(scrollY / window.innerHeight, 0, 1) * 90).toFixed(1) +
+                "px,0)";
+          });
+        }
 
         /* ---------- variants ---------- */
         function relayout() {
-          placeStars();
-          starField.resize();
-          footStarField.resize();
           buildLine();
-          line.shown = Math.min(line.shown, line.total);
+          redrawKite();
           onScroll();
         }
         function applyVariant() {
-          document.title = TITLES[KL.variant] || TITLES.b;
-          if (!is("b2")) clearTone();
-          if (is("b1")) line.shown = 0;
-          /* the gutter padding of B1 changes the layout; measure after it has applied */
+          document.title = TITLES[KL.variant] || TITLES.b1;
+          if (lineMode()) {
+            line.shown = 0;
+            line.painted = false;
+          }
+          /* the gutter and the headline face change the layout; measure after they have applied */
           requestAnimationFrame(relayout);
         }
         document.addEventListener("kl:variant", applyVariant);
@@ -2805,11 +2945,18 @@ docker compose logs server</pre
         });
         window.addEventListener("resize", relayout);
         window.addEventListener("load", relayout);
-        if (document.fonts && document.fonts.ready) document.fonts.ready.then(relayout);
+        if (document.fonts) {
+          if (document.fonts.ready) document.fonts.ready.then(relayout);
+          /* a face used for the first time (the serif headline) arrives after the switch */
+          if (document.fonts.addEventListener)
+            document.fonts.addEventListener("loadingdone", relayout);
+        }
         [].forEach.call(document.images, function (img) {
           if (!img.complete) img.addEventListener("load", relayout);
         });
         applyVariant();
+        /* once the hero's entrance has finished, its copy is where the route should avoid it */
+        setTimeout(redrawKite, 2400);
 
         /* in-page links scroll without touching the hash, which names the variant */
         document.addEventListener("click", function (event) {
@@ -2898,6 +3045,9 @@ docker compose logs server</pre
           var term = KL.term(el, { max: 8 });
           var PS = '<span class="c">$</span> ';
           await KL.visible(el);
+          /* in line mode the typing starts when the line arrives, or shortly after if it is slow to */
+          for (var waited = 0; lineMode() && !line.arrived && waited < 3000; waited += 120)
+            await KL.sleep(120);
           term.clear();
           term.prompt(PS);
           await KL.sleep(500);

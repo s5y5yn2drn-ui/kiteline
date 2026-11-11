@@ -292,8 +292,14 @@
     }
     function draw(time) {
       var st = getState(time / 1000);
+      /* a layer the caller knows to be covered is left as it is */
+      if (st.pause) return;
       var data = image.data;
-      var f = 2.3 / h;
+      /* optional per-layer shape: feature size, and where the bank of cloud sits */
+      var f = (st.freq || 2.3) / h;
+      var base = st.base === undefined ? 0.4 : st.base;
+      var gain = st.gain === undefined ? 0.3 : st.gain;
+      var from = st.from === undefined ? 0.4 : st.from;
       if (st.alpha <= 0.004) {
         ctx.clearRect(0, 0, w, h);
         return;
@@ -301,7 +307,7 @@
       for (var y = 0; y < h; y++) {
         var v = y / (h - 1);
         /* more cloud toward the horizon, wisps above */
-        var bank = 0.4 + st.cover + 0.3 * KL.smooth((v - 0.4) / 0.5) - 0.1 * (1 - v);
+        var bank = base + st.cover + gain * KL.smooth((v - from) / 0.5) - 0.1 * (1 - v);
         var warm = KL.smooth((v - 0.5) / 0.5);
         var lr = st.lit[0] + (st.low[0] - st.lit[0]) * warm,
           lg = st.lit[1] + (st.low[1] - st.lit[1]) * warm,
@@ -328,7 +334,7 @@
     }
     var last = -1e9;
     function loop(time) {
-      if (visible && time - last > 66) {
+      if (visible && time - last > (opts.interval || 66)) {
         last = time;
         draw(time);
       }
@@ -501,11 +507,13 @@
   var VARIANT_NAMES = {
     b: ["B 基准", "B Base"],
     b1: ["B1 贯线", "B1 Line"],
+    b1s: ["B1 宋体标题", "B1 Serif"],
     b2: ["B2 暮色", "B2 Dusk"],
   };
   var ARCHIVED = {
     a: ["A 夜航 · 已归档", "A Night · archived"],
     c: ["C 昼夜 · 已归档", "C Day · archived"],
+    b2: ["B2 暮色 · 已归档", "B2 Dusk · archived"],
   };
   function buildSwitcher() {
     var current = document.body.getAttribute("data-proto");
@@ -513,7 +521,14 @@
     var bar = document.createElement("div");
     bar.className = "kl-switch";
     var html = '<a class="kl-switch-home" href="index.html" data-en="◂ Overview">◂ 总览</a>';
-    if (variants.length) {
+    if (ARCHIVED[current]) {
+      html +=
+        '<span class="kl-switch-note" data-en="' +
+        ARCHIVED[current][1] +
+        '">' +
+        ARCHIVED[current][0] +
+        "</span>";
+    } else if (variants.length) {
       for (var i = 0; i < variants.length; i++) {
         var names = VARIANT_NAMES[variants[i]] || [variants[i], variants[i]];
         html +=
@@ -525,13 +540,6 @@
           names[0] +
           "</button>";
       }
-    } else if (ARCHIVED[current]) {
-      html +=
-        '<span class="kl-switch-note" data-en="' +
-        ARCHIVED[current][1] +
-        '">' +
-        ARCHIVED[current][0] +
-        "</span>";
     }
     html += '<button type="button" id="kl-lang" aria-label="Switch language">EN</button>';
     bar.innerHTML = html;
